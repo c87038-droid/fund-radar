@@ -1,0 +1,43 @@
+﻿我的基金雷達｜重新上傳 GitHub 操作說明（7 檔基金）
+====================================================
+
+你現在的儲存庫：https://github.com/c87038-droid/fund-radar
+
+【重要】ZIP 必須先在電腦解壓縮，不能把 ZIP 當成單一檔案上傳。
+本 ZIP 最重要的檔案：
+  .github/workflows/update-and-deploy.yml
+此路徑的開頭有一個點「.」，檔名必須完整保留，才能讓 GitHub Actions 顯示工作流程。
+
+目前你的 GitHub 已經上傳 index.html、data、scripts、.nojekyll 等檔案。
+建議只補上缺少的自動部署檔案，以免重複上傳：
+
+方法 A｜從 GitHub 網頁直接建立工作流程（最穩定）
+1. 登入 https://github.com/c87038-droid/fund-radar
+2. 點 Code > Add file > Create new file
+3. 在檔名欄完整輸入 .github/workflows/update-and-deploy.yml
+   （GitHub 會根據斜線自動建立資料夾）
+4. 用文字編輯器打開本 ZIP 裡的 .github/workflows/update-and-deploy.yml
+   將全部內容複製到 GitHub 編輯區
+5. 點 Commit changes（提交變更）
+6. 進 Settings > Pages > Build and deployment > Source 選 GitHub Actions
+7. 進 Actions，點「基金淨值與配息自動更新」> Run workflow。
+
+方法 B｜解壓縮 ZIP 後上傳整份
+1. 解壓縮，確認看到 index.html、data、scripts、.github 等項目
+2. 在儲存庫選 Code > Add file > Upload files
+3. 把解壓縮後所有檔案和資料夾上傳到根目錄，不要多一層資料夾
+4. 確認上傳清單包含 .github/workflows/update-and-deploy.yml
+5. 按 Commit changes，然後依照方法 A 的第 6–7 步設定。
+
+如果在 Windows 看不到 .github：
+檔案總管 > 檢視 > 顯示 > 隱藏的項目（視版本可能略有不同）。
+也可直接使用上方方法 A，不必處理隱藏資料夾。
+
+網站網址（部署成功後）：https://c87038-droid.github.io/fund-radar/
+請在 Settings > Pages 確認有 View site / Visit site，並測試。
+
+【資料更新提醒】
+- 網頁開啟時會讀取 GitHub 上最後發布的資料，不是即時向基金公司查詢。
+- GitHub Actions 會排程嘗試更新；官方淨值及配息資料可能有延遲。
+- 需在 Actions 執行後，確認 7 檔資料是否成功對應，失敗時要查看執行紀錄。
+- 不要把個人持有單位數或其他私密投資紀錄提交到公開儲存庫。
