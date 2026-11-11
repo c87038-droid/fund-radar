@@ -1,0 +1,25 @@
+【基金雷達｜2026-11-12 重新上傳修正版】
+本版只有 7 檔使用者指定的共同基金，完全沒有股票或大盤資料。
+
+先讓網站可以開啟（最簡單）：
+1. 解壓縮完整 ZIP，取出 index.html；也可直接下載獨立 index.html。
+2. 進入現有 GitHub 儲存庫的 Code → Add file → Upload files。
+3. 上傳此版 index.html（取代舊版同名檔案）並 Commit changes。
+4. Settings → Pages → Source 選「Deploy from a branch」→ main / (root) → Save。
+5. 在 Settings → Pages 找「Visit site（造訪網站）」按鈕，直接點進去確認網址。
+   注意：儲存庫名稱須以網址列為準；畫面顯示中文可能是瀏覽器自動翻譯。
+6. 單一 index.html 會先列出 7 檔基金；尚未取得淨值／配息時會顯示尚無資料。
+
+接著設定自動更新（第二階段）：
+7. 將 ZIP 內的 data、scripts、tests、.github 等資料夾完整上傳，並提交。
+   必須確認 GitHub 上有：.github/workflows/update-and-deploy.yml
+   注意 Windows 檔案總管可能隱藏 .github；請開啟「檢視 → 顯示 → 隱藏的項目」。
+8. Settings → Pages 把 Source 改成「GitHub Actions」。
+9. Actions → 我的基金雷達－淨值與配息更新、部署 → Run workflow。
+   看到綠勾才表示部署成功；再查看網頁是否顯示實際的基金淨值日期。
+
+重要：
+GitHub Pages 網址須以 Settings → Pages 的 Visit site 為準，不能單憑儲存庫畫面的中文顯示推測。
+此版的基金資料初始值為空；基金淨值與配息來源尚須在 GitHub 上驗證。
+不同基金級別以 ISIN／境內級別辨識，配息率並非總報酬率。
+公開儲存庫請勿上傳私人投資金額、帳號、姓名、個人持有資料。
