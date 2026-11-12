@@ -1,0 +1,56 @@
+【我的基金雷達｜自動更新+同公司分組｜2026-11-13】
+
+適用：你已經能用 GitHub 網址開啟基金雷達，現在要追加「自動帶入淨值及配息」。
+不必刪除現有 GitHub 儲存庫，也不必換網址。
+
+一、準備檔案
+1. 下載 fund-radar-auto-update-7-funds.zip 並解壓縮。
+2. 進入你原本基金雷達的 GitHub 儲存庫 → Code（程式碼） → Add file → Upload files。
+3. 將解壓縮後檔案及資料夾上傳（不是只上傳 ZIP 壓縮檔），同名 index.html 選擇覆蓋。
+4. 上傳之後必須看得到下列 GitHub 路徑：
+   - index.html
+   - data/live.json
+   - scripts/update_funds.py
+   - tests/test_update_funds.py
+   - .github/workflows/update-and-deploy.yml
+   - .nojekyll
+5. 按 Commit changes（提交變更）。
+
+【非常重要】如果只看到 index.html 而沒有上面 4 個資料夾檔案，表示上傳不完整。
+Windows 有可能隱藏 .github，請開啟檔案總管 → 檢視 → 顯示 → 隱藏的項目。
+若 GitHub 網頁拖曳無法上傳 .github，請在 GitHub Code 頁選 Add file → Create new file，
+在檔名輸入「.github/workflows/update-and-deploy.yml」，然後貼上 ZIP 裡同名檔案的內容，按 Commit changes。
+
+二、打開 GitHub Pages 的自訂部署
+1. GitHub 儲存庫 → Settings（設定） → Pages（頁）。
+2. 在「Build and deployment」的 Source 改成「GitHub Actions」（不是 Deploy from a branch）。
+3. 不要選 Azure、Docker、Jekyll 等其他範本！本 ZIP 已有專用 workflow。
+
+三、執行第一次資料同步
+1. GitHub 儲存庫 → Actions（行動）。
+2. 左側找「我的基金雷達－淨值與配息更新、部署」。
+3. 點 Run workflow → 選 main → Run workflow。
+4. 看到綠色勾勾後，前往 Settings → Pages → Visit site。
+5. 網頁點「重新讀取雲端資料」，確認基金清單依美元→其他幣別、同公司分組。
+6. 檢查資料更新時間，以及淨值日期是否確實有值；上游尚未提供時仍可能顯示尚無資料。
+
+四、遇到問題時
+- Actions 只顯示一堆範本：通常缺少 .github/workflows/update-and-deploy.yml；回到 Code 確認路徑。
+- Actions 顯示 403 無法寫入：到 Settings → Actions → General → Workflow permissions 設定 Read and write permissions，儲存後重跑（此項只在被限制時需要）。
+- 網頁有7檔但淨值全空：到 Actions 的「更新7檔基金的淨值及配息」步驟檢查來源錯誤訊息，再看 data/live.json 的 checkedAt、funds 欄位。
+- 網頁仍是舊版：先看 GitHub 上 index.html 是否已取代，等最新部署出現綠勾，再用 Ctrl+F5 重整。
+- 計價幣別資料不可直接加總；近12月簡易配息率不是總報酬率，配息可能包含本金。
+
+每日更新邏輯：
+GitHub Actions 在臺灣時間 09:15、18:15、23:15 嘗試下載官方公開資料，把新數據寫入 data/live.json，並重新部署網站。
+使用者打開網站會載入最近一次成功發布的資料快照，而非直接向基金公司取得即時行情；網站會顯示實際淨值日期和同步狀態。
+若資料來源失敗，會保留最後確認的數據並註記舊資料／失敗，不會亂填股價或編造配息。
+
+資料來源：
+https://opendata.tdcc.com.tw/getOD.ashx?id=3-4 （境外基金淨值）
+https://opendata.tdcc.com.tw/getOD.ashx?id=3-5 （境外基金配息）
+https://members.sitca.org.tw/OPF/K0000/files/F/03/nav.csv （境內基金淨值）
+https://data.gov.tw/dataset/160547 （境內基金配息開放資料頁）
+
+本機已完成程式解析與使用者介面測試，但這個環境無法即時連線下載上述 CSV，
+因此無法保證你第一次在 GitHub Actions 執行時7檔全部能抓到；有失敗會顯示明確狀態。

@@ -271,11 +271,12 @@ def update_data(existing, sources, at=None):
         new_divs = (div_o if spec['type'] == 'overseas' else div_l).get(fid,[])
         nav = old.get('nav') if isinstance(old.get('nav'), (int,float)) else None
         nav_dt = old.get('navDate','')
-        if latest_nav and latest_nav['navDate'] >= nav_dt:
+        used_new_nav = bool(latest_nav and latest_nav['navDate'] >= nav_dt)
+        if used_new_nav:
             nav, nav_dt = latest_nav['nav'], latest_nav['navDate']
         entry = {
             'nav': nav, 'navDate': nav_dt,
-            'navStatus': 'found' if latest_nav else ('cached' if nav is not None else 'unavailable'),
+            'navStatus': 'found' if used_new_nav else ('cached' if nav is not None else 'unavailable'),
             'dividends': merge_records(old.get('dividends', []), new_divs),
             'dividendStatus': 'found' if new_divs else ('cached' if old.get('dividends') else 'unavailable'),
         }

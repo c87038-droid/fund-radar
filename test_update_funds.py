@@ -65,6 +65,16 @@ class FundUpdaterTests(unittest.TestCase):
         self.assertEqual(len(f['dividends']),1)
         self.assertEqual(got['funds']['LU2023250330']['navStatus'],'unavailable')
 
+    def test_older_public_nav_does_not_overwrite_newer_snapshot(self):
+        existing={'funds':{'LU0820561818':{'nav':8.5,'navDate':'2026-11-10','dividends':[]}}}
+        sources={name:{'ok':True,'rows':[]} for name in mod.SOURCES}
+        sources['overseas_nav']['rows']=[{'ISINCODE':'LU0820561818','日期':'2026-11-05','基金淨值':'7.7','計價幣別':'美元'}]
+        got=mod.update_data(existing,sources,'2026-11-12T08:00:00+08:00')
+        f=got['funds']['LU0820561818']
+        self.assertEqual(f['nav'],8.5)
+        self.assertEqual(f['navDate'],'2026-11-10')
+        self.assertEqual(f['navStatus'],'cached')
+
     def test_date_handles_roc(self):
         self.assertEqual(mod.date_str('115/10/15'),'2026-10-15')
         self.assertEqual(mod.date_str('20261015'),'2026-10-15')
