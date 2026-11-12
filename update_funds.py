@@ -102,7 +102,7 @@ def parse_csv(payload):
     if payload.lstrip()[:40].lower().startswith((b'<html', b'<!doctype')):
         raise ValueError('取得 HTML 網頁而非基金 CSV')
     content = None
-    for enc in ('utf-8-sig', 'cp950', 'big5'):
+    for enc in (('utf-16', 'utf-8-sig', 'cp950', 'big5') if payload.startswith((b'\xff\xfe', b'\xfe\xff')) else ('utf-8-sig', 'cp950', 'big5')):
         try:
             content = payload.decode(enc)
             break
@@ -259,7 +259,8 @@ def update_data(existing, sources, at=None):
     doc = {'schemaVersion': 2, 'checkedAt': at, 'funds': {}, 'sources': {}}
     for name, source in sources.items():
         doc['sources'][name] = {'ok': source.get('ok', False), 'message': source.get('error', ''),
-                                'rows': len(source.get('rows', []))}
+                                'rows': len(source.get('rows', [])), 'url': source.get('url', ''),
+                                'columns': list(source.get('rows', [{}])[0].keys())[:12] if source.get('rows') else []}
     nav_o, codes = latest_overseas_nav(sources['overseas_nav']['rows'])
     extend_overseas_codes(sources['overseas_info']['rows'], codes)
     nav_l = latest_local_nav(sources['local_nav']['rows'])
@@ -274,13 +275,23 @@ def update_data(existing, sources, at=None):
         used_new_nav = bool(latest_nav and latest_nav['navDate'] >= nav_dt)
         if used_new_nav:
             nav, nav_dt = latest_nav['nav'], latest_nav['navDate']
+        nav_label = 'overseas_nav' if spec['type'] == 'overseas' else 'local_nav'
+        dist_label = 'overseas_dividends' if spec['type'] == 'overseas' else 'local_dividends'
+        nav_message = ('已找到這檔基金的官方淨值' if used_new_nav
+                       else ('官方來源下載失敗' if not sources[nav_label]['ok']
+                             else '官方淨值檔未比對到相同的 ISIN／基金統編與幣別'))
+        div_message = ('已找到配息紀錄' if new_divs
+                       else ('官方配息來源下載失敗' if not sources[dist_label]['ok']
+                             else '配息檔未比對到這檔基金，或目前未公告'))
         entry = {
             'nav': nav, 'navDate': nav_dt,
+            'navMessage': nav_message, 'dividendMessage': div_message,
             'navStatus': 'found' if used_new_nav else ('cached' if nav is not None else 'unavailable'),
             'dividends': merge_records(old.get('dividends', []), new_divs),
             'dividendStatus': 'found' if new_divs else ('cached' if old.get('dividends') else 'unavailable'),
         }
         doc['funds'][fid] = entry
+        print(f'[{fid}] NAV={entry["navStatus"]} ({entry["navDate"] or "—"}); 配息={len(entry["dividends"])} 筆; {nav_message}')
     count = sum(1 for f in doc['funds'].values() if f['navStatus'] == 'found')
     print(f'Fund NAV matches: {count}/7; distributions: {sum(bool(f["dividends"]) for f in doc["funds"].values())}/7')
     return doc

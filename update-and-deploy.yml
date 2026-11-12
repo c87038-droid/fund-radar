@@ -1,11 +1,11 @@
-name: 我的基金雷達－淨值與配息更新、部署
+name: 我的基金雷達｜自動更新與發布
 
 on:
   workflow_dispatch:
   push:
     branches: [main]
   schedule:
-    # GitHub Actions 排程使用 UTC：臺灣時間 09:15、18:15、23:15。
+    # UTC 01:15、10:15、15:15 = 台灣時間 09:15、18:15、23:15
     - cron: '15 1,10,15 * * *'
 
 permissions:
@@ -14,44 +14,65 @@ permissions:
   id-token: write
 
 concurrency:
-  group: "fund-radar-pages"
+  group: fund-radar-deployment
   cancel-in-progress: false
 
 jobs:
-  fund-data-and-site:
+  update-and-publish:
+    name: 檢查官方基金資料並發布 GitHub Pages
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
-      - name: 取得基金雷達檔案
+      - name: 取得基金網站程式
         uses: actions/checkout@v4
         with:
           ref: main
           persist-credentials: true
-      - name: 設定 Python
+      - name: 安裝 Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: 測試基金資料辨識程式
+      - name: 檢查基金辨識與日期邏輯
         run: python -m unittest discover -s tests -v
-      - name: 更新 7 檔基金的淨值及配息
+      - name: 更新 7 檔基金淨值與配息
         run: python scripts/update_funds.py
-      - name: 保存基金資料更新狀態
+      - name: 輸出更新診斷
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d = json.loads(Path('data/live.json').read_text(encoding='utf-8'))
+          print('更新檢查時間:', d.get('checkedAt'))
+          for key, v in d.get('sources', {}).items():
+              print('來源:', key, '成功:', v.get('ok'), '筆數:', v.get('rows'), '錯誤:', v.get('message'))
+          for fid, v in d.get('funds', {}).items():
+              print('基金:', fid, '淨值日期:', v.get('navDate'), '淨值狀態:', v.get('navStatus'), '配息筆數:', len(v.get('dividends', [])), '提醒:', v.get('navMessage',''))
+          PY
+      - name: 準備網站（只包含網頁及基金資料）
+        run: |
+          mkdir -p _site/data
+          cp index.html .nojekyll _site/
+          cp data/live.json _site/data/live.json
+      - name: 設定 Pages
+        uses: actions/configure-pages@v5
+      - name: 上傳網頁
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - name: 發布網頁（即使無新資料也顯示診斷狀態）
+        id: deploy
+        uses: actions/deploy-pages@v4
+      - name: 嘗試保存最新快照到儲存庫（失敗不影響網頁發布）
+        continue-on-error: true
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/live.json
           if ! git diff --cached --quiet; then
-            git commit -m "更新7檔基金淨值與配息資料"
-            git push
+            git commit -m "更新基金資料快照"
+            git push origin HEAD:main
+          else
+            echo '基金快照無變化'
           fi
-      - name: 啟用 Pages
-        uses: actions/configure-pages@v5
-      - name: 打包基金網站
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: .
-      - name: 發布基金網站
-        id: deploy
-        uses: actions/deploy-pages@v4

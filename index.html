@@ -21,6 +21,10 @@
 .fund-row{margin:0;border-bottom:1px solid #e9eff2}
 @media(max-width:820px){.currency-section{margin-top:14px;padding:11px 13px}.company-section{margin-top:6px}.currency-section,.company-section{grid-column:1/-1}.fund-row{margin:0}}
 @media(max-width:540px){.currency-section{font-size:16px}.company-section{font-size:15px}}
+
+.diagnostics{background:#fff;border:1px solid var(--border);border-radius:13px;margin:-6px 0 20px;padding:12px 18px;color:#344c5c}
+.diagnostics summary{cursor:pointer;font-size:14px;font-weight:750;color:var(--navy)}
+.diagnostics pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.8 ui-monospace,Consolas,monospace;margin:13px 0 3px}
 </style>
 
 </head>
@@ -46,6 +50,7 @@
     <div class="stat"><small>雲端資料最近檢查</small><strong id="checkedAt" class="date-big">尚未執行</strong><span>顯示排程實際檢查時間</span></div>
   </section>
   <div id="syncNotice" class="status waiting" role="status" aria-live="polite">正在讀取基金公開資料快照……</div>
+  <details class="diagnostics"><summary>查看資料更新診斷（無法更新時請點這裡）</summary><pre id="diagnostics">尚未讀取更新紀錄</pre></details>
   <section class="main-panel">
     <div class="titleline"><div><h2>我的基金觀察清單</h2><p>依「美元優先 → 基金公司」分組；淨值、配息資料日期分別顯示。</p></div><button type="button" id="refreshButton" class="btn accent">↻ 重新讀取雲端資料</button></div>
     <div class="tools"><label class="search"><span class="sr-only">搜尋基金</span><input id="search" type="search" placeholder="搜尋基金名稱、公司、ISIN……" /></label><label class="filter-label">幣別<select id="currency"><option value="all">全部幣別</option><option value="USD">美元 USD</option><option value="ZAR">南非幣 ZAR</option></select></label></div>
@@ -108,8 +113,8 @@ function render(){
     const row=node('article','fund-row');
     const identity=node('div');identity.append(node('div','fund-name',f.name));identity.append(node('div','fund-sub',`${f.company} · ${f.group} · ${f.frequency} · ${f.tier}`));identity.append(node('div','fund-sub isin',`ISIN：${f.isin}`));row.append(identity);
     const wrap=node('div');wrap.append(node('span','field-label','計價幣別'),node('span','chip'+(f.currency==='ZAR'?' zar':''),f.currency==='ZAR'?'南非幣 ZAR':'美元 USD'));row.append(wrap);
-    row.append(metricCell('最新基金淨值',validNav(d)?number(d.nav):'尚無資料',validNav(d)?`淨值日 ${niceDate(d.navDate)}${d.navStatus==='cached'?'（沿用上次）':''}`:'等待官方基金資料',!validNav(d)));
-    row.append(metricCell('最近每單位配息',recent?number(recent.perUnit,6):'尚無資料',recent?`除息 ${niceDate(recent.exDate)} · 發放 ${niceDate(recent.payDate)}${d.dividendStatus==='cached'?'（沿用紀錄）':''}`:'等待官方配息公告',!recent));
+    row.append(metricCell('最新基金淨值',validNav(d)?number(d.nav):'尚無資料',validNav(d)?`淨值日 ${niceDate(d.navDate)}${d.navStatus==='cached'?'（沿用上次）':''}`:(d.navMessage||'等待官方基金資料'),!validNav(d)));
+    row.append(metricCell('最近每單位配息',recent?number(recent.perUnit,6):'尚無資料',recent?`除息 ${niceDate(recent.exDate)} · 發放 ${niceDate(recent.payDate)}${d.dividendStatus==='cached'?'（沿用紀錄）':''}`:(d.dividendMessage||'等待官方配息公告'),!recent));
     row.append(metricCell('近12個月簡易配息率',rate===null?'—':number(rate,2)+'%',rate===null?'資料不足無法試算':trailing.length<12?`目前只有 ${trailing.length} 筆紀錄，期間不完整`:'非總報酬率',rate===null));
     const buttonContainer=node('div');const button=node('button','link-button','查看配息明細');button.type='button';button.addEventListener('click',()=>openDetails(f));buttonContainer.append(button);row.append(buttonContainer);
     host.append(row);
@@ -139,10 +144,21 @@ async function loadData(){
     if(!response.ok)throw new Error(`HTTP ${response.status}`);
     const data=await response.json();if(data.schemaVersion!==2||!data.funds)throw new Error('資料版本不同');live=data;render();
     const statuses=Object.values(data.sources||{}), bad=statuses.filter(s=>!s.ok).length, withNav=FUNDS.filter(f=>validNav(data.funds[f.isin])).length;
+    const sourceNames={overseas_nav:'境外淨值',overseas_info:'境外基金對照',overseas_dividends:'境外配息',local_nav:'境內淨值',local_dividends:'境內配息'};
+    $('diagnostics').textContent = [
+      '程式最後檢查時間：'+(data.checkedAt||'尚未執行'),
+      '【公開資料來源】',
+      ...Object.entries(data.sources||{}).map(([key,s])=>`${sourceNames[key]||key}：${s.ok?'已讀取':'失敗'}｜${s.rows||0} 筆${s.message?'｜'+s.message:''}`),
+      ...(Object.keys(data.sources||{}).length?[]:['尚未執行資料更新程式，請查看 GitHub Actions']),
+      '【7 檔基金】',
+      ...FUNDS.map(f=>{const d=data.funds?.[f.isin]||{};return `${f.company} ${f.tier} (${f.isin})：${d.navStatus==='found'?'找到淨值':d.navStatus==='cached'?'沿用舊淨值':'尚無淨值'} ${d.navDate||''}；配息 ${records(d).length} 筆；${d.navMessage||''} ${d.dividendMessage||''}`;})
+    ].join('\n');
+    const stale=data.checkedAt && Date.now()-Date.parse(data.checkedAt)>40*60*60*1000;
     if(!data.checkedAt){banner('warn','目前是新建立的基金專用版，尚未執行首次資料同步。請上傳到 GitHub 並執行 Actions。');}
+    else if(stale){banner('warn',`排程檢查已超過 40 小時沒有更新。最後一次檢查：${data.checkedAt}。請到 GitHub Actions 查看是否停用或失敗。`);}
     else if(bad||withNav<7){banner('warn',`最近檢查：${String(data.checkedAt).replace('T',' ').slice(0,16)}。已取得 ${withNav}/7 檔基金淨值；${bad} 個公開來源讀取失敗。未取得的欄位不會假裝是最新資料。`);}
     else{banner('ok',`基金資料已載入。最近檢查：${String(data.checkedAt).replace('T',' ').slice(0,16)}（臺灣時間）；實際淨值日期請看每檔基金。`);}
-  }catch(e){render();const localFile=location.protocol==='file:'||location.protocol==='about:';banner('warn',localFile?'這是本機預覽：已載入7檔基金清單。淨值及配息請先上傳 GitHub Pages，再使用固定網址查看。':`基金資料檔讀取失敗（${e.message}）。請檢查 GitHub Actions 的部署與 data/live.json。`);}
+  }catch(e){render();$('diagnostics').textContent='無法讀取 data/live.json：'+e.message+'\n請確認網頁網址與資料檔網址都能正常開啟。';const localFile=location.protocol==='file:'||location.protocol==='about:';banner('warn',localFile?'這是本機預覽：已載入7檔基金清單。淨值及配息請先上傳 GitHub Pages，再使用固定網址查看。':`基金資料檔讀取失敗（${e.message}）。請檢查 GitHub Actions 的部署與 data/live.json。`);}
   finally{$('refreshButton').disabled=false;}
 }
 $('search').addEventListener('input',render);$('currency').addEventListener('change',render);$('refreshButton').addEventListener('click',loadData);
