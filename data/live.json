@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 2,
+  "checkedAt": null,
+  "sources": {},
+  "funds": {
+    "LU0820561818": {"nav": null, "navDate": "", "navStatus": "unavailable", "dividends": [], "dividendStatus": "unavailable"},
+    "LU1883841964": {"nav": null, "navDate": "", "navStatus": "unavailable", "dividends": [], "dividendStatus": "unavailable"},
+    "LU2347655073": {"nav": null, "navDate": "", "navStatus": "unavailable", "dividends": [], "dividendStatus": "unavailable"},
+    "LU2023250330": {"nav": null, "navDate": "", "navStatus": "unavailable", "dividends": [], "dividendStatus": "unavailable"},
+    "TW000T0759D2": {"nav": null, "navDate": "", "navStatus": "unavailable", "dividends": [], "dividendStatus": "unavailable"},
+    "TW000T1811K5": {"nav": null, "navDate": "", "navStatus": "unavailable", "dividends": [], "dividendStatus": "unavailable"},
+    "LU2859284783": {"nav": null, "navDate": "", "navStatus": "unavailable", "dividends": [], "dividendStatus": "unavailable"}
+  }
+}
