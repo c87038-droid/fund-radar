@@ -1,0 +1,68 @@
+name: 基金雷達-自動更新與發布
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Taiwan time 09:15, 18:15, 23:15 (UTC 01:15, 10:15, 15:15)
+    - cron: '15 1,10,15 * * *'
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: fund-radar-pages
+  cancel-in-progress: false
+
+jobs:
+  update-and-publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout website
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Update seven mutual funds
+        run: python scripts/update_funds.py
+
+      - name: Show fund data diagnostics
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          data=json.loads(Path('data/live.json').read_text(encoding='utf-8'))
+          print('Checked at:',data.get('checkedAt'))
+          for key, source in data.get('sources', {}).items():
+              print(key, 'ok:',source.get('ok'),'error:',source.get('message',''))
+          for key, fund in data.get('funds', {}).items():
+              print(key, 'NAV date:',fund.get('navDate'),'status:',fund.get('navStatus'), 'dividends:',len(fund.get('dividends', [])))
+          PY
+
+      - name: Prepare website files
+        run: |
+          mkdir -p _site/data
+          cp index.html _site/index.html
+          cp data/live.json _site/data/live.json
+          touch _site/.nojekyll
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
