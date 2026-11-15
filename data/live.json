@@ -1,14 +1,320 @@
 {
   "schemaVersion": 2,
-  "checkedAt": null,
-  "sources": {},
+  "checkedAt": "2026-11-15T23:35:37+08:00",
   "funds": {
-    "LU0820561818": {"nav": null, "navDate": "", "navStatus": "unavailable", "dividends": [], "dividendStatus": "unavailable"},
-    "LU1883841964": {"nav": null, "navDate": "", "navStatus": "unavailable", "dividends": [], "dividendStatus": "unavailable"},
-    "LU2347655073": {"nav": null, "navDate": "", "navStatus": "unavailable", "dividends": [], "dividendStatus": "unavailable"},
-    "LU2023250330": {"nav": null, "navDate": "", "navStatus": "unavailable", "dividends": [], "dividendStatus": "unavailable"},
-    "TW000T0759D2": {"nav": null, "navDate": "", "navStatus": "unavailable", "dividends": [], "dividendStatus": "unavailable"},
-    "TW000T1811K5": {"nav": null, "navDate": "", "navStatus": "unavailable", "dividends": [], "dividendStatus": "unavailable"},
-    "LU2859284783": {"nav": null, "navDate": "", "navStatus": "unavailable", "dividends": [], "dividendStatus": "unavailable"}
+    "LU0820561818": {
+      "nav": 8.1653,
+      "navDate": "2026-11-12",
+      "navMessage": "已找到這檔基金的官方淨值",
+      "dividendMessage": "已找到配息紀錄",
+      "navStatus": "found",
+      "dividends": [
+        {
+          "exDate": "2026-10-15",
+          "payDate": "2026-10-19",
+          "perUnit": 0.06
+        },
+        {
+          "exDate": "2026-09-15",
+          "payDate": "2026-09-17",
+          "perUnit": 0.055
+        },
+        {
+          "exDate": "2026-08-17",
+          "payDate": "2026-08-19",
+          "perUnit": 0.055
+        },
+        {
+          "exDate": "2026-07-15",
+          "payDate": "2026-07-17",
+          "perUnit": 0.055
+        },
+        {
+          "exDate": "2026-06-15",
+          "payDate": "2026-06-17",
+          "perUnit": 0.055
+        }
+      ],
+      "dividendStatus": "found"
+    },
+    "LU1883841964": {
+      "nav": 308.27,
+      "navDate": "2026-11-12",
+      "navMessage": "已找到這檔基金的官方淨值",
+      "dividendMessage": "已找到配息紀錄",
+      "navStatus": "found",
+      "dividends": [
+        {
+          "exDate": "2026-11-02",
+          "payDate": "2026-11-05",
+          "perUnit": 4.5196
+        },
+        {
+          "exDate": "2026-10-01",
+          "payDate": "2026-10-06",
+          "perUnit": 4.5196
+        },
+        {
+          "exDate": "2026-09-01",
+          "payDate": "2026-09-04",
+          "perUnit": 4.5196
+        },
+        {
+          "exDate": "2026-08-03",
+          "payDate": "2026-08-06",
+          "perUnit": 4.5196
+        },
+        {
+          "exDate": "2026-07-01",
+          "payDate": "2026-07-06",
+          "perUnit": 4.5196
+        },
+        {
+          "exDate": "2026-06-01",
+          "payDate": "2026-06-04",
+          "perUnit": 4.5196
+        }
+      ],
+      "dividendStatus": "found"
+    },
+    "LU2347655073": {
+      "nav": 71.34,
+      "navDate": "2026-11-12",
+      "navMessage": "已找到這檔基金的官方淨值",
+      "dividendMessage": "已找到配息紀錄",
+      "navStatus": "found",
+      "dividends": [
+        {
+          "exDate": "2026-11-10",
+          "payDate": "",
+          "perUnit": 0.597
+        },
+        {
+          "exDate": "2026-10-08",
+          "payDate": "2026-10-15",
+          "perUnit": 0.609
+        },
+        {
+          "exDate": "2026-09-09",
+          "payDate": "2026-09-16",
+          "perUnit": 0.685
+        },
+        {
+          "exDate": "2026-08-12",
+          "payDate": "2026-08-19",
+          "perUnit": 0.692
+        },
+        {
+          "exDate": "2026-07-08",
+          "payDate": "2026-07-15",
+          "perUnit": 0.693
+        },
+        {
+          "exDate": "2026-06-09",
+          "payDate": "2026-06-16",
+          "perUnit": 0.69
+        }
+      ],
+      "dividendStatus": "found"
+    },
+    "LU2023250330": {
+      "nav": 8.2908,
+      "navDate": "2026-11-12",
+      "navMessage": "已找到這檔基金的官方淨值",
+      "dividendMessage": "已找到配息紀錄",
+      "navStatus": "found",
+      "dividends": [
+        {
+          "exDate": "2026-10-15",
+          "payDate": "2026-10-19",
+          "perUnit": 0.07248
+        },
+        {
+          "exDate": "2026-09-15",
+          "payDate": "2026-09-17",
+          "perUnit": 0.06796
+        },
+        {
+          "exDate": "2026-08-17",
+          "payDate": "2026-08-19",
+          "perUnit": 0.06796
+        },
+        {
+          "exDate": "2026-07-15",
+          "payDate": "2026-07-17",
+          "perUnit": 0.06796
+        },
+        {
+          "exDate": "2026-06-15",
+          "payDate": "2026-06-17",
+          "perUnit": 0.06796
+        }
+      ],
+      "dividendStatus": "found"
+    },
+    "TW000T0759D2": {
+      "nav": null,
+      "navDate": "",
+      "navMessage": "官方淨值檔未比對到相同的 ISIN／基金統編與幣別",
+      "dividendMessage": "已找到配息紀錄",
+      "navStatus": "unavailable",
+      "dividends": [
+        {
+          "exDate": "2026-09-01",
+          "payDate": "2026-09-07",
+          "perUnit": 0.07
+        }
+      ],
+      "dividendStatus": "found"
+    },
+    "TW000T1811K5": {
+      "nav": null,
+      "navDate": "",
+      "navMessage": "官方淨值檔未比對到相同的 ISIN／基金統編與幣別",
+      "dividendMessage": "已找到配息紀錄",
+      "navStatus": "unavailable",
+      "dividends": [
+        {
+          "exDate": "2026-09-30",
+          "payDate": "2026-10-07",
+          "perUnit": 0.075
+        }
+      ],
+      "dividendStatus": "found"
+    },
+    "LU2859284783": {
+      "nav": 69.89,
+      "navDate": "2026-11-12",
+      "navMessage": "已找到這檔基金的官方淨值",
+      "dividendMessage": "已找到配息紀錄",
+      "navStatus": "found",
+      "dividends": [
+        {
+          "exDate": "2026-10-30",
+          "payDate": "2026-11-04",
+          "perUnit": 0.8322
+        },
+        {
+          "exDate": "2026-09-30",
+          "payDate": "2026-10-05",
+          "perUnit": 0.8322
+        },
+        {
+          "exDate": "2026-08-31",
+          "payDate": "2026-09-03",
+          "perUnit": 0.8322
+        },
+        {
+          "exDate": "2026-07-31",
+          "payDate": "2026-08-05",
+          "perUnit": 0.8322
+        },
+        {
+          "exDate": "2026-06-30",
+          "payDate": "2026-07-06",
+          "perUnit": 0.8322
+        },
+        {
+          "exDate": "2026-05-29",
+          "payDate": "2026-06-03",
+          "perUnit": 0.8322
+        }
+      ],
+      "dividendStatus": "found"
+    }
+  },
+  "sources": {
+    "overseas_nav": {
+      "ok": true,
+      "message": "",
+      "rows": 22783,
+      "url": "https://opendata.tdcc.com.tw/getOD.ashx?id=3-4",
+      "columns": [
+        "基金代碼",
+        "基金名稱",
+        "日期",
+        "基金淨值(金額)",
+        "ISINCODE",
+        "計價幣別",
+        "境外基金機構",
+        "總代理機構"
+      ]
+    },
+    "overseas_info": {
+      "ok": true,
+      "message": "",
+      "rows": 5293,
+      "url": "https://opendata.tdcc.com.tw/getOD.ashx?id=3-2",
+      "columns": [
+        "資料日期",
+        "基金名稱",
+        "基金代碼",
+        "基金ISIN_CODE",
+        "基金英文名稱",
+        "基金種類",
+        "投資區域",
+        "基金類股規模(百萬)",
+        "計價幣別",
+        "基金總代理名稱",
+        "境外基金機構",
+        "基金管理機構"
+      ]
+    },
+    "overseas_dividends": {
+      "ok": true,
+      "message": "",
+      "rows": 9370,
+      "url": "https://opendata.tdcc.com.tw/getOD.ashx?id=3-5",
+      "columns": [
+        "資料日期",
+        "基金總代理名稱",
+        "境外基金機構",
+        "基金代碼",
+        "基金名稱",
+        "基金幣別",
+        "配息基準日",
+        "除息日",
+        "單位數",
+        "配息發放日",
+        "配息頻率",
+        "可分配淨利益/配息"
+      ]
+    },
+    "local_nav": {
+      "ok": true,
+      "message": "",
+      "rows": 37,
+      "url": "https://www.sitca.org.tw/MemberK0000/F/03/nav.csv",
+      "columns": [
+        "日期",
+        "會員代號",
+        "公司名稱",
+        "基金統編",
+        "基金代號",
+        "基金名稱",
+        "基金淨值",
+        "漲跌",
+        "漲跌幅",
+        "類型代號",
+        "幣別",
+        "受益憑證代號"
+      ]
+    },
+    "local_dividends": {
+      "ok": true,
+      "message": "",
+      "rows": 1531,
+      "url": "https://www.sitca.org.tw/MemberK0000/F/03/160547%E6%8A%95%E4%BF%A1%E6%8A%95%E9%A1%A7%E5%85%AC%E6%9C%83%E5%A2%83%E5%85%A7%E5%9F%BA%E9%87%91%E9%85%8D%E6%81%AF%E8%B3%87%E6%96%99.csv",
+      "columns": [
+        "基金類型",
+        "基金統編",
+        "基金名稱",
+        "配息幣別",
+        "配息基準日",
+        "除息日",
+        "收益分配發放日",
+        "每單位分派金額"
+      ]
+    }
   }
 }
