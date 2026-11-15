@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="color-scheme" content="light" />
 <meta name="description" content="我的基金雷達：專為七檔指定共同基金設計的淨值與配息觀察網頁。" />
-<title>我的基金雷達｜7 檔基金淨值及配息</title>
+<title>我的基金雷達｜7 檔基金淨值、最新配息及官方資訊</title>
 <style>
 :root{--navy:#14283f;--navy2:#193c55;--teal:#138678;--teal-dark:#096859;--text:#243a50;--muted:#6c7b8b;--border:#dce6ed;--bg:#f3f7fa;--surface:#fff;--soft:#eaf7f4;--warn:#9c6619;--radius:17px}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Noto Sans TC","Microsoft JhengHei",sans-serif}button,input,select{font:inherit}button{cursor:pointer}a{color:var(--teal-dark)}.page{max-width:1380px;margin:0 auto;padding:0 28px 50px}.header{display:flex;align-items:center;padding:24px 0;gap:14px}.logo{background:var(--navy);border-radius:14px;color:white;font-size:30px;width:52px;height:52px;display:grid;place-items:center}.brand{display:flex;flex-direction:column;min-width:0}.brand strong{font-size:24px;line-height:1.3;color:var(--navy)}.brand span{font-size:13px;color:var(--muted)}.head-note{margin-left:auto;background:white;border:1px solid var(--border);border-radius:99px;padding:9px 15px;font-weight:700;font-size:13px;color:var(--navy);white-space:nowrap}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--teal);margin-right:8px}.hero{background:linear-gradient(110deg,var(--navy) 0%,var(--navy2) 60%,#217f78 100%);color:white;padding:38px 42px;border-radius:22px;display:flex;align-items:center;justify-content:space-between;gap:25px;position:relative;overflow:hidden}.hero:after{content:'';position:absolute;right:-50px;top:-170px;width:380px;height:380px;border:1px solid rgba(255,255,255,.17);border-radius:50%;pointer-events:none}.hero-content,.hero-counter{position:relative;z-index:1}.mini{font-size:12px;font-weight:800;color:#92e4d3;letter-spacing:2px}.hero h1{font-size:34px;line-height:1.33;margin:12px 0 13px;letter-spacing:.5px}.hero p{margin:0;color:#d2e2e7;max-width:620px}.hero-counter{padding:22px 31px;border-radius:19px;background:#ffffff13;border:1px solid #ffffff46;text-align:center;min-width:174px;display:flex;flex-direction:column}.hero-number{font-size:48px;font-weight:900;line-height:1.1}.hero-counter>span:nth-child(2){font-weight:800}.hero-counter small{color:#d1f3eb;font-size:12px;margin-top:8px}.summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px;margin:21px 0}.stat{background:white;border:1px solid var(--border);padding:20px 23px;border-radius:var(--radius);min-width:0}.stat small{display:block;font-size:13px;color:var(--muted)}.stat strong{display:block;font-size:31px;font-weight:850;line-height:1.38;margin:10px 0;color:var(--navy)}.stat strong em{font-size:15px;font-style:normal;color:var(--muted)}.stat .date-big{font-size:17px;overflow-wrap:anywhere}.stat>span{font-size:12px;color:var(--muted)}.status{padding:14px 18px;border-radius:13px;margin-bottom:20px;font-size:14px}.status.waiting{border:1px solid #d6e7ee;background:#edf6fa;color:#346379}.status.ok{border:1px solid #cae7d9;background:#ebf7f0;color:#256b51}.status.warn{border:1px solid #f1dbaf;background:#fff9ed;color:#79571d}.main-panel,.info{background:white;border:1px solid var(--border);border-radius:var(--radius);padding:26px;box-shadow:0 8px 28px #263c500a}.titleline{display:flex;gap:15px;justify-content:space-between;align-items:center}.titleline h2,.info h2{margin:0 0 5px;font-size:23px;color:var(--navy)}.titleline p{font-size:13px;color:var(--muted);margin:0}.btn{border:1px solid #cbdde5;background:white;border-radius:11px;padding:10px 15px;min-height:44px;font-weight:750;color:var(--navy)}.btn:hover{background:#f0f6f8}.btn.accent{background:var(--teal);color:white;border-color:var(--teal)}.btn.accent:hover{background:var(--teal-dark)}.tools{display:flex;gap:13px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:24px 0 17px}.search{flex:1;min-width:230px}.search input{width:100%;background:#f9fbfd;border:1px solid var(--border);border-radius:10px;padding:12px 15px;outline:none}.search input:focus{border-color:var(--teal);box-shadow:0 0 0 3px #13867824}.filter-label{display:flex;gap:11px;align-items:center;color:var(--muted);font-size:13px}.filter-label select{background:white;border:1px solid var(--border);border-radius:10px;padding:10px 12px;min-height:43px;color:var(--text)}.grid-header,.fund-row{display:grid;grid-template-columns:minmax(270px,2.2fr) minmax(90px,.65fr) minmax(135px,1fr) minmax(155px,1.1fr) minmax(126px,1fr) 110px;gap:16px;align-items:center}.grid-header{color:#63788e;font-size:13px;font-weight:800;padding:13px 18px;background:#f6f9fb;border-radius:11px}.fund-row{padding:18px;border-bottom:1px solid #e9eff2}.fund-row:last-child{border:0}.fund-name{font-weight:800;font-size:16px;line-height:1.45;color:var(--navy)}.fund-sub{font-size:12px;color:#768697;margin-top:5px;line-height:1.7}.fund-sub .isin{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}.chip{display:inline-block;border-radius:9px;background:#e7f4f2;color:#166e62;padding:4px 9px;font-size:13px;font-weight:750}.chip.zar{color:#755821;background:#fcf4e5}.metric{font-size:19px;font-weight:800;color:var(--navy);font-variant-numeric:tabular-nums;line-height:1.4}.metric-sub{font-size:12px;color:var(--muted);line-height:1.5;margin-top:4px}.metric.na{font-size:16px;font-weight:650;color:#9eacb6}.link-button{color:var(--teal-dark);border:1px solid #a9d6ce;background:#f1faf8;border-radius:10px;padding:9px 12px;font-weight:750;white-space:nowrap}.link-button:hover{background:#def3ee}.field-label{display:none}.blank{padding:45px;text-align:center;color:var(--muted)}.info-layout{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:20px}.info h2{font-size:19px}.info p{margin:9px 0;color:#526579}.info .smaller{color:#758696;font-size:13px}footer{font-size:12px;line-height:1.95;color:#697f8d;padding:27px 4px}.dialog{width:min(820px,calc(100% - 24px));max-height:90vh;padding:0;border:0;border-radius:20px;box-shadow:0 25px 90px #08131e60;color:var(--text)}.dialog::backdrop{background:#0b2130a8}.modal-inner{padding:27px 28px 15px}.modal-inner h2{font-size:21px;line-height:1.4;margin:0 0 7px;color:var(--navy)}.modal-meta{font-size:13px;color:var(--muted);margin-bottom:20px}.modal-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}.modal-stat{background:#f2f8fa;padding:16px;border-radius:11px}.modal-stat label{display:block;font-size:12px;color:var(--muted);margin-bottom:8px}.modal-stat strong{font-size:17px;color:var(--navy);overflow-wrap:anywhere}.history-box{overflow:auto;max-height:280px}.history{width:100%;border-collapse:collapse;min-width:510px}.history th,.history td{padding:11px 9px;border-bottom:1px solid var(--border);text-align:left;font-size:14px}.history th{font-size:12px;color:#6d7e8d;background:#f7fafb}.modal-note{font-size:13px;color:#7a8793;margin:14px 0}.modal-footer{padding:17px 26px 23px;display:flex;justify-content:flex-end}.badge{display:inline-flex;align-items:center;padding:5px 9px;background:#f8f1e5;color:#885b1b;font-size:12px;font-weight:750;border-radius:8px;margin-left:5px}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}@media(max-width:1050px){.grid-header,.fund-row{grid-template-columns:minmax(230px,2.1fr) 77px 125px 135px 120px 100px;gap:9px}.main-panel{padding:19px}.fund-row{padding:17px 10px}.grid-header{padding:10px}.fund-name{font-size:15px}.metric{font-size:16px}}@media(max-width:820px){.page{padding:0 15px 35px}.header{padding:17px 0}.brand strong{font-size:20px}.header .head-note{font-size:11px;padding:6px 9px}.logo{width:42px;height:42px}.hero{padding:25px;align-items:flex-start}.hero h1{font-size:28px}.hero p{font-size:14px}.hero-counter{min-width:118px;padding:12px}.hero-number{font-size:39px}.summary{grid-template-columns:repeat(2,1fr)}.stat{padding:16px}.stat strong{font-size:26px}.main-panel{padding:17px}.grid-header{display:none}.funds{display:grid;grid-template-columns:1fr 1fr;gap:12px}.fund-row{display:grid;grid-template-columns:1fr 1fr;gap:13px;background:#fbfdfe;border:1px solid var(--border)!important;border-radius:13px;padding:17px}.fund-row>div:first-child{grid-column:1/-1}.fund-row>div:last-child{grid-column:1/-1}.field-label{display:block;font-size:11px;color:var(--muted);font-weight:650;margin-bottom:2px}.link-button{width:100%}.fund-sub{font-size:12px}.metric{font-size:17px}.info-layout{grid-template-columns:1fr}}@media(max-width:540px){.hero{padding:23px 20px}.hero h1{font-size:25px}.hero-counter{display:none}.summary{gap:10px}.stat{padding:14px}.stat strong{font-size:25px}.stat .date-big{font-size:15px}.titleline{align-items:flex-start;flex-direction:column}.titleline h2{font-size:22px}.titleline .btn{width:100%}.funds{grid-template-columns:1fr}.fund-row{gap:14px;padding:18px}.fund-name{font-size:17px}.metric{font-size:19px}.search{min-width:100%}.filter-label{width:100%;justify-content:space-between}.filter-label select{flex:1}.modal-stats{grid-template-columns:1fr}.modal-stat{padding:12px}.modal-inner{padding:20px 19px 12px}}
 
@@ -25,6 +25,40 @@
 .diagnostics{background:#fff;border:1px solid var(--border);border-radius:13px;margin:-6px 0 20px;padding:12px 18px;color:#344c5c}
 .diagnostics summary{cursor:pointer;font-size:14px;font-weight:750;color:var(--navy)}
 .diagnostics pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.8 ui-monospace,Consolas,monospace;margin:13px 0 3px}
+
+/* Latest available distribution records and verified official fund information links. */
+.announcements{margin-bottom:20px;padding:25px 26px 20px}
+.section-eyebrow{color:#138678;font-size:11px;letter-spacing:1.6px;font-weight:850;margin-bottom:4px}
+.announcement-head{gap:20px}
+.announcement-head h2{font-size:25px}
+.announcement-head p{max-width:780px}
+.announcement-head .announce-filter{white-space:nowrap}
+.announcement-meta{font-size:13px;color:#587183;margin:18px 0 12px}
+.announcement-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.announcement-card{background:#fcfefe;border:1px solid var(--border);border-radius:14px;padding:17px 18px;display:flex;flex-direction:column;gap:8px;min-width:0;box-shadow:0 2px 12px #0e435007}
+.announcement-card.zar-card{border-color:#e6dfca;background:#fffdf8}
+.announce-top{display:flex;justify-content:space-between;gap:6px;align-items:center}
+.announce-manager{font-size:12px;color:#2f776c;font-weight:800}
+.announce-ccy{font-size:12px;color:#7a8b95}
+.announce-fund{color:var(--navy);font-size:15px;font-weight:800;line-height:1.5;min-height:46px}
+.announce-number{font-size:27px;line-height:1.3;font-weight:850;color:var(--navy);font-variant-numeric:tabular-nums;word-break:break-word}
+.announce-number small{font-size:13px;font-weight:750;color:#617487;margin-right:4px}
+.announce-dates{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:#63798b}
+.announce-change{font-size:13px;font-weight:800;color:#586d7d}
+.announce-change.up{color:#a43d46}.announce-change.down{color:#207457}
+.announce-stale{font-size:12px;color:#985e22;background:#fbf4e9;border-radius:6px;padding:3px 8px;align-self:flex-start}
+.announce-actions{margin-top:auto;display:flex;gap:9px;flex-wrap:wrap;padding-top:5px}
+.announce-actions a,.announce-actions button{font:inherit;font-size:12px;color:var(--teal-dark);font-weight:800;background:transparent;border:0;padding:3px 0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.announce-empty{grid-column:1/-1;padding:28px;background:#f4f8fa;border:1px dashed #d6e2e8;border-radius:13px;color:#657d90;text-align:center;font-size:14px}
+.announcement-footnote{font-size:12px;color:#71828e;margin:15px 2px 0;line-height:1.8}
+.fund-actions{display:grid;gap:7px}
+.fund-actions a{text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;line-height:1.4}
+.fund-actions .link-button{min-height:38px;padding:7px 6px;font-size:12px;white-space:normal}
+.fund-actions .official-link{border:1px solid #ced8e7;background:#f4f7fc;color:#315a84}
+.fund-actions .official-link:hover{background:#e9eff9}
+@media(max-width:1100px){.announcement-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:820px){.fund-actions{grid-template-columns:1fr 1fr}.announcement-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:540px){.announcements{padding:19px 16px}.announcement-list{grid-template-columns:1fr}.announcement-head .announce-filter{width:100%;justify-content:space-between}.announcement-head .announce-filter select{flex:1;max-width:220px}.announce-fund{min-height:0}.announcement-card{padding:17px}.announce-number{font-size:26px}}
 </style>
 
 </head>
@@ -32,13 +66,13 @@
 <div class="page">
   <header class="header">
     <div class="logo" aria-hidden="true">◈</div>
-    <div class="brand"><strong>我的基金雷達</strong><span>基金淨值・配息查詢・歷史紀錄</span></div>
+    <div class="brand"><strong>我的基金雷達</strong><span>基金淨值・最新配息・歷史紀錄・官方資訊</span></div>
     <div class="head-note"><span class="dot"></span>7 檔基金專用</div>
   </header>
   <section class="hero">
     <div class="hero-content">
       <div class="mini">MY FUND WATCHLIST</div>
-      <h1>常看的基金，<br>一次掌握淨值與配息。</h1>
+      <h1>常看的基金，<br>最新配息一眼掌握。</h1>
       <p>電腦、手機都能使用同一個網址。自動更新已公開的基金淨值與配息紀錄，並保留實際資料日期。美元基金優先排列、同公司集中顯示。</p>
     </div>
     <div class="hero-counter"><span class="hero-number">07</span><span>追蹤基金</span><small>6 檔美元・1 檔南非幣</small></div>
@@ -51,6 +85,24 @@
   </section>
   <div id="syncNotice" class="status waiting" role="status" aria-live="polite">正在讀取基金公開資料快照……</div>
   <details class="diagnostics"><summary>查看資料更新診斷（無法更新時請點這裡）</summary><pre id="diagnostics">尚未讀取更新紀錄</pre></details>
+  <section class="announcements main-panel" aria-labelledby="announcementsTitle">
+    <div class="titleline announcement-head">
+      <div>
+        <div class="section-eyebrow">DISTRIBUTION UPDATES</div>
+        <h2 id="announcementsTitle">最新配息公告</h2>
+        <p>每檔基金顯示目前<b>已取得</b>的最近一期配息，依除息日由近到遠排列；以實際公告為準。</p>
+      </div>
+      <label class="filter-label announce-filter">顯示範圍
+        <select id="announcementFilter" aria-label="最新配息顯示範圍">
+          <option value="all">每檔最新一筆</option>
+          <option value="90">僅近 90 天</option>
+        </select>
+      </label>
+    </div>
+    <div class="announcement-meta" id="announcementSummary" aria-live="polite">正在讀取最新配息紀錄……</div>
+    <div id="announcementList" class="announcement-list" aria-live="polite"></div>
+    <p class="announcement-footnote">※「最新」是目前資料來源已取得的最近一筆配息，日期以<strong>除息日</strong>表示，並非新聞發布時間；發放日期未提供時不推估。配息可能來自本金，配息金額的變化不代表基金總報酬。</p>
+  </section>
   <section class="main-panel">
     <div class="titleline"><div><h2>我的基金觀察清單</h2><p>依「美元優先 → 基金公司」分組；淨值、配息資料日期分別顯示。</p></div><button type="button" id="refreshButton" class="btn accent">↻ 重新讀取雲端資料</button></div>
     <div class="tools"><label class="search"><span class="sr-only">搜尋基金</span><input id="search" type="search" placeholder="搜尋基金名稱、公司、ISIN……" /></label><label class="filter-label">幣別<select id="currency"><option value="all">全部幣別</option><option value="USD">美元 USD</option><option value="ZAR">南非幣 ZAR</option></select></label></div>
@@ -83,6 +135,56 @@ const validNav = d => d && Number.isFinite(Number(d.nav)) && Number(d.nav)>0 && 
 const records = d => Array.isArray(d?.dividends) ? d.dividends.filter(r=>/^20\d{2}-\d{2}-\d{2}$/.test(r.exDate||"") && r.perUnit !== null && Number.isFinite(Number(r.perUnit)) && Number(r.perUnit)>=0).sort((a,b)=>b.exDate.localeCompare(a.exDate)) : [];
 const last12 = rows => {const end=new Date();const since=new Date(end);since.setFullYear(since.getFullYear()-1);return rows.filter(r=>{let d=new Date(`${r.exDate}T12:00:00+08:00`);return d>=since && d<=end;});};
 const percentage = (d,rows)=> !validNav(d) || !rows.length ? null : rows.reduce((sum,r)=>sum+Number(r.perUnit),0)/Number(d.nav)*100;
+
+// Verified asset manager pages. The AB links are fund-family pages (select the right share class there).
+// Amundi provides a fund-specific distribution composition file for the requested ZAR class.
+const OFFICIAL = Object.freeze({
+  "LU0820561818": {url:"https://tw.allianzgi.com/zh-tw/products-solutions/luxemberg/allianz-income-and-growth-am-usd?nav=overview",label:"安聯官方基金頁"},
+  "LU2023250330": {url:"https://tw.allianzgi.com/zh-tw/products-solutions/luxemberg/allianz-income-and-growth-amg7-usd?nav=overview",label:"安聯官方基金頁"},
+  "LU2347655073": {url:"https://am.jpmorgan.com/lu/en/asset-management/per/products/jpm-global-income-a-icdiv-usd-hedged-lu2347655073",label:"摩根官方基金頁（英文）"},
+  "TW000T0759D2": {url:"https://www.eastspring.com.tw/our-funds/all-funds/funddetails?isincode=TW000T0759D2",label:"瀚亞官方基金頁"},
+  "TW000T1811K5": {url:"https://www.abfunds.com.tw/zh-tw/funds/onshore/multi-asset/multi-asset-income-fund-of-funds.html",label:"聯博官方基金系列頁"},
+  "LU2859284783": {url:"https://www.abfunds.com.tw/zh-tw/funds/offshore/equities/american-growth-portfolio.html",label:"聯博官方基金系列頁"},
+  "LU1883841964": {url:"https://www.amundi.com.tw/retail/files/nuxeo/dl/a623f46d-b094-41d5-a587-9a3d70a3842d",label:"東方匯理官方配息表（PDF）"}
+});
+function officialAnchor(f,label='基金公司資訊 ↗'){
+  const spec=OFFICIAL[f.isin], a=node('a','link-button official-link',label);
+  a.href=spec.url;a.target='_blank';a.rel='noopener noreferrer';a.title=spec.label+'（另開新視窗）';a.setAttribute('aria-label',f.name+'：'+spec.label);
+  return a;
+}
+function dateDiffDays(iso){
+  if(!/^20\d{2}-\d{2}-\d{2}$/.test(String(iso||'')))return null;
+  return Math.round((Date.now()-Date.parse(iso+'T00:00:00+08:00'))/86400000);
+}
+function distributionChange(latest,previous){
+  if(!latest||!previous)return {word:'沒有上期資料可比較',tone:''};
+  const last=Number(latest.perUnit),prev=Number(previous.perUnit),diff=last-prev;
+  if(Math.abs(diff)<1e-10)return {word:'與上期相同',tone:''};
+  const pct=prev>0?'（'+(Math.abs(diff)/prev*100).toFixed(1)+'%）':'';
+  return {word:(diff>0?'較上期增加 ':'較上期減少 ')+number(Math.abs(diff),6)+pct,tone:diff>0?'up':'down'};
+}
+function renderAnnouncements(){
+  const host=$('announcementList');host.replaceChildren();
+  const mode=$('announcementFilter').value;
+  const items=FUNDS.map(f=>{const r=records(live.funds?.[f.isin]);return {f,latest:r[0],previous:r[1]};})
+    .filter(x=>x.latest)
+    .filter(x=>mode==='all'||(dateDiffDays(x.latest.exDate)!==null&&dateDiffDays(x.latest.exDate)<=90&&dateDiffDays(x.latest.exDate)>=-30))
+    .sort((a,b)=>b.latest.exDate.localeCompare(a.latest.exDate));
+  $('announcementSummary').textContent=`已取得 ${FUNDS.filter(f=>records(live.funds?.[f.isin]).length).length}/7 檔基金的配息紀錄 · ${mode==='all'?'顯示每檔最近一筆':'只顯示近90天除息紀錄'} · 資料最後檢查：${live.checkedAt?live.checkedAt.replace('T',' ').slice(0,16):'尚未執行'}`;
+  if(!items.length){host.append(node('div','announce-empty',mode==='all'?'目前尚未取得任何基金的配息紀錄，請確認自動更新是否完成。':'近90天尚無可用的配息紀錄。可切換「每檔最新一筆」查看較早資料。'));return;}
+  for(const {f,latest,previous} of items){
+    const card=node('article','announcement-card'+(f.currency==='ZAR'?' zar-card':''));
+    const top=node('div','announce-top');top.append(node('span','announce-manager',f.company),node('span','announce-ccy',f.currency==='USD'?'美元 USD':'南非幣 ZAR'));card.append(top);
+    card.append(node('div','announce-fund',f.name));
+    const amount=node('div','announce-number');amount.append(node('small','',f.currency+' / 單位'),node('span','',number(latest.perUnit,6)));card.append(amount);
+    const dates=node('div','announce-dates');dates.append(node('span','',`除息 ${niceDate(latest.exDate)}`),node('span','',`發放 ${niceDate(latest.payDate)}`));card.append(dates);
+    const delta=distributionChange(latest,previous);card.append(node('div','announce-change '+delta.tone,delta.word));
+    const age=dateDiffDays(latest.exDate);
+    if(age!==null&&age>60)card.append(node('span','announce-stale','此筆除息已超過60天，請核對官方公告'));
+    const action=node('div','announce-actions'),detail=node('button','','歷史配息');detail.type='button';detail.addEventListener('click',()=>openDetails(f));action.append(detail,officialAnchor(f,'官方資訊 ↗'));card.append(action);host.append(card);
+  }
+}
+
 function node(tag,klass,txt){const x=document.createElement(tag);if(klass)x.className=klass;if(txt!==undefined)x.textContent=txt;return x;}
 function metricCell(label,value,sub,isNA=false){const cell=node('div');cell.append(node('span','field-label',label),node('div','metric'+(isNA?' na':''),value),node('div','metric-sub',sub));return cell;}
 function render(){
@@ -92,6 +194,7 @@ function render(){
   for(const f of FUNDS){const d=live.funds?.[f.isin];if(validNav(d))navs++;if(records(d).length)dividends++;}
   $('fundCount').innerHTML='7 <em>檔</em>';$('navCount').innerHTML=navs+' <em>檔</em>';$('divCount').innerHTML=dividends+' <em>檔</em>';
   $('checkedAt').textContent=live.checkedAt ? live.checkedAt.replace('T',' ').slice(0,16) : '尚未執行';
+  renderAnnouncements();
   if(!selected.length){host.append(node('div','blank','沒有符合條件的基金'));return;}
   const grid=node('div','grid-header');['基金名稱 / 級別','計價幣別','最新基金淨值','最近每單位配息','近12個月簡易配息率','歷史紀錄'].forEach(h=>grid.append(node('span','',h)));host.append(grid);
   let previousCurrency='', previousCompany='';
@@ -116,7 +219,7 @@ function render(){
     row.append(metricCell('最新基金淨值',validNav(d)?number(d.nav):'尚無資料',validNav(d)?`淨值日 ${niceDate(d.navDate)}${d.navStatus==='cached'?'（沿用上次）':''}`:(d.navMessage||'等待官方基金資料'),!validNav(d)));
     row.append(metricCell('最近每單位配息',recent?number(recent.perUnit,6):'尚無資料',recent?`除息 ${niceDate(recent.exDate)} · 發放 ${niceDate(recent.payDate)}${d.dividendStatus==='cached'?'（沿用紀錄）':''}`:(d.dividendMessage||'等待官方配息公告'),!recent));
     row.append(metricCell('近12個月簡易配息率',rate===null?'—':number(rate,2)+'%',rate===null?'資料不足無法試算':trailing.length<12?`目前只有 ${trailing.length} 筆紀錄，期間不完整`:'非總報酬率',rate===null));
-    const buttonContainer=node('div');const button=node('button','link-button','查看配息明細');button.type='button';button.addEventListener('click',()=>openDetails(f));buttonContainer.append(button);row.append(buttonContainer);
+    const buttonContainer=node('div','fund-actions');const button=node('button','link-button','配息明細');button.type='button';button.addEventListener('click',()=>openDetails(f));buttonContainer.append(button,officialAnchor(f,'官方資訊 ↗'));row.append(buttonContainer);
     host.append(row);
   }
 }
@@ -133,6 +236,7 @@ function openDetails(f){
     const box=node('div','history-box'),table=node('table','history'),head=node('thead'),headRow=node('tr');['除息日','發放日','每單位配息','幣別'].forEach(h=>headRow.append(node('th','',h)));head.append(headRow);table.append(head);
     const tbody=node('tbody');history.forEach(r=>{const tr=node('tr');[niceDate(r.exDate),niceDate(r.payDate),number(r.perUnit,6),f.currency].forEach(v=>tr.append(node('td','',v)));tbody.append(tr);});table.append(tbody);box.append(table);body.append(box);
   }
+  const sourceLine=node('div','announce-actions');sourceLine.append(officialAnchor(f,'前往基金公司官方資訊 ↗'));body.append(sourceLine);
   body.append(node('p','modal-note','⚠ 配息來源可能為本金，簡易配息率不等於基金報酬率；實際以基金公司公告為準。'));
   container.append(body);$('detailDialog').showModal();
 }
@@ -161,7 +265,7 @@ async function loadData(){
   }catch(e){render();$('diagnostics').textContent='無法讀取 data/live.json：'+e.message+'\n請確認網頁網址與資料檔網址都能正常開啟。';const localFile=location.protocol==='file:'||location.protocol==='about:';banner('warn',localFile?'這是本機預覽：已載入7檔基金清單。淨值及配息請先上傳 GitHub Pages，再使用固定網址查看。':`基金資料檔讀取失敗（${e.message}）。請檢查 GitHub Actions 的部署與 data/live.json。`);}
   finally{$('refreshButton').disabled=false;}
 }
-$('search').addEventListener('input',render);$('currency').addEventListener('change',render);$('refreshButton').addEventListener('click',loadData);
+$('announcementFilter').addEventListener('change',renderAnnouncements);$('search').addEventListener('input',render);$('currency').addEventListener('change',render);$('refreshButton').addEventListener('click',loadData);
 render();loadData();
 
 </script>
