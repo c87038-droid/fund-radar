@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": null,
+  "source": "臺灣銀行",
+  "sourceUrl": "https://rate.bot.com.tw/xrt?Lang=zh-TW",
+  "sourceUsed": "",
+  "ok": false,
+  "message": "首次更新前尚無牌告匯率",
+  "rates": {
+    "USD": {"buy": null, "sell": null, "quotedAt": "", "fetchedAt": "", "status": "unavailable"},
+    "ZAR": {"buy": null, "sell": null, "quotedAt": "", "fetchedAt": "", "status": "unavailable"}
+  }
+}
