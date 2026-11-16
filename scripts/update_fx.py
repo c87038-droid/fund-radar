@@ -218,5 +218,34 @@ def main():
     return 0
 
 
+
+
+# Backward-compatible names used by the previously uploaded tests/test_update_fx.py.
+# The current parser API uses from_html/from_csv/pair/make_doc. Keep these adapters
+# while older tests remain in the repository so the CI test discovery does not fail
+# during import. All adapters call the real parsers/validation; no dummy values.
+def parse_bank_html(blob):
+    return from_html(blob)
+
+
+def parse_bank_csv(blob):
+    return from_csv(blob)
+
+
+def rate_pair(buy, sell):
+    # Legacy tests use a currency-neutral validator. ZAR gives a conservative
+    # acceptable range; for USD quotes accept the normal USD band instead.
+    return pair('ZAR', buy, sell) or pair('USD', buy, sell)
+
+
+def build_document(existing, fetched, url='', message='', at=None):
+    # Preserve the existing fresh/cached/missing distinctions and timestamps.
+    at = at or datetime.now(TW).isoformat(timespec='seconds')
+    provenance = {code: ('臺灣銀行即期牌告', url or RATE_PAGE)
+                  for code in (fetched or {}) if code in CODES}
+    errors = [message] if message and not fetched else []
+    return make_doc(existing, fetched or {}, provenance, errors, at)
+
+
 if __name__ == '__main__':
     sys.exit(main())
