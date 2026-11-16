@@ -81,7 +81,7 @@
   <section class="main-panel fx-panel" aria-labelledby="fxTitle">
     <div class="fx-title"><div><h2 id="fxTitle">美元・南非幣即期匯率</h2>
       <p>臺灣銀行牌告｜單位：新臺幣 TWD／1 單位外幣</p></div>
-      <a class="fx-source" href="https://rate.bot.com.tw/xrt?Lang=zh-TW" target="_blank" rel="noopener noreferrer">臺灣銀行官方牌告 ↗</a>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><a class="fx-source" href="https://rate.bot.com.tw/xrt?Lang=zh-TW" target="_blank" rel="noopener noreferrer">臺灣銀行官方牌告 ↗</a><a class="fx-source" href="data/fx.json" target="_blank" rel="noopener noreferrer" title="檢查公開匯率資料是否已發布">查看匯率資料檔 ↗</a></div>
     </div>
     <div class="fx-list" id="fxList" aria-live="polite"></div>
     <div id="fxNotice" class="fx-notice" role="status">正在讀取匯率資料……</div>
@@ -116,6 +116,7 @@ const FUNDS = [
 const $ = id => document.getElementById(id);
 let live = {schemaVersion:2,checkedAt:null,funds:{},sources:{}};
 let fx = {schemaVersion:1,checkedAt:null,rates:{},ok:false};
+let fxLoadError = "";
 const number = (x,n=4)=> x===null || x===undefined || !Number.isFinite(Number(x)) ? "—" : Number(x).toLocaleString("en-US",{minimumFractionDigits:n,maximumFractionDigits:n});
 const niceDate = x => /^20\d{2}-\d{2}-\d{2}$/.test(String(x||"")) ? x.replaceAll("-","/") : "尚無日期";
 const validNav = d => d && Number.isFinite(Number(d.nav)) && Number(d.nav)>0 && /^20\d{2}-\d{2}-\d{2}$/.test(d.navDate||"");
@@ -145,7 +146,7 @@ function validFx(code){
 }
 function fxDateText(q){
   const exact=q.quotedAt?('牌告 '+q.quotedAt.replace('T',' ').slice(0,16)):(q.fetchedAt?'擷取 '+q.fetchedAt.replace('T',' ').slice(0,16):'未提供牌告時間');
-  return exact+(q.status==='cached'?'（上次資料）':'');
+  return exact+(q.status==='cached'?'（上次成功擷取的舊資料）':'');
 }
 function renderFx(){
   const el=$('fxList');el.replaceChildren();
@@ -163,9 +164,11 @@ function renderFx(){
     el.append(card);
   }
   const n=$('fxNotice');
-  if(!fx.checkedAt){n.textContent='尚未執行匯率自動更新，請檢查 GitHub Actions。';n.className='fx-notice warn';}
-  else if(!fx.ok){n.textContent='最近一次擷取失敗；若仍有匯率數值，為上次成功擷取的舊牌價。最後檢查：'+fx.checkedAt.replace('T',' ').slice(0,16);n.className='fx-notice warn';}
-  else{n.textContent='來源：臺灣銀行｜最後檢查 '+fx.checkedAt.replace('T',' ').slice(0,16)+'（臺灣時間）；以各幣別牌告時間為準。';n.className='fx-notice';}
+  const time=fx.checkedAt ? fx.checkedAt.replace('T',' ').slice(0,16) : '';
+  if(fxLoadError){n.textContent='匯率資料檔無法讀取：'+fxLoadError+'。請確認 GitHub Actions 已執行並發布 data/fx.json。';n.className='fx-notice warn';}
+  else if(!fx.checkedAt){n.textContent='匯率檔尚未執行首次更新，請到 GitHub Actions 手動執行「基金與匯率自動更新」。';n.className='fx-notice warn';}
+  else if(!fx.ok){n.textContent='最近一次匯率擷取未全部成功（最後檢查 '+time+'）。'+(fx.message||'')+'；若有數值，請查看每個幣別的資料日期。';n.className='fx-notice warn';}
+  else{n.textContent='來源：臺灣銀行｜最後檢查 '+time+'（臺灣時間）；以各幣別牌告時間為準。';n.className='fx-notice';}
 }
 async function loadFx(){
   try{
@@ -174,9 +177,10 @@ async function loadFx(){
     const data=await r.json();
     if(data.schemaVersion!==1||!data.rates)throw new Error('匯率資料格式不符');
     fx=data;
+    fxLoadError='';
   }catch(error){
     fx={schemaVersion:1,checkedAt:null,ok:false,rates:{}};
-    const el=$('fxNotice');el.textContent='尚未讀取到 data/fx.json：'+error.message+'。請上傳匯率檔案並執行自動更新。';el.className='fx-notice warn';
+    fxLoadError=error.message;
   }
   renderFx();render();
 }

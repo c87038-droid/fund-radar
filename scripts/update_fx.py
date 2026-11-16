@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Update USD/ZAR spot BUY/SELL quotes from Bank of Taiwan's public board.
+"""Bank of Taiwan spot (即期) USD/ZAR buy/sell quote updater.
 
-The rates are the bank's perspective and quoted in TWD per 1 foreign currency.
-Never substitutes market mid-rates for actual bank spreads. Failed fetches keep
-old values visibly marked 'cached', never mark a fetch as a fresh quote.
-Python standard library only; independent of the mutual-fund NAV updater.
+Output: data/fx.json. No hardcoded market prices, no stock APIs.
+When unavailable, previously confirmed rates remain tagged cached and errors
+are published for display; missing prices are never fabricated.
 """
 from __future__ import annotations
 
@@ -19,194 +18,205 @@ from html.parser import HTMLParser
 from pathlib import Path
 from urllib.request import Request, urlopen
 
-ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / 'data' / 'fx.json'
-TAIWAN = timezone(timedelta(hours=8))
-CURRENCIES = ('USD', 'ZAR')
-SOURCE_HTML = 'https://rate.bot.com.tw/xrt?Lang=zh-TW'
-SOURCE_CSV = 'https://rate.bot.com.tw/xrt/flcsv/0/day'
+BASE = Path(__file__).resolve().parents[1]
+OUT = BASE / 'data' / 'fx.json'
+TW = timezone(timedelta(hours=8))
+CODES = ('USD', 'ZAR')
+RATE_PAGE = 'https://rate.bot.com.tw/xrt?Lang=zh-TW'
+SOURCES = (
+    ('臺灣銀行即期牌告', RATE_PAGE, 'html'),
+    ('臺灣銀行即期牌告（備援頁）', 'https://rate.bot.com.tw/xrt?mode=desktop', 'html'),
+    ('臺灣銀行牌告 CSV', 'https://rate.bot.com.tw/xrt/flcsv/0/day', 'csv'),
+    ('臺灣銀行前一交易日收盤牌告', 'https://rate.bot.com.tw/xrt/all/day', 'html'),
+)
 
 
-class BankTable(HTMLParser):
+class TableReader(HTMLParser):
     def __init__(self):
         super().__init__(convert_charrefs=True)
         self.rows = []
         self.row = None
         self.cell = None
-        self.cell_tag = None
-        self.ignore = 0
-        self.all_text = []
+        self.raw_text = []
+        self.ignored = 0
 
     def handle_starttag(self, tag, attrs):
         if tag in ('script', 'style'):
-            self.ignore += 1
+            self.ignored += 1
             return
-        if self.ignore:
+        if self.ignored:
             return
         if tag == 'tr':
             self.row = []
         elif tag in ('th', 'td') and self.row is not None:
-            self.cell_tag = tag
             self.cell = []
 
     def handle_data(self, data):
-        if self.ignore:
-            return
-        self.all_text.append(data)
-        if self.cell is not None:
-            self.cell.append(data)
+        if not self.ignored:
+            self.raw_text.append(data)
+            if self.cell is not None:
+                self.cell.append(data)
 
     def handle_endtag(self, tag):
         if tag in ('script', 'style'):
-            if self.ignore:
-                self.ignore -= 1
+            self.ignored = max(0, self.ignored - 1)
             return
-        if self.ignore:
+        if self.ignored:
             return
         if tag in ('th', 'td') and self.cell is not None and self.row is not None:
-            self.row.append(re.sub(r'\s+', ' ', ' '.join(self.cell)).strip())
+            self.row.append(' '.join(' '.join(self.cell).split()))
             self.cell = None
         elif tag == 'tr' and self.row is not None:
             self.rows.append(self.row)
             self.row = None
 
 
-def rate_number(value):
-    value = str(value or '').strip().replace(',', '')
-    if not re.fullmatch(r'\d+(?:\.\d+)?', value):
+def num(text):
+    if isinstance(text, (int, float)):
+        text = str(text)
+    text = str(text or '').strip().replace(',', '')
+    if not re.fullmatch(r'\d+(?:\.\d+)?', text):
         return None
-    number = float(value)
-    return number if 0.01 < number < 200 else None
+    return float(text)
 
 
-def rate_pair(buy, sell):
-    buy, sell = rate_number(buy), rate_number(sell)
-    if buy is None or sell is None or sell < buy or sell > buy * 1.2:
+def pair(code, buy, sell):
+    buy, sell = num(buy), num(sell)
+    if buy is None or sell is None or sell < buy:
+        return None
+    low, high = (15, 65) if code == 'USD' else (0.4, 7)
+    if not (low <= buy <= high and low <= sell <= high and sell <= buy * 1.2):
         return None
     return {'buy': buy, 'sell': sell}
 
 
-def parse_bank_html(blob):
-    parser = BankTable()
-    parser.feed(blob.decode('utf-8-sig'))
-    text = ' '.join(parser.all_text)
-    stamp = re.search(r'牌價最新掛牌時間\s*[：:]\s*(20\d{2})/(\d{1,2})/(\d{1,2})\s+(\d{1,2}:\d{2})', text)
-    quote_at = ''
-    if stamp:
-        y, m, d, hm = stamp.groups()
-        quote_at = f'{y}-{int(m):02d}-{int(d):02d}T{hm}:00+08:00'
-        # Never accept a future-dated official board or a wildly old response.
-        parsed = datetime.fromisoformat(quote_at)
-        if parsed > datetime.now(TAIWAN) + timedelta(days=1) or parsed < datetime.now(TAIWAN) - timedelta(days=15):
-            raise ValueError('臺銀牌價日期異常，未採用')
-    results = {}
-    for cells in parser.rows:
-        if len(cells) < 5:
-            continue
-        for currency in CURRENCIES:
-            indices = [i for i, s in enumerate(cells[:3]) if re.search(r'(?<![A-Z])'+currency+r'(?![A-Z])', s, re.I)]
-            if not indices:
-                continue
-            start = indices[0]
-            # Standard BOT board: currency, cash buy, cash sell, spot buy, spot sell.
-            # Keep '-' placeholders, otherwise the ZAR spot pair would shift.
-            following = cells[start+1:start+5]
-            if len(following) < 4:
-                continue
-            result = rate_pair(following[2], following[3])
-            if result:
-                results[currency] = {**result, 'quotedAt': quote_at}
-    if set(results) != set(CURRENCIES):
-        raise ValueError('臺銀牌價網頁缺少美元或南非幣的即期買賣價')
-    return results
+def stamp_from_text(text):
+    pat = r'(?:牌價最新掛牌時間|掛牌時間)\s*[：:]?\s*(20\d\d)[/\-](\d{1,2})[/\-](\d{1,2})\s*(\d{1,2}):(\d\d)'
+    m = re.search(pat, text)
+    if not m:
+        return ''
+    y, mo, d, hh, mm = map(int, m.groups())
+    iso = datetime(y, mo, d, hh, mm, tzinfo=TW)
+    if iso > datetime.now(TW) + timedelta(days=1) or iso < datetime.now(TW) - timedelta(days=20):
+        raise ValueError('臺灣銀行牌告日期不在合理範圍')
+    return iso.isoformat(timespec='seconds')
 
 
-def decode_csv(blob):
-    for encoding in ('utf-8-sig', 'cp950', 'big5'):
-        try:
-            return blob.decode(encoding)
-        except UnicodeDecodeError:
-            pass
-    raise ValueError('臺銀 CSV 無法解碼')
-
-
-def parse_bank_csv(blob):
-    content = decode_csv(blob)
-    table = list(csv.reader(io.StringIO(content)))
-    results = {}
-    for row in table:
+def from_html(payload):
+    parser = TableReader()
+    parser.feed(payload.decode('utf-8-sig', errors='replace'))
+    stamp = stamp_from_text(' '.join(parser.raw_text))
+    result = {}
+    for row in parser.rows:
+        # Currency + cash buy + cash sell + spot buy + spot sell.
+        # Keep '-' placeholders in cash fields (ZAR has no cash quotes).
         if len(row) < 5:
             continue
-        first = row[0].strip().upper()
-        for code in CURRENCIES:
-            if not re.search(r'(?<![A-Z])'+code+r'(?![A-Z])', first):
-                continue
-            # The published CSV columns are currency, cash buy/sell, spot buy/sell.
-            # The CSV endpoint does not guarantee a bank quote timestamp.
-            pair = rate_pair(row[3], row[4])
-            if pair:
-                results[code] = {**pair, 'quotedAt': ''}
-    if set(results) != set(CURRENCIES):
-        raise ValueError('臺銀 CSV 找不到 USD/ZAR 正確即期買賣價')
-    return results
+        for code in CODES:
+            for i, cell in enumerate(row[:3]):
+                if re.search(r'(?<![A-Z])' + code + r'(?![A-Z])', cell, re.I) and len(row) >= i + 5:
+                    candidate = pair(code, row[i+3], row[i+4])
+                    if candidate:
+                        result[code] = {**candidate, 'quotedAt': stamp}
+    if not result:
+        raise ValueError('找不到 USD/ZAR 即期牌價欄位')
+    return result
+
+
+def from_csv(payload):
+    raw = None
+    for enc in ('utf-8-sig', 'cp950', 'big5'):
+        try:
+            raw = payload.decode(enc)
+            break
+        except UnicodeDecodeError:
+            pass
+    if raw is None:
+        raise ValueError('無法解析牌告 CSV 編碼')
+    result = {}
+    for row in csv.reader(io.StringIO(raw)):
+        if len(row) < 5:
+            continue
+        for code in CODES:
+            if re.search(r'(?<![A-Z])'+code+r'(?![A-Z])', row[0], re.I):
+                candidate = pair(code, row[3], row[4])
+                if candidate:
+                    result[code] = {**candidate, 'quotedAt': ''}
+    if not result:
+        raise ValueError('牌告 CSV 沒有 USD/ZAR 即期買賣價')
+    return result
 
 
 def fetch(url):
-    req = Request(url, headers={'User-Agent':'Mozilla/5.0 (compatible; FundRadar/3.0)', 'Accept':'text/html,text/csv,*/*'})
-    with urlopen(req, timeout=28) as result:
-        payload = result.read(3_000_000)
-    if len(payload) < 100:
-        raise ValueError('臺銀回傳資料過短')
-    return payload
+    req = Request(url, headers={
+        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/131.0 Safari/537.36',
+        'Accept-Language': 'zh-TW,zh;q=0.9,en;q=0.8',
+        'Accept': 'text/html,text/csv,*/*',
+        'Cache-Control': 'no-cache',
+    })
+    with urlopen(req, timeout=25) as r:
+        raw = r.read(2_000_000)
+    if len(raw) < 100:
+        raise ValueError('牌告網站沒有回傳有效資料')
+    return raw
 
 
-def build_document(existing, fetched, url='', message='', at=None):
-    at = at or datetime.now(TAIWAN).isoformat(timespec='seconds')
-    prior = existing.get('rates', {}) if isinstance(existing, dict) else {}
-    current = {}
-    for code in CURRENCIES:
-        latest = fetched.get(code) if fetched else None
-        if latest:
-            current[code] = {
-                'buy': latest['buy'], 'sell': latest['sell'],
-                'quotedAt': latest.get('quotedAt',''),
-                'fetchedAt': at, 'status': 'found'
-            }
+def make_doc(existing, fresh, source_by_code, errors, checked):
+    last = existing.get('rates', {}) if isinstance(existing, dict) else {}
+    records = {}
+    for code in CODES:
+        if code in fresh:
+            records[code] = {**fresh[code], 'fetchedAt': checked, 'status': 'found',
+                             'sourceName': source_by_code[code][0], 'sourceUrl': source_by_code[code][1]}
         else:
-            old = prior.get(code, {})
-            pair = rate_pair(old.get('buy'), old.get('sell'))
-            current[code] = {**(pair or {'buy':None,'sell':None}),
-                'quotedAt': old.get('quotedAt',''),
-                'fetchedAt': old.get('fetchedAt',''),
-                'status': 'cached' if pair else 'unavailable'}
-    return {'schemaVersion':1, 'checkedAt':at, 'source':'臺灣銀行',
-            'sourceUrl':SOURCE_HTML, 'sourceUsed':url or existing.get('sourceUsed',''),
-            'ok':bool(fetched), 'message':message, 'rates':current}
+            old = last.get(code) or {}
+            old_pair = pair(code, old.get('buy'), old.get('sell'))
+            records[code] = {**(old_pair or {'buy': None, 'sell': None}),
+                             'quotedAt': old.get('quotedAt') or '',
+                             'fetchedAt': old.get('fetchedAt') or '',
+                             'status': 'cached' if old_pair else 'unavailable',
+                             'sourceName': old.get('sourceName') or '臺灣銀行',
+                             'sourceUrl': old.get('sourceUrl') or RATE_PAGE}
+    okay = len(fresh) == len(CODES)
+    msg = ('兩種匯率均已更新' if okay else
+           '部分匯率沒有更新' if fresh else '臺灣銀行資料目前無法擷取')
+    if errors:
+        msg += '。' + '；'.join(errors)[-1200:]
+    return {'schemaVersion': 1, 'checkedAt': checked, 'source': '臺灣銀行',
+            'sourceUrl': RATE_PAGE, 'sourceUsed': ', '.join(dict.fromkeys(x[1] for x in source_by_code.values())),
+            'ok': okay, 'message': msg, 'rates': records}
 
 
 def main():
-    existing = json.loads(OUTPUT.read_text(encoding='utf-8')) if OUTPUT.exists() else {}
-    errors = []
-    data = None
-    used = ''
-    for url, parser in ((SOURCE_HTML, parse_bank_html), (SOURCE_CSV, parse_bank_csv)):
-        try:
-            data = parser(fetch(url))
-            used = url
+    try:
+        old = json.loads(OUT.read_text(encoding='utf-8')) if OUT.exists() else {}
+    except (OSError, json.JSONDecodeError):
+        old = {}
+    checked = datetime.now(TW).isoformat(timespec='seconds')
+    fresh, provenance, errors = {}, {}, []
+    for title, url, format_name in SOURCES:
+        if len(fresh) == 2:
             break
-        except Exception as exc:
-            errors.append(f'{url}: {type(exc).__name__} {str(exc)[:150]}')
-            time.sleep(0.4)
-    message = '臺灣銀行即期匯率已讀取' if data else '；'.join(errors)
-    document = build_document(existing, data, used, message)
-    OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-    OUTPUT.write_text(json.dumps(document, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
-    for code, item in document['rates'].items():
-        print(f'{code}: 銀行買進={item["buy"]} 賣出={item["sell"]} 狀態={item["status"]} 牌告時間={item["quotedAt"]}')
-    if errors:
-        print('匯率來源檢查：' + '；'.join(errors), file=sys.stderr)
-    print('已更新 data/fx.json；未取得的匯率不會填入猜測值。')
+        try:
+            found = from_csv(fetch(url)) if format_name == 'csv' else from_html(fetch(url))
+            for code, quote in found.items():
+                if code not in fresh:
+                    fresh[code] = quote
+                    provenance[code] = (title, url)
+        except Exception as e:
+            errors.append(f'{title}：{type(e).__name__}: {str(e)[:155]}')
+        time.sleep(0.15)
+    data = make_doc(old, fresh, provenance, errors, checked)
+    OUT.parent.mkdir(parents=True, exist_ok=True)
+    OUT.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+    print('匯率最後檢查：', data['checkedAt'])
+    for code, quote in data['rates'].items():
+        print(code, '即期買進=', quote['buy'], '即期賣出=', quote['sell'], '狀態=', quote['status'],
+              '牌告時間=', quote['quotedAt'], '來源=', quote['sourceUrl'])
+    print('詳細狀態：', data['message'])
+    # Always publish diagnostics, even if official site is temporarily inaccessible.
+    return 0
 
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())
