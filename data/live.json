@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "checkedAt": "2026-11-16T22:48:46+08:00",
+  "checkedAt": "2026-11-16T23:29:39+08:00",
   "funds": {
     "LU0820561818": {
       "nav": 8.1653,
@@ -283,7 +283,7 @@
     "local_nav": {
       "ok": true,
       "message": "",
-      "rows": 4354,
+      "rows": 4490,
       "url": "https://www.sitca.org.tw/MemberK0000/F/03/nav.csv",
       "columns": [
         "日期",
