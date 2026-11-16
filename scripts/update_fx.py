@@ -37,6 +37,9 @@ class TableReader(HTMLParser):
         self.rows = []
         self.row = None
         self.cell = None
+        self.cell_attrs = None
+        self.row_details = None
+        self.detailed_rows = []
         self.raw_text = []
         self.ignored = 0
 
@@ -48,8 +51,10 @@ class TableReader(HTMLParser):
             return
         if tag == 'tr':
             self.row = []
+            self.row_details = []
         elif tag in ('th', 'td') and self.row is not None:
             self.cell = []
+            self.cell_attrs = dict(attrs)
 
     def handle_data(self, data):
         if not self.ignored:
@@ -64,11 +69,16 @@ class TableReader(HTMLParser):
         if self.ignored:
             return
         if tag in ('th', 'td') and self.cell is not None and self.row is not None:
-            self.row.append(' '.join(' '.join(self.cell).split()))
+            value = ' '.join(' '.join(self.cell).split())
+            self.row.append(value)
+            self.row_details.append((value, self.cell_attrs or {}))
             self.cell = None
+            self.cell_attrs = None
         elif tag == 'tr' and self.row is not None:
             self.rows.append(self.row)
+            self.detailed_rows.append(self.row_details)
             self.row = None
+            self.row_details = None
 
 
 def num(text):
@@ -107,17 +117,37 @@ def from_html(payload):
     parser.feed(payload.decode('utf-8-sig', errors='replace'))
     stamp = stamp_from_text(' '.join(parser.raw_text))
     result = {}
-    for row in parser.rows:
-        # Currency + cash buy + cash sell + spot buy + spot sell.
-        # Keep '-' placeholders in cash fields (ZAR has no cash quotes).
+    for row, details in zip(parser.rows, parser.detailed_rows):
         if len(row) < 5:
             continue
         for code in CODES:
             for i, cell in enumerate(row[:3]):
-                if re.search(r'(?<![A-Z])' + code + r'(?![A-Z])', cell, re.I) and len(row) >= i + 5:
-                    candidate = pair(code, row[i+3], row[i+4])
-                    if candidate:
-                        result[code] = {**candidate, 'quotedAt': stamp}
+                if not re.search(r'(?<![A-Z])' + code + r'(?![A-Z])', cell, re.I):
+                    continue
+                spot_buy = spot_sell = None
+                # The official BOT board identifies spot-rate cells with
+                # data-table="本行即期買入/賣出" or CSS class "rate-content-sight".
+                # Prefer these labels to avoid accidentally reading duplicate
+                # print-only table cells or cash quotes.
+                for value, attrs in details:
+                    label = (attrs.get('data-table') or '') + ' ' + (attrs.get('class') or '')
+                    if ('即期買入' in label or '即期買進' in label):
+                        spot_buy = value
+                    elif ('即期賣出' in label):
+                        spot_sell = value
+                if spot_buy is None or spot_sell is None:
+                    sight = [(value, attrs) for value, attrs in details
+                             if 'rate-content-sight' in (attrs.get('class') or '')]
+                    if len(sight) >= 2:
+                        spot_buy, spot_sell = sight[0][0], sight[1][0]
+                # Stable, documented order in BOT table:
+                # currency, cash-buy, cash-sell, spot-buy, spot-sell.
+                if spot_buy is None or spot_sell is None:
+                    if len(row) >= i + 5:
+                        spot_buy, spot_sell = row[i + 3], row[i + 4]
+                candidate = pair(code, spot_buy, spot_sell)
+                if candidate:
+                    result[code] = {**candidate, 'quotedAt': stamp}
     if not result:
         raise ValueError('找不到 USD/ZAR 即期牌價欄位')
     return result
