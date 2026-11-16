@@ -96,7 +96,7 @@
   </section>
   <section class="info-layout">
     <article class="info"><h2>這個網頁怎麼更新？</h2><p>GitHub Actions 每日定時讀取公開基金資料，發布到同一個網址。點「重新讀取」只會取得最新已發布的檔案，不是基金盤中即時行情。</p><p class="smaller">正常情況會在臺灣時間 09:15、18:15、23:15 排程檢查；GitHub 排程可能延遲，且基金公司休市或尚未公告時，淨值日期不會改變。</p></article>
-    <article class="info"><h2>配息率怎麼看？</h2><p>近12個月簡易配息率＝近12個月已取得的每單位配息合計 ÷ 最新可用淨值 × 100%。</p><p class="smaller">此數字不是總報酬率，也不是保證收益；配息可能涉及本金。紀錄不完整時會顯示「資料未滿12筆」。</p></article>
+    <article class="info"><h2>當期配息率怎麼看？</h2><p>當期配息率（試算）＝最近一次每單位配息金額 ÷ 最新可用基金淨值 × 100%。</p><p class="smaller">以目前可取得的最新配息與淨值估算，兩者日期可能不同；不是基金公司依除息基準日計算的官方配息率，也不是年化配息率或總報酬率。配息可能涉及本金。</p></article>
   </section>
   <footer>資料來源：<a href="https://rate.bot.com.tw/xrt?Lang=zh-TW" target="_blank" rel="noopener noreferrer">臺灣銀行即期匯率</a>、<a href="https://data.gov.tw/dataset/11642" target="_blank" rel="noopener noreferrer">集保境外基金配息</a>、<a href="https://data.gov.tw/dataset/11109" target="_blank" rel="noopener noreferrer">境內基金淨值</a>、<a href="https://data.gov.tw/dataset/160547" target="_blank" rel="noopener noreferrer">境內基金配息</a>。資料可能延遲，實際申購、贖回及配息依基金公司公告為準。此站不蒐集投資帳戶或個人持有資訊。</footer>
 </div>
@@ -121,8 +121,9 @@ const number = (x,n=4)=> x===null || x===undefined || !Number.isFinite(Number(x)
 const niceDate = x => /^20\d{2}-\d{2}-\d{2}$/.test(String(x||"")) ? x.replaceAll("-","/") : "尚無日期";
 const validNav = d => d && Number.isFinite(Number(d.nav)) && Number(d.nav)>0 && /^20\d{2}-\d{2}-\d{2}$/.test(d.navDate||"");
 const records = d => Array.isArray(d?.dividends) ? d.dividends.filter(r=>/^20\d{2}-\d{2}-\d{2}$/.test(r.exDate||"") && r.perUnit !== null && Number.isFinite(Number(r.perUnit)) && Number(r.perUnit)>=0).sort((a,b)=>b.exDate.localeCompare(a.exDate)) : [];
-const last12 = rows => {const end=new Date();const since=new Date(end);since.setFullYear(since.getFullYear()-1);return rows.filter(r=>{let d=new Date(`${r.exDate}T12:00:00+08:00`);return d>=since && d<=end;});};
-const percentage = (d,rows)=> !validNav(d) || !rows.length ? null : rows.reduce((sum,r)=>sum+Number(r.perUnit),0)/Number(d.nav)*100;
+// 當期配息率只採最近一筆已確認配息，不累計12個月，也不作年化。
+// 僅有最新可用淨值，因此屬試算，非除息當日官方揭露的配息率。
+const currentDistributionRate = (d,latest)=> !validNav(d) || !latest ? null : Number(latest.perUnit)/Number(d.nav)*100;
 
 // Verified asset manager pages. The AB links are fund-family pages (select the right share class there).
 // Amundi provides a fund-specific distribution composition file for the requested ZAR class.
@@ -194,7 +195,7 @@ function render(){
   $('fundCount').innerHTML='7 <em>檔</em>';$('navCount').innerHTML=navs+' <em>檔</em>';$('divCount').innerHTML=dividends+' <em>檔</em>';
   $('checkedAt').textContent=live.checkedAt ? live.checkedAt.replace('T',' ').slice(0,16) : '尚未執行';
   if(!selected.length){host.append(node('div','blank','沒有符合條件的基金'));return;}
-  const grid=node('div','grid-header');['基金名稱 / 級別','計價幣別','最新基金淨值','最近每單位配息','近12個月簡易配息率','歷史紀錄'].forEach(h=>grid.append(node('span','',h)));host.append(grid);
+  const grid=node('div','grid-header');['基金名稱 / 級別','計價幣別','最新基金淨值','最近每單位配息','當期配息率','歷史紀錄'].forEach(h=>grid.append(node('span','',h)));host.append(grid);
   let previousCurrency='', previousCompany='';
   for(const f of selected){
     if(f.currency!==previousCurrency){
@@ -210,24 +211,24 @@ function render(){
       host.append(companySection);
       previousCompany=f.company;
     }
-    const d=live.funds?.[f.isin]||{}, history=records(d), recent=history[0]||null, trailing=last12(history), rate=percentage(d,trailing);
+    const d=live.funds?.[f.isin]||{}, history=records(d), recent=history[0]||null, rate=currentDistributionRate(d,recent);
     const row=node('article','fund-row');
     const identity=node('div');identity.append(node('div','fund-name',f.name));identity.append(node('div','fund-sub',`${f.company} · ${f.group} · ${f.frequency} · ${f.tier}`));identity.append(node('div','fund-sub isin',`ISIN：${f.isin}`));row.append(identity);
     const wrap=node('div');wrap.append(node('span','field-label','計價幣別'),node('span','chip'+(f.currency==='ZAR'?' zar':''),f.currency==='ZAR'?'南非幣 ZAR':'美元 USD'));row.append(wrap);
     row.append(metricCell('最新基金淨值',validNav(d)?number(d.nav):'尚無資料',validNav(d)?`淨值日 ${niceDate(d.navDate)}${d.navStatus==='cached'?'（沿用上次）':''}`:(d.navMessage||'等待官方基金資料'),!validNav(d)));
     row.append(metricCell('最近每單位配息',recent?number(recent.perUnit,6):'尚無資料',recent?`除息 ${niceDate(recent.exDate)} · 發放 ${niceDate(recent.payDate)}${d.dividendStatus==='cached'?'（沿用紀錄）':''}`:(d.dividendMessage||'等待官方配息公告'),!recent));
-    row.append(metricCell('近12個月簡易配息率',rate===null?'—':number(rate,2)+'%',rate===null?'資料不足無法試算':trailing.length<12?`目前只有 ${trailing.length} 筆紀錄，期間不完整`:'非總報酬率',rate===null));
+    row.append(metricCell('當期配息率',rate===null?'—':number(rate,2)+'%',rate===null?'缺少淨值或最近一次配息，無法試算':`除息 ${niceDate(recent.exDate)} · 淨值 ${niceDate(d.navDate)}（試算）`,rate===null));
     const buttonContainer=node('div','fund-actions');const button=node('button','link-button','配息明細');button.type='button';button.addEventListener('click',()=>openDetails(f));buttonContainer.append(button,officialAnchor(f,'官方資訊 ↗'));row.append(buttonContainer);
     host.append(row);
   }
 }
 function openDetails(f){
-  const d=live.funds?.[f.isin]||{}, history=records(d), trailing=last12(history), rate=percentage(d,trailing), container=$('detailContent');container.replaceChildren();
+  const d=live.funds?.[f.isin]||{}, history=records(d), recent=history[0]||null, rate=currentDistributionRate(d,recent), container=$('detailContent');container.replaceChildren();
   const body=node('div','modal-inner');body.append(node('h2','',f.name),node('div','modal-meta',`ISIN：${f.isin}　｜　${f.currency}　｜　${f.frequency}　｜　${f.group}`));
   const summary=node('div','modal-stats');
-  const stats=[['最新基金淨值',validNav(d)?`${f.currency} ${number(d.nav)}`:'尚無資料'],['最近每單位配息',history.length?`${f.currency} ${number(history[0].perUnit,6)}`:'尚無資料'],['近12個月簡易配息率',rate===null?'資料不足':`${number(rate,2)}%${trailing.length<12?'（紀錄未滿12筆）':''}`]];
+  const stats=[['最新基金淨值',validNav(d)?`${f.currency} ${number(d.nav)}`:'尚無資料'],['最近每單位配息',recent?`${f.currency} ${number(recent.perUnit,6)}`:'尚無資料'],['當期配息率',rate===null?'資料不足':`${number(rate,2)}%（試算）`]];
   stats.forEach(([label,value])=>{const item=node('div','modal-stat');item.append(node('label','',label),node('strong','',value));summary.append(item);});body.append(summary);
-  body.append(node('p','modal-note',`淨值日期：${niceDate(d.navDate)}。配息記錄僅包含來源成功提供且已留存的公告；第一次同步可能沒有完整12個月歷史。`));
+  body.append(node('p','modal-note',`當期配息率＝最近每單位配息 ÷ 最新可用淨值 × 100%。最近除息日：${recent?niceDate(recent.exDate):'尚無日期'}；淨值日期：${niceDate(d.navDate)}。此為不同日期資料的簡易試算，可能與基金公司公布的當期配息率不同。`));
   const title=node('h3','','配息歷史紀錄');body.append(title);
   if(!history.length){body.append(node('p','modal-note','目前尚未取得這檔基金的配息紀錄，請查看 GitHub Actions 同步結果。'));}
   else{
@@ -235,7 +236,7 @@ function openDetails(f){
     const tbody=node('tbody');history.forEach(r=>{const tr=node('tr');[niceDate(r.exDate),niceDate(r.payDate),number(r.perUnit,6),f.currency].forEach(v=>tr.append(node('td','',v)));tbody.append(tr);});table.append(tbody);box.append(table);body.append(box);
   }
   const sourceLine=node('div','detail-actions');sourceLine.append(officialAnchor(f,'前往基金公司官方資訊 ↗'));body.append(sourceLine);
-  body.append(node('p','modal-note','⚠ 配息來源可能為本金，簡易配息率不等於基金報酬率；實際以基金公司公告為準。'));
+  body.append(node('p','modal-note','⚠ 配息可能涉及本金；當期配息率不等於投資報酬率，也未經年化。實際數字以基金公司公布的級別資料為準。'));
   container.append(body);$('detailDialog').showModal();
 }
 function banner(kind,text){const el=$('syncNotice');el.className='status '+kind;el.textContent=text;}
