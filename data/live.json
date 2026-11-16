@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "checkedAt": "2026-11-16T10:29:15+08:00",
+  "checkedAt": "2026-11-16T19:35:51+08:00",
   "funds": {
     "LU0820561818": {
       "nav": 8.1653,
@@ -153,8 +153,8 @@
       "dividendStatus": "found"
     },
     "TW000T0759D2": {
-      "nav": 7.96,
-      "navDate": "2026-11-12",
+      "nav": 7.94,
+      "navDate": "2026-11-13",
       "navMessage": "已找到這檔基金的官方淨值",
       "dividendMessage": "已找到配息紀錄",
       "navStatus": "found",
@@ -168,8 +168,8 @@
       "dividendStatus": "found"
     },
     "TW000T1811K5": {
-      "nav": 9.04,
-      "navDate": "2026-11-12",
+      "nav": 9.0,
+      "navDate": "2026-11-13",
       "navMessage": "已找到這檔基金的官方淨值",
       "dividendMessage": "已找到配息紀錄",
       "navStatus": "found",
@@ -243,7 +243,7 @@
     "overseas_info": {
       "ok": true,
       "message": "",
-      "rows": 5293,
+      "rows": 5297,
       "url": "https://opendata.tdcc.com.tw/getOD.ashx?id=3-2",
       "columns": [
         "資料日期",
@@ -263,7 +263,7 @@
     "overseas_dividends": {
       "ok": true,
       "message": "",
-      "rows": 9367,
+      "rows": 9381,
       "url": "https://opendata.tdcc.com.tw/getOD.ashx?id=3-5",
       "columns": [
         "資料日期",
@@ -283,7 +283,7 @@
     "local_nav": {
       "ok": true,
       "message": "",
-      "rows": 4492,
+      "rows": 3751,
       "url": "https://www.sitca.org.tw/MemberK0000/F/03/nav.csv",
       "columns": [
         "日期",
