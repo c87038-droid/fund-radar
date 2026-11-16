@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "checkedAt": "2026-11-16T23:29:39+08:00",
+  "checkedAt": "2026-11-17T00:50:03+08:00",
   "funds": {
     "LU0820561818": {
       "nav": 8.1653,
@@ -263,7 +263,7 @@
     "overseas_dividends": {
       "ok": true,
       "message": "",
-      "rows": 9381,
+      "rows": 9362,
       "url": "https://opendata.tdcc.com.tw/getOD.ashx?id=3-5",
       "columns": [
         "資料日期",
