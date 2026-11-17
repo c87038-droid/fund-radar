@@ -138,6 +138,7 @@ const $ = id => document.getElementById(id);
 let live = {schemaVersion:2,checkedAt:null,funds:{},sources:{}};
 let fx = {schemaVersion:1,checkedAt:null,rates:{},ok:false};
 let fxLoadError = "";
+let fxBackupNote = "";
 const number = (x,n=4)=> x===null || x===undefined || !Number.isFinite(Number(x)) ? "—" : Number(x).toLocaleString("en-US",{minimumFractionDigits:n,maximumFractionDigits:n});
 const niceDate = x => /^20\d{2}-\d{2}-\d{2}$/.test(String(x||"")) ? x.replaceAll("-","/") : "尚無日期";
 const validNav = d => d && Number.isFinite(Number(d.nav)) && Number(d.nav)>0 && /^20\d{2}-\d{2}-\d{2}$/.test(d.navDate||"");
@@ -211,19 +212,33 @@ function renderFx(){
   else if(!fx.checkedAt){n.textContent='匯率檔尚未執行首次更新，請到 GitHub Actions 手動執行「基金與匯率自動更新」。';n.className='fx-notice warn';}
   else if(!fx.ok){n.textContent='最近一次匯率擷取未全部成功（最後檢查 '+time+'）。'+(fx.message||'')+'；若有數值，請查看每個幣別的資料日期。';n.className='fx-notice warn';}
   else{n.textContent='來源：臺灣銀行｜最後檢查 '+time+'（臺灣時間）；以各幣別牌告時間為準。';n.className='fx-notice';}
+  if(fxBackupNote)n.textContent += ' '+fxBackupNote;
 }
 async function loadFx(){
-  try{
-    const r=await fetch(`data/fx.json?v=${Date.now()}`,{cache:'no-store'});
-    if(!r.ok)throw new Error('HTTP '+r.status);
-    const data=await r.json();
-    if(data.schemaVersion!==1||!data.rates)throw new Error('匯率資料格式不符');
-    fx=data;
-    fxLoadError='';
-  }catch(error){
-    fx={schemaVersion:1,checkedAt:null,ok:false,rates:{}};
-    fxLoadError=error.message;
+  // 優先讀取已發布的 GitHub Pages；若發布漏掉 fx.json，再讀儲存庫備援快照。
+  // 備援資料也須由 GitHub Actions 正確更新，並非直接取得即時銀行報價。
+  const sources=[
+    ['網站發布資料','data/fx.json'],
+    ['GitHub 儲存庫備援','https://raw.githubusercontent.com/c87038-droid/fund-radar/main/data/fx.json']
+  ];
+  const errors=[];
+  fxBackupNote='';
+  for(const [name,url] of sources){
+    try{
+      const sep=url.includes('?')?'&':'?';
+      const r=await fetch(url+sep+'v='+Date.now(),{cache:'no-store'});
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      const data=await r.json();
+      if(data.schemaVersion!==1||!data.rates||!data.rates.USD||!data.rates.ZAR)
+        throw new Error('匯率資料格式不符');
+      fx=data;
+      fxLoadError='';
+      if(name==='GitHub 儲存庫備援') fxBackupNote='目前使用 GitHub 儲存庫備援匯率檔；請檢查 Pages 是否包含 data/fx.json。';
+      renderFx();render();return;
+    }catch(error){errors.push(name+'：'+error.message);}
   }
+  fx={schemaVersion:1,checkedAt:null,ok:false,rates:{}};
+  fxLoadError=errors.join('；');
   renderFx();render();
 }
 function node(tag,klass,txt){const x=document.createElement(tag);if(klass)x.className=klass;if(txt!==undefined)x.textContent=txt;return x;}
