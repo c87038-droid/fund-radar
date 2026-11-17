@@ -1,0 +1,96 @@
+name: 我的基金雷達｜自動更新與發布
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  schedule:
+    # UTC 01:15、10:15、15:15 = 台灣時間 09:15、18:15、23:15
+    - cron: '15 1,10,15 * * *'
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: fund-radar-deployment
+  cancel-in-progress: false
+
+jobs:
+  update-and-publish:
+    name: 檢查官方基金資料並發布 GitHub Pages
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: 取得基金網站程式
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: true
+      - name: 安裝 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: 檢查基金辨識與日期邏輯
+        run: python -m unittest discover -s tests -v
+      - name: 更新 7 檔基金淨值與配息
+        run: python scripts/update_funds.py
+      - name: 更新美元與南非幣即期匯率
+        run: |
+          python scripts/update_fx.py
+          test -s data/fx.json || { echo '::error::匯率檔 data/fx.json 未建立'; exit 1; }
+          python - <<'PYFX'
+          import json
+          with open('data/fx.json', encoding='utf-8') as f:
+              data = json.load(f)
+          print('匯率檢查時間:', data.get('checkedAt'))
+          for code in ('USD','ZAR'):
+              r = (data.get('rates') or {}).get(code) or {}
+              print(code, '銀行買進:', r.get('buy'), '銀行賣出:', r.get('sell'), '狀態:', r.get('status', '未標示'))
+              if not isinstance(r.get('buy'), (int,float)) or not isinstance(r.get('sell'), (int,float)):
+                  print('::warning::'+code+' 未成功取得即期匯率，請查看上一步更新程式的錯誤訊息')
+          PYFX
+      - name: 輸出更新診斷
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d = json.loads(Path('data/live.json').read_text(encoding='utf-8'))
+          print('更新檢查時間:', d.get('checkedAt'))
+          for key, v in d.get('sources', {}).items():
+              print('來源:', key, '成功:', v.get('ok'), '筆數:', v.get('rows'), '錯誤:', v.get('message'))
+          for fid, v in d.get('funds', {}).items():
+              print('基金:', fid, '淨值日期:', v.get('navDate'), '淨值狀態:', v.get('navStatus'), '配息筆數:', len(v.get('dividends', [])), '提醒:', v.get('navMessage',''))
+          PY
+      - name: 準備網站（包含基金及美元、南非幣匯率資料）
+        run: |
+          mkdir -p _site/data
+          cp index.html .nojekyll _site/
+          cp data/live.json _site/data/live.json
+          cp data/fx.json _site/data/fx.json
+          test -s _site/data/fx.json || { echo '::error::網站產物缺少 data/fx.json'; exit 1; }
+          echo '發布檔案清單：'; find _site -maxdepth 2 -type f | sort
+      - name: 設定 Pages
+        uses: actions/configure-pages@v5
+      - name: 上傳網頁
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - name: 發布網頁（即使無新資料也顯示診斷狀態）
+        id: deploy
+        uses: actions/deploy-pages@v4
+      - name: 嘗試保存最新快照到儲存庫（失敗不影響網頁發布）
+        continue-on-error: true
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/live.json data/fx.json
+          if ! git diff --cached --quiet; then
+            git commit -m "更新基金資料快照"
+            git push origin HEAD:main
+          else
+            echo '基金快照無變化'
+          fi
