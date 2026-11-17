@@ -7,6 +7,7 @@ class, and never labels cached NAV as today's data if a feed fails. Python stdli
 from __future__ import annotations
 import csv
 import io
+from html.parser import HTMLParser
 import json
 import re
 import sys
@@ -40,6 +41,106 @@ FUNDS = {
     'TW000T1811K5': dict(type='local', currency='USD', tax_id='38522113J', display='聯博多元資產收益組合 AI 美元'),
     'LU2859284783': dict(type='overseas', currency='USD', display='聯博美國成長 AP 美元'),
 }
+
+
+# Backup: publicly visible, share-class-specific NAV pages. This is a THIRD-PARTY
+# reference, not an official subscription/redemption NAV source. A backup quote
+# can only replace a same-class quote when its date is strictly newer.
+# Stop using a page automatically if its heading/currency/format changes.
+NAV_BACKUP_PAGES = {
+    'LU0820561818': ('https://m.moneydj.com/b1.aspx?a=TLZ64', '安聯收益成長基金-AM穩定月收類股(美元)'),
+    'LU2023250330': ('https://m.moneydj.com/b1.aspx?a=TLZF9', '安聯收益成長基金-AMg7月收總收益類股(美元)'),
+    'LU2347655073': ('https://m.moneydj.com/b1.aspx?a=JFZN3', '摩根投資基金-多重收益基金A股(美元對沖)(穩定月配)'),
+    'TW000T0759D2': ('https://m.moneydj.com/a1.aspx?a=ACCP138', '瀚亞多重收益優化組合基金B配息(美元)'),
+    'TW000T1811K5': ('https://m.moneydj.com/a1.aspx?a=ACTI71', '聯博多元資產收益組合基金AI配息(美元)'),
+    'LU2859284783': ('https://m.moneydj.com/b1.aspx?a=ALBT8', '聯博-美國成長基金AP(總報酬月配)級別美元'),
+    'LU1883841964': ('https://m.moneydj.com/b1.aspx?a=PIZC5', '東方匯理基金策略收益債券A南非幣避險(穩定月配息)'),
+}
+
+class _FundPageText(HTMLParser):
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.parts = []
+        self.headings = []
+        self.in_heading = False
+        self.heading_parts = []
+        self.ignore_depth = 0
+
+    def handle_starttag(self, tag, attrs):
+        if tag in ('script', 'style'):
+            self.ignore_depth += 1
+        if tag == 'h1':
+            self.in_heading = True
+            self.heading_parts = []
+
+    def handle_endtag(self, tag):
+        if tag == 'h1':
+            self.headings.append(''.join(self.heading_parts).strip())
+            self.in_heading = False
+        if tag in ('script', 'style') and self.ignore_depth > 0:
+            self.ignore_depth -= 1
+
+    def handle_data(self, data):
+        if self.ignore_depth:
+            return
+        self.parts.append(data)
+        if self.in_heading:
+            self.heading_parts.append(data)
+
+
+def parse_backup_nav_html(payload, expected_heading, expected_currency):
+    """Exact visible fund/share class, specified currency, and explicit NAV date required.
+
+    Do not use performance, dividend, graph, or previous-date numbers. No network
+    dependency: this parser can be tested against representative HTML fixtures.
+    """
+    text = None
+    for encoding in ('utf-8-sig', 'big5', 'cp950'):
+        try:
+            text = payload.decode(encoding)
+            break
+        except UnicodeDecodeError:
+            pass
+    if text is None:
+        raise ValueError('基金備援 HTML 文字編碼無法判讀')
+    page = _FundPageText()
+    page.feed(text)
+    actual_titles = [canonical(h) for h in page.headings]
+    if not actual_titles or not any(h.startswith(canonical(expected_heading)) for h in actual_titles):
+        raise ValueError('備援頁面基金名稱/級別不符')
+    visible = re.sub(r'\s+', ' ', ' '.join(page.parts))
+    currency_word = '美元' if expected_currency == 'USD' else '南非幣'
+    pat = re.compile(r'最新值\s*([0-9,]+(?:\.[0-9]+)?)\s*' + currency_word +
+                     r'\s*[（(]\s*(20\d{2}[./-]\d{1,2}[./-]\d{1,2})\s*[）)]')
+    m = pat.search(visible)
+    if not m:
+        raise ValueError('備援頁面找不到明確的最新淨值、幣別及日期')
+    nav, dt = money(m.group(1)), date_str(m.group(2))
+    if nav is None or nav <= 0 or not dt:
+        raise ValueError('備援頁面淨值或日期異常')
+    return {'nav': nav, 'navDate': dt, 'navSource': 'MoneyDJ 基金專頁（備援，非基金公司官方）'}
+
+
+def download_backup_nav():
+    found, results = {}, {}
+    for fid, (url, expected) in NAV_BACKUP_PAGES.items():
+        try:
+            req = Request(url, headers={
+                'User-Agent': 'Mozilla/5.0 (compatible; FundRadar/3.0; personal-watchlist)',
+                'Accept': 'text/html,application/xhtml+xml',
+            })
+            with urlopen(req, timeout=20) as r:
+                payload = r.read(1_200_000)
+            item = parse_backup_nav_html(payload, expected, FUNDS[fid]['currency'])
+            item['navSourceUrl'] = url
+            found[fid] = item
+            results[fid] = {'ok': True, 'navDate': item['navDate'], 'url': url}
+            print(f'[nav_backup] {fid}: {item["navDate"]} {item["nav"]} ({url})')
+        except Exception as e:
+            msg = f'{type(e).__name__}: {str(e)[:120]}'
+            results[fid] = {'ok': False, 'error': msg, 'url': url}
+            print(f'[nav_backup] {fid}: unavailable ({msg})', file=sys.stderr)
+    return found, results
 
 
 def canonical(s):
@@ -102,7 +203,7 @@ def parse_csv(payload):
     if payload.lstrip()[:40].lower().startswith((b'<html', b'<!doctype')):
         raise ValueError('取得 HTML 網頁而非基金 CSV')
     content = None
-    for enc in (('utf-16', 'utf-8-sig', 'cp950', 'big5') if payload.startswith((b'\xff\xfe', b'\xfe\xff')) else ('utf-8-sig', 'cp950', 'big5')):
+    for enc in ('utf-8-sig', 'cp950', 'big5'):
         try:
             content = payload.decode(enc)
             break
@@ -254,53 +355,73 @@ def merge_records(existing, newer):
     return sorted(merged.values(), key=lambda x: x['exDate'], reverse=True)[:60]
 
 
-def update_data(existing, sources, at=None):
+def update_data(existing, sources, at=None, backup_nav=None, backup_results=None):
     at = at or datetime.now(TPE).isoformat(timespec='seconds')
+    backup_nav = backup_nav or {}
+    backup_results = backup_results or {}
     doc = {'schemaVersion': 2, 'checkedAt': at, 'funds': {}, 'sources': {}}
     for name, source in sources.items():
-        doc['sources'][name] = {'ok': source.get('ok', False), 'message': source.get('error', ''),
-                                'rows': len(source.get('rows', [])), 'url': source.get('url', ''),
-                                'columns': list(source.get('rows', [{}])[0].keys())[:12] if source.get('rows') else []}
+        doc['sources'][name] = {
+            'ok': source.get('ok', False),
+            'message': source.get('error', ''),
+            'rows': len(source.get('rows', [])),
+        }
+    backup_ok = sum(r.get('ok', False) for r in backup_results.values())
+    doc['sources']['nav_backup'] = {
+        'ok': backup_ok > 0, 'rows': backup_ok,
+        'message': f'基金備援成功 {backup_ok}/{len(NAV_BACKUP_PAGES)} 檔；依各基金淨值日期選用',
+    }
+    doc['navBackupDetails'] = backup_results
     nav_o, codes = latest_overseas_nav(sources['overseas_nav']['rows'])
     extend_overseas_codes(sources['overseas_info']['rows'], codes)
     nav_l = latest_local_nav(sources['local_nav']['rows'])
     div_o = overseas_dividends(sources['overseas_dividends']['rows'], codes)
     div_l = local_dividends(sources['local_dividends']['rows'])
     for fid, spec in FUNDS.items():
-        old = existing.get('funds',{}).get(fid,{})
-        latest_nav = (nav_o if spec['type'] == 'overseas' else nav_l).get(fid)
-        new_divs = (div_o if spec['type'] == 'overseas' else div_l).get(fid,[])
-        nav = old.get('nav') if isinstance(old.get('nav'), (int,float)) else None
-        nav_dt = old.get('navDate','')
-        used_new_nav = bool(latest_nav and latest_nav['navDate'] >= nav_dt)
-        if used_new_nav:
-            nav, nav_dt = latest_nav['nav'], latest_nav['navDate']
-        nav_label = 'overseas_nav' if spec['type'] == 'overseas' else 'local_nav'
-        dist_label = 'overseas_dividends' if spec['type'] == 'overseas' else 'local_dividends'
-        nav_message = ('已找到這檔基金的官方淨值' if used_new_nav
-                       else ('官方來源下載失敗' if not sources[nav_label]['ok']
-                             else '官方淨值檔未比對到相同的 ISIN／基金統編與幣別'))
-        div_message = ('已找到配息紀錄' if new_divs
-                       else ('官方配息來源下載失敗' if not sources[dist_label]['ok']
-                             else '配息檔未比對到這檔基金，或目前未公告'))
+        old = existing.get('funds', {}).get(fid, {})
+        standard = (nav_o if spec['type'] == 'overseas' else nav_l).get(fid)
+        prior_nav = old.get('nav') if isinstance(old.get('nav'), (int, float)) else None
+        prior_date = old.get('navDate') or ''
+        candidate = None
+        if standard:
+            candidate = {
+                **standard,
+                'navSource': '集保境外基金公開資料' if spec['type'] == 'overseas' else '投信投顧公會境內基金公開資料',
+            }
+        secondary = backup_nav.get(fid)
+        if secondary and (not candidate or secondary['navDate'] > candidate['navDate']):
+            candidate = secondary
+        # Never go backwards even if all upstream sources are late.
+        accepted = bool(candidate and candidate['navDate'] >= prior_date)
+        nav = candidate['nav'] if accepted else prior_nav
+        nav_dt = candidate['navDate'] if accepted else prior_date
+        nav_source = (candidate.get('navSource') if accepted else old.get('navSource')) or '歷史快照（原來源未記錄）'
+        new_divs = (div_o if spec['type'] == 'overseas' else div_l).get(fid, [])
+        parsed_nav_date = date_str(nav_dt)
+        delayed_days = max(0, (datetime.now(TPE).date() - Date.fromisoformat(parsed_nav_date)).days) if parsed_nav_date else None
         entry = {
-            'nav': nav, 'navDate': nav_dt,
-            'navMessage': nav_message, 'dividendMessage': div_message,
-            'navStatus': 'found' if used_new_nav else ('cached' if nav is not None else 'unavailable'),
+            'nav': nav,
+            'navDate': nav_dt,
+            'navSource': nav_source,
+            'navSourceUrl': candidate.get('navSourceUrl', '') if accepted else old.get('navSourceUrl', ''),
+            'navStatus': 'found' if accepted else ('cached' if nav is not None else 'unavailable'),
+            'navDelayedDays': delayed_days,
+            'navMessage': f'淨值已落後 {delayed_days} 天，請核對基金公司' if delayed_days is not None and delayed_days >= 4 else '',
             'dividends': merge_records(old.get('dividends', []), new_divs),
             'dividendStatus': 'found' if new_divs else ('cached' if old.get('dividends') else 'unavailable'),
         }
         doc['funds'][fid] = entry
-        print(f'[{fid}] NAV={entry["navStatus"]} ({entry["navDate"] or "—"}); 配息={len(entry["dividends"])} 筆; {nav_message}')
-    count = sum(1 for f in doc['funds'].values() if f['navStatus'] == 'found')
-    print(f'Fund NAV matches: {count}/7; distributions: {sum(bool(f["dividends"]) for f in doc["funds"].values())}/7')
+        print(f'[NAV] {fid}: {nav_dt or "no date"} {nav if nav is not None else "no NAV"}; '
+              f'source={nav_source}; status={entry["navStatus"]}; delayedDays={delayed_days}')
+    print(f'基金淨值日期 >= 3 日前: {sum(1 for f in doc["funds"].values() if f.get("navDelayedDays") is not None and f["navDelayedDays"] <= 3)}/7')
     return doc
 
 
 def main():
     prior = json.loads(LIVE.read_text(encoding='utf-8')) if LIVE.exists() else {'funds':{}}
     downloaded = {name: load_source(name, urls) for name,urls in SOURCES.items()}
-    doc = update_data(prior, downloaded)
+    backup_nav, backup_results = download_backup_nav()
+    doc = update_data(prior, downloaded, backup_nav=backup_nav, backup_results=backup_results)
     LIVE.parent.mkdir(parents=True, exist_ok=True)
     LIVE.write_text(json.dumps(doc,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     # Feed failures must not be presented as successful NAV checks; we still publish
