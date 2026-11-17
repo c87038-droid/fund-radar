@@ -167,20 +167,23 @@ function changeText(change){
   return {value:amount,ratio,summary:`${label} ${amount}（${ratio}）`,cls:change.direction};
 }
 
-// Verified asset manager pages. The AB links are fund-family pages (select the right share class there).
-// Amundi provides a fund-specific distribution composition file for the requested ZAR class.
+// 官方連結核對日期：2026-11-18。以 ISIN 對應基金，不把系列頁誤稱為指定級別頁。
+// 聯博境內 AI 暫未找到可確認的單一級別網址，連到官方基金系列總覽並明確標示。
 const OFFICIAL = Object.freeze({
-  "LU0820561818": {url:"https://tw.allianzgi.com/zh-tw/products-solutions/luxemberg/allianz-income-and-growth-am-usd?nav=overview",label:"安聯官方基金頁"},
-  "LU2023250330": {url:"https://tw.allianzgi.com/zh-tw/products-solutions/luxemberg/allianz-income-and-growth-amg7-usd?nav=overview",label:"安聯官方基金頁"},
-  "LU2347655073": {url:"https://am.jpmorgan.com/lu/en/asset-management/per/products/jpm-global-income-a-icdiv-usd-hedged-lu2347655073",label:"摩根官方基金頁（英文）"},
-  "TW000T0759D2": {url:"https://www.eastspring.com.tw/our-funds/all-funds/funddetails?isincode=TW000T0759D2",label:"瀚亞官方基金頁"},
-  "TW000T1811K5": {url:"https://www.abfunds.com.tw/zh-tw/funds/onshore/multi-asset/multi-asset-income-fund-of-funds.html",label:"聯博官方基金系列頁"},
-  "LU2859284783": {url:"https://www.abfunds.com.tw/zh-tw/funds/offshore/equities/american-growth-portfolio.html",label:"聯博官方基金系列頁"},
-  "LU1883841964": {url:"https://www.amundi.com.tw/retail/files/nuxeo/dl/a623f46d-b094-41d5-a587-9a3d70a3842d",label:"東方匯理官方配息表（PDF）"}
+  "LU0820561818": {url:"https://tw.allianzgi.com/zh-tw/home/products-solutions/luxemberg/allianz-income-and-growth-am-usd?nav=overview",label:"安聯 AM 美元官方基金頁",cta:"官方基金頁 ↗"},
+  "LU2023250330": {url:"https://tw.allianzgi.com/zh-tw/products-solutions/luxemberg/allianz-income-and-growth-amg7-usd?nav=overview",label:"安聯 AMg7 美元官方基金頁",cta:"官方基金頁 ↗"},
+  "LU2347655073": {url:"https://am.jpmorgan.com/tw/zh/asset-management/per/products/jpm-global-income-a-icdiv-usd-hedged-lu2347655073",label:"摩根台灣官方基金頁（A 股穩定月配、美元對沖）",cta:"官方基金頁 ↗"},
+  "TW000T0759D2": {url:"https://www.eastspring.com.tw/our-funds/all-funds/funddetails?isincode=TW000T0759D2",label:"瀚亞 B 類型美元官方基金頁",cta:"官方基金頁 ↗"},
+  "TW000T1811K5": {url:"https://www.abfunds.com.tw/zh-tw/funds/onshore/multi-asset/multi-asset-income-fund-of-funds.html",label:"聯博多元資產收益組合基金系列頁（請選 AI 類型美元，ISIN TW000T1811K5）",cta:"官方基金系列頁 ↗"},
+  "LU2859284783": {url:"https://www.abfunds.com.tw/zh-tw/funds/offshore/equities/american-growth-portfolio.ap.LU2859284783.html",label:"聯博美國成長 AP 美元官方級別頁",cta:"官方級別頁 ↗"},
+  "LU1883841964": {url:"https://www.amundi.lu/retail/dl/doc/kid-priips/LU1883841964/ENG/LUX",label:"東方匯理策略收益債券 A 南非幣避險級別官方產品說明（英文 PDF；ISIN LU1883841964）",cta:"官方級別文件 ↗"}
 });
 function officialAnchor(f,label='基金公司資訊 ↗'){
-  const spec=OFFICIAL[f.isin], a=node('a','link-button official-link',label);
-  a.href=spec.url;a.target='_blank';a.rel='noopener noreferrer';a.title=spec.label+'（另開新視窗）';a.setAttribute('aria-label',f.name+'：'+spec.label);
+  const spec=OFFICIAL[f.isin], a=node('a','link-button official-link',spec?.cta||label);
+  if(!spec){ a.href='https://www.fundclear.com.tw/';a.title='尚無確認的基金公司專頁，前往境外基金資訊觀測站'; }
+  else { a.href=spec.url; a.title=spec.label+'（另開新視窗）'; }
+  a.target='_blank'; a.rel='noopener noreferrer';
+  a.setAttribute('aria-label',f.name+'：'+(spec?.label||'基金資料查詢'));
   return a;
 }
 function validFx(code){
