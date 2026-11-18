@@ -23,11 +23,15 @@ BASE = Path(__file__).resolve().parents[1]
 OUT = BASE / 'data' / 'fx.json'
 TW = timezone(timedelta(hours=8))
 CODES = ('USD', 'ZAR')
-SCRIPT_VERSION = "FX-BOT-FIRST-RATEWISE-FALLBACK-20261118"
+SCRIPT_VERSION = "FX-ZAR-OFFICIAL-ONLY-V3-20261118"
 RATE_PAGE = 'https://rate.bot.com.tw/xrt?Lang=zh-TW'
 RATE_TEXT = 'https://rate.bot.com.tw/xrt/fltxt/0/day'
 RATEWISE_URL = 'https://cdn.jsdelivr.net/gh/haotool/app@data/public/rates/latest.json'
 RATEWISE_ATTRIBUTION = 'https://app.haotool.org/ratewise/'
+BOT_PROXY = 'https://r.jina.ai/https://rate.bot.com.tw/xrt?Lang=zh-TW'
+# Important: the RateWise public API documents 17 currencies but does not
+# include ZAR. Never synthesize a ZAR quote from USD or from this fallback.
+RATEWISE_CODES = ('USD',)
 # First use the official plain-text board: this endpoint has a stable,
 # labeled Buying / Selling layout and avoids fragile HTML table selectors.
 SOURCES = (
@@ -203,6 +207,58 @@ def from_text(payload):
 
 
 
+
+def from_official_proxy(payload):
+    """Parse an independently fetched *official BOT page* via the Jina Reader.
+
+    The proxy is not a BO​T API and can serve cached content. We only accept a
+    quote with an attributable Bank of Taiwan URL and a recent official board
+    timestamp. The price itself comes from the ZAR row on the BOT board.
+    """
+    raw = payload.decode('utf-8-sig', errors='replace')
+    if 'rate.bot.com.tw/xrt' not in raw or not re.search(r'\bZAR\b', raw):
+        raise ValueError('代理內容不是可辨識的臺灣銀行 ZAR 牌告')
+    qtime = stamp_from_text(raw)
+    if not qtime:
+        raise ValueError('缺少官方牌告時間，不使用可能過期的代理報價')
+    t = datetime.fromisoformat(qtime)
+    now = datetime.now(TW)
+    if t > now + timedelta(hours=2) or now - t > timedelta(days=4):
+        raise ValueError('代理取得的官方牌告日期過舊或異常')
+    out = {}
+    for line in raw.splitlines():
+        if not re.search(r'\b(?:USD|ZAR)\b', line):
+            continue
+        code_match = re.search(r'\b(USD|ZAR)\b', line)
+        if not code_match:
+            continue
+        code = code_match.group(1)
+        if code in out:
+            continue
+        tail = line[code_match.end():]
+        if '|' in tail:
+            cells = [c.strip() for c in tail.split('|')]
+            # Some renderers repeat the currency label in a second column.
+            vals = [v for v in cells if re.fullmatch(r'(?:[0-9]+(?:\.[0-9]+)?|[-–—])', v)]
+            if len(vals) >= 4:
+                spot = pair(code, vals[2], vals[3])
+            elif len(vals) >= 2:
+                spot = pair(code, vals[0], vals[1])
+            else:
+                spot = None
+        else:
+            # No pipe delimiters: BOT quote row, two dash cash fields for ZAR,
+            # or four numeric (cash, spot) for USD.
+            vals = re.findall(r'(?<!\d)[0-9]+(?:\.[0-9]+)?(?!\d)', tail)
+            spot = pair(code, vals[2], vals[3]) if len(vals) >= 4 else (
+                pair(code, vals[0], vals[1]) if len(vals) == 2 else None)
+        if spot:
+            out[code] = {**spot, 'quotedAt': qtime}
+    if not out:
+        raise ValueError('代理內容找不到可驗證的即期買進與賣出')
+    return out
+
+
 def from_ratewise(payload):
     """Parse 3rd-party RateWise's published BOT-source *spot* bid/ask.
 
@@ -225,7 +281,7 @@ def from_ratewise(payload):
     if t > now + timedelta(hours=2) or now - t > timedelta(days=5):
         raise ValueError('第三方來源牌告資料太舊或時間異常：' + published)
     result = {}
-    for code in CODES:
+    for code in RATEWISE_CODES:
         q = (doc.get('sourceQuotes') or {}).get(code, {})
         if not q:
             q = (doc.get('details') or {}).get(code, {})
@@ -266,7 +322,7 @@ def fetch(url):
     req = Request(url, headers={
         'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/131.0 Safari/537.36',
         'Accept-Language': 'zh-TW,zh;q=0.9,en;q=0.8',
-        'Accept': 'text/html,text/csv,*/*',
+        'Accept': 'text/html,text/csv,text/plain,*/*',
         'Cache-Control': 'no-cache',
     })
     with urlopen(req, timeout=25) as r:
@@ -339,13 +395,27 @@ def main():
             errors.append(message)
             print(f'::warning::{message}', flush=True)
         time.sleep(0.2)
-    # Genuine BOT endpoints may serve a bot-block page to public GitHub
-    # runners. When that happens, try a separately attributed public cache.
-    # Do not silently label RateWise as an official BOT API.
+    # BOT sometimes blocks GitHub-hosted runners. A content relay may still
+    # return the official BOT board. Verify official source and board timestamp
+    # before accepting it, and do not call this relay an official BOT API.
+    if 'ZAR' not in fresh:
+        try:
+            relayed = from_official_proxy(fetch(BOT_PROXY))
+            for code, q in relayed.items():
+                if code not in fresh:
+                    fresh[code] = q
+                    provenance[code] = ('臺灣銀行官方牌告（經第三方文字代理取得）', BOT_PROXY)
+                    print(f'[FX BOT relay] {code}: buy={q["buy"]} sell={q["sell"]} quote={q["quotedAt"]}', flush=True)
+        except Exception as exc:
+            message = '臺銀網頁代理（非臺銀 API）：'+type(exc).__name__+': '+str(exc)[:220]
+            errors.append(message)
+            print('::warning::'+message, flush=True)
+    # RateWise is a different third-party derived source and currently only
+    # lists USD among our target currencies. It MUST NOT set a ZAR quote.
     if len(fresh) < len(CODES):
         try:
             fallback = from_ratewise(fetch(RATEWISE_URL))
-            print('[FX fallback] RateWise derived from BOT, source=' + RATEWISE_URL, flush=True)
+            print('[FX fallback] RateWise (USD only; ZAR not supported), source=' + RATEWISE_URL, flush=True)
             for code, q in fallback.items():
                 if code in fresh:
                     continue
@@ -365,6 +435,8 @@ def main():
             msg = 'RateWise 第三方備援：'+type(exc).__name__+': '+str(exc)[:200]
             errors.append(msg)
             print('::warning::'+msg, flush=True)
+    if 'ZAR' not in fresh:
+        print('::warning::ZAR 沒有取得可驗證的臺銀新牌告；沿用並標示上次牌告日期，絕不使用 RateWise USD 推算。', flush=True)
     data = make_doc(old, fresh, provenance, errors, checked)
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
