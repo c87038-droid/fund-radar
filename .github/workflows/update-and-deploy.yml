@@ -1,11 +1,11 @@
-name: 我的基金雷達｜自動更新與發布
+name: 我的基金雷達｜基金自動更新與發布
 
 on:
   workflow_dispatch:
   push:
     branches: [main]
   schedule:
-    # UTC 01:15、10:15、15:15 = 台灣時間 09:15、18:15、23:15
+    # UTC 01:15、10:15、15:15，臺灣時間 09:15、18:15、23:15
     - cron: '15 1,10,15 * * *'
 
 permissions:
@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   update-and-publish:
-    name: 檢查官方基金資料並發布 GitHub Pages
+    name: 更新基金淨值與配息並發布 GitHub Pages
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -30,66 +30,74 @@ jobs:
         with:
           ref: main
           persist-credentials: true
+
       - name: 安裝 Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: 檢查基金辨識與日期邏輯
-        run: python -m unittest discover -s tests -v
+
+      - name: 檢查基金程式（不執行已停用的匯率測試）
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f tests/test_update_funds.py ]; then
+            python -m unittest discover -s tests -p 'test_update_funds.py' -v
+          fi
+          if [ -f tests/test_nav_backup.py ]; then
+            python -m unittest discover -s tests -p 'test_nav_backup.py' -v
+          fi
+
       - name: 更新 7 檔基金淨值與配息
         run: python scripts/update_funds.py
-      - name: 更新美元與南非幣即期匯率
-        # 取得新牌告失敗時，仍發布基金及現有匯率資料，避免讓基金更新中斷。
-        continue-on-error: true
-        run: python scripts/update_fx.py
-      - name: 輸出基金與匯率更新診斷
+
+      - name: 檢查基金更新資料
+        shell: bash
         run: |
+          set -euo pipefail
+          test -s data/live.json
+          python -m json.tool data/live.json > /dev/null
           python - <<'PY'
           import json
           from pathlib import Path
-          d = json.loads(Path('data/live.json').read_text(encoding='utf-8'))
-          print('基金更新檢查時間:', d.get('checkedAt'))
-          for key, v in d.get('sources', {}).items():
-              print('來源:', key, '成功:', v.get('ok'), '筆數:', v.get('rows'), '錯誤:', v.get('message'))
-          for fid, v in d.get('funds', {}).items():
-              print('基金:', fid, '淨值日期:', v.get('navDate'), '淨值狀態:', v.get('navStatus'), '配息筆數:', len(v.get('dividends', [])), '提醒:', v.get('navMessage', ''))
-          p = Path('data/fx.json')
-          if p.exists():
-              fx = json.loads(p.read_text(encoding='utf-8'))
-              print('匯率資料檔存在；最後檢查時間:', fx.get('checkedAt'), '來源:', fx.get('sourceUsed'))
-              for code in ('USD', 'ZAR'):
-                  rate = fx.get('rates', {}).get(code, {})
-                  print('匯率:', code, '買進:', rate.get('buy'), '賣出:', rate.get('sell'), '牌告日期:', rate.get('quoteAt'))
-          else:
-              print('::warning::data/fx.json 不存在，網站將無法顯示匯率')
+          data = json.loads(Path('data/live.json').read_text(encoding='utf-8'))
+          print('基金資料檢查時間:', data.get('checkedAt'))
+          for fid, fund in (data.get('funds') or {}).items():
+              print('基金:', fid, '淨值日期:', fund.get('navDate'), '淨值狀態:', fund.get('navStatus'))
           PY
-      - name: 準備網站（包含網頁、基金及匯率資料）
+
+      - name: 準備網站（只需基金資料；匯率直接連結臺灣銀行）
+        shell: bash
         run: |
+          set -euo pipefail
           mkdir -p _site/data
-          cp index.html .nojekyll _site/
+          cp index.html _site/index.html
+          touch _site/.nojekyll
           cp data/live.json _site/data/live.json
-          cp data/fx.json _site/data/fx.json
-          python -m json.tool _site/data/fx.json > /dev/null
-          echo '本次實際發布的檔案：'
-          ls -lh _site/data/
+          echo '此次即將發布的檔案：'
+          find _site -maxdepth 2 -type f | sort
+
       - name: 設定 Pages
         uses: actions/configure-pages@v5
-      - name: 上傳網頁
+
+      - name: 上傳網站
         uses: actions/upload-pages-artifact@v3
         with:
           path: _site
-      - name: 發布網頁（即使無新資料也顯示診斷狀態）
+
+      - name: 發布網頁
         id: deploy
         uses: actions/deploy-pages@v4
-      - name: 嘗試保存最新快照到儲存庫（失敗不影響網頁發布）
+
+      - name: 嘗試儲存基金資料快照（失敗不影響網站發布）
         continue-on-error: true
+        shell: bash
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/live.json data/fx.json
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add data/live.json
           if ! git diff --cached --quiet; then
-            git commit -m "更新基金及匯率資料快照"
+            git commit -m '更新基金資料快照'
             git push origin HEAD:main
           else
-            echo '基金及匯率快照無變化'
+            echo '基金資料無變化'
           fi
