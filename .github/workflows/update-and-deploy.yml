@@ -38,23 +38,40 @@ jobs:
         run: python -m unittest discover -s tests -v
       - name: 更新 7 檔基金淨值與配息
         run: python scripts/update_funds.py
-      - name: 輸出更新診斷
+      - name: 更新美元與南非幣即期匯率
+        # 取得新牌告失敗時，仍發布基金及現有匯率資料，避免讓基金更新中斷。
+        continue-on-error: true
+        run: python scripts/update_fx.py
+      - name: 輸出基金與匯率更新診斷
         run: |
           python - <<'PY'
           import json
           from pathlib import Path
           d = json.loads(Path('data/live.json').read_text(encoding='utf-8'))
-          print('更新檢查時間:', d.get('checkedAt'))
+          print('基金更新檢查時間:', d.get('checkedAt'))
           for key, v in d.get('sources', {}).items():
               print('來源:', key, '成功:', v.get('ok'), '筆數:', v.get('rows'), '錯誤:', v.get('message'))
           for fid, v in d.get('funds', {}).items():
-              print('基金:', fid, '淨值日期:', v.get('navDate'), '淨值狀態:', v.get('navStatus'), '配息筆數:', len(v.get('dividends', [])), '提醒:', v.get('navMessage',''))
+              print('基金:', fid, '淨值日期:', v.get('navDate'), '淨值狀態:', v.get('navStatus'), '配息筆數:', len(v.get('dividends', [])), '提醒:', v.get('navMessage', ''))
+          p = Path('data/fx.json')
+          if p.exists():
+              fx = json.loads(p.read_text(encoding='utf-8'))
+              print('匯率資料檔存在；最後檢查時間:', fx.get('checkedAt'), '來源:', fx.get('sourceUsed'))
+              for code in ('USD', 'ZAR'):
+                  rate = fx.get('rates', {}).get(code, {})
+                  print('匯率:', code, '買進:', rate.get('buy'), '賣出:', rate.get('sell'), '牌告日期:', rate.get('quoteAt'))
+          else:
+              print('::warning::data/fx.json 不存在，網站將無法顯示匯率')
           PY
-      - name: 準備網站（只包含網頁及基金資料）
+      - name: 準備網站（包含網頁、基金及匯率資料）
         run: |
           mkdir -p _site/data
           cp index.html .nojekyll _site/
           cp data/live.json _site/data/live.json
+          cp data/fx.json _site/data/fx.json
+          python -m json.tool _site/data/fx.json > /dev/null
+          echo '本次實際發布的檔案：'
+          ls -lh _site/data/
       - name: 設定 Pages
         uses: actions/configure-pages@v5
       - name: 上傳網頁
@@ -69,10 +86,10 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/live.json
+          git add data/live.json data/fx.json
           if ! git diff --cached --quiet; then
-            git commit -m "更新基金資料快照"
+            git commit -m "更新基金及匯率資料快照"
             git push origin HEAD:main
           else
-            echo '基金快照無變化'
+            echo '基金及匯率快照無變化'
           fi
