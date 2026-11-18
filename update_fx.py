@@ -23,12 +23,15 @@ OUT = BASE / 'data' / 'fx.json'
 TW = timezone(timedelta(hours=8))
 CODES = ('USD', 'ZAR')
 RATE_PAGE = 'https://rate.bot.com.tw/xrt?Lang=zh-TW'
+RATE_TEXT = 'https://rate.bot.com.tw/xrt/fltxt/0/day'
+# First use the official plain-text board: this endpoint has a stable,
+# labeled Buying / Selling layout and avoids fragile HTML table selectors.
 SOURCES = (
-    ('臺灣銀行即期牌告', RATE_PAGE, 'html'),
-    ('臺灣銀行即期牌告（備援頁）', 'https://rate.bot.com.tw/xrt?mode=desktop', 'html'),
-    ('臺灣銀行牌告 CSV', 'https://rate.bot.com.tw/xrt/flcsv/0/day', 'csv'),
-    ('臺灣銀行前一交易日收盤牌告', 'https://rate.bot.com.tw/xrt/all/day', 'html'),
+    ('臺灣銀行官方文字牌告', RATE_TEXT, 'text'),
+    ('臺灣銀行即期牌告網頁', RATE_PAGE, 'html'),
+    ('臺灣銀行 CSV', 'https://rate.bot.com.tw/xrt/flcsv/0/day', 'csv'),
 )
+
 
 
 class TableReader(HTMLParser):
@@ -37,6 +40,9 @@ class TableReader(HTMLParser):
         self.rows = []
         self.row = None
         self.cell = None
+        self.cell_attrs = None
+        self.row_details = None
+        self.detailed_rows = []
         self.raw_text = []
         self.ignored = 0
 
@@ -48,8 +54,10 @@ class TableReader(HTMLParser):
             return
         if tag == 'tr':
             self.row = []
+            self.row_details = []
         elif tag in ('th', 'td') and self.row is not None:
             self.cell = []
+            self.cell_attrs = dict(attrs)
 
     def handle_data(self, data):
         if not self.ignored:
@@ -64,11 +72,16 @@ class TableReader(HTMLParser):
         if self.ignored:
             return
         if tag in ('th', 'td') and self.cell is not None and self.row is not None:
-            self.row.append(' '.join(' '.join(self.cell).split()))
+            value = ' '.join(' '.join(self.cell).split())
+            self.row.append(value)
+            self.row_details.append((value, self.cell_attrs or {}))
             self.cell = None
+            self.cell_attrs = None
         elif tag == 'tr' and self.row is not None:
             self.rows.append(self.row)
+            self.detailed_rows.append(self.row_details)
             self.row = None
+            self.row_details = None
 
 
 def num(text):
@@ -97,8 +110,7 @@ def stamp_from_text(text):
         return ''
     y, mo, d, hh, mm = map(int, m.groups())
     iso = datetime(y, mo, d, hh, mm, tzinfo=TW)
-    if iso > datetime.now(TW) + timedelta(days=1) or iso < datetime.now(TW) - timedelta(days=20):
-        raise ValueError('臺灣銀行牌告日期不在合理範圍')
+    # Parser supports archived samples too; live freshness is checked in main().
     return iso.isoformat(timespec='seconds')
 
 
@@ -107,20 +119,83 @@ def from_html(payload):
     parser.feed(payload.decode('utf-8-sig', errors='replace'))
     stamp = stamp_from_text(' '.join(parser.raw_text))
     result = {}
-    for row in parser.rows:
-        # Currency + cash buy + cash sell + spot buy + spot sell.
-        # Keep '-' placeholders in cash fields (ZAR has no cash quotes).
+    for row, details in zip(parser.rows, parser.detailed_rows):
         if len(row) < 5:
             continue
         for code in CODES:
             for i, cell in enumerate(row[:3]):
-                if re.search(r'(?<![A-Z])' + code + r'(?![A-Z])', cell, re.I) and len(row) >= i + 5:
-                    candidate = pair(code, row[i+3], row[i+4])
-                    if candidate:
-                        result[code] = {**candidate, 'quotedAt': stamp}
+                if not re.search(r'(?<![A-Z])' + code + r'(?![A-Z])', cell, re.I):
+                    continue
+                spot_buy = spot_sell = None
+                # The official BOT board identifies spot-rate cells with
+                # data-table="本行即期買入/賣出" or CSS class "rate-content-sight".
+                # Prefer these labels to avoid accidentally reading duplicate
+                # print-only table cells or cash quotes.
+                for value, attrs in details:
+                    label = (attrs.get('data-table') or '') + ' ' + (attrs.get('class') or '')
+                    if ('即期買入' in label or '即期買進' in label):
+                        spot_buy = value
+                    elif ('即期賣出' in label):
+                        spot_sell = value
+                if spot_buy is None or spot_sell is None:
+                    sight = [(value, attrs) for value, attrs in details
+                             if 'rate-content-sight' in (attrs.get('class') or '')]
+                    if len(sight) >= 2:
+                        spot_buy, spot_sell = sight[0][0], sight[1][0]
+                # Stable, documented order in BOT table:
+                # currency, cash-buy, cash-sell, spot-buy, spot-sell.
+                if spot_buy is None or spot_sell is None:
+                    if len(row) >= i + 5:
+                        spot_buy, spot_sell = row[i + 3], row[i + 4]
+                candidate = pair(code, spot_buy, spot_sell)
+                if candidate:
+                    result[code] = {**candidate, 'quotedAt': stamp}
     if not result:
         raise ValueError('找不到 USD/ZAR 即期牌價欄位')
     return result
+
+
+def from_text(payload):
+    """Parse BOT's official /xrt/fltxt/0/day, NOT cash exchange rates.
+
+    Example (simplified):
+    USD Buying 32.54500 32.87000 ... Selling 33.21500 33.02000 ...
+        ^cash buy ^SPOT buy            ^cash sell ^SPOT sell
+    ZAR cash quotes are zero, but its *spot* buy/sell must be nonzero.
+    The text endpoint does not include a published quote timestamp; do not
+    invent one. The JSON will show the actual successful fetch time instead.
+    """
+    raw = None
+    for encoding in ('utf-8-sig', 'cp950', 'big5'):
+        try:
+            raw = payload.decode(encoding)
+            break
+        except UnicodeDecodeError:
+            continue
+    if raw is None:
+        raise ValueError('文字牌告編碼無法解析')
+    rates = {}
+    for line in raw.splitlines():
+        columns = line.split()
+        if len(columns) < 7:
+            continue
+        code = columns[0].upper()
+        if code not in CODES or columns[1].lower() != 'buying':
+            continue
+        try:
+            selling_idx = next(i for i, s in enumerate(columns) if s.lower() == 'selling')
+        except StopIteration:
+            continue
+        # buying: [currency, Buying, cash-buy, spot-buy, ...]
+        # selling: [..., Selling, cash-sell, spot-sell, ...]
+        if selling_idx + 2 >= len(columns):
+            continue
+        matched = pair(code, columns[3], columns[selling_idx + 2])
+        if matched:
+            rates[code] = {**matched, 'quotedAt': ''}
+    if not rates:
+        raise ValueError('官方文字牌告未找到 USD / ZAR 即期買賣價')
+    return rates
 
 
 def from_csv(payload):
@@ -195,28 +270,45 @@ def main():
     checked = datetime.now(TW).isoformat(timespec='seconds')
     fresh, provenance, errors = {}, {}, []
     for title, url, format_name in SOURCES:
-        if len(fresh) == 2:
+        if len(fresh) == len(CODES):
             break
         try:
-            found = from_csv(fetch(url)) if format_name == 'csv' else from_html(fetch(url))
-            for code, quote in found.items():
-                if code not in fresh:
-                    fresh[code] = quote
+            payload = fetch(url)
+            if format_name == 'text':
+                found = from_text(payload)
+            elif format_name == 'csv':
+                found = from_csv(payload)
+            else:
+                found = from_html(payload)
+                for code, rate in found.items():
+                    quoted = rate.get('quotedAt')
+                    if quoted:
+                        dt = datetime.fromisoformat(quoted)
+                        # Reject old cached server pages; weekends/holidays can
+                        # naturally retain the last trading day's board.
+                        if not datetime.now(TW) - timedelta(days=8) <= dt <= datetime.now(TW) + timedelta(hours=2):
+                            raise ValueError('官方網頁牌告日期過舊或來自未來：' + quoted)
+            for code in CODES:
+                if code in found and code not in fresh:
+                    fresh[code] = found[code]
                     provenance[code] = (title, url)
-        except Exception as e:
-            errors.append(f'{title}：{type(e).__name__}: {str(e)[:155]}')
-        time.sleep(0.15)
+            print(f'[FX source] {title}: '+ ', '.join(sorted(found)), flush=True)
+        except Exception as exc:
+            message = f'{title} ({url})：{type(exc).__name__}: {str(exc)[:220]}'
+            errors.append(message)
+            print(f'::warning::{message}', flush=True)
+        time.sleep(0.2)
     data = make_doc(old, fresh, provenance, errors, checked)
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
-    print('匯率最後檢查：', data['checkedAt'])
-    for code, quote in data['rates'].items():
-        print(code, '即期買進=', quote['buy'], '即期賣出=', quote['sell'], '狀態=', quote['status'],
-              '牌告時間=', quote['quotedAt'], '來源=', quote['sourceUrl'])
-    print('詳細狀態：', data['message'])
-    # Always publish diagnostics, even if official site is temporarily inaccessible.
+    print('匯率檢查時間:', checked, flush=True)
+    for code, rate in data['rates'].items():
+        print(f'[FX] {code}: spot_buy={rate["buy"]}, spot_sell={rate["sell"]}, status={rate["status"]}, '
+              f'quotedAt={rate["quotedAt"]}, fetchedAt={rate["fetchedAt"]}', flush=True)
+    print('[FX status]', data['message'], flush=True)
+    if not data['ok']:
+        print('::warning::兩種即期匯率沒有全部成功更新；已保留舊牌價與錯誤訊息。', flush=True)
     return 0
-
 
 
 
@@ -224,6 +316,10 @@ def main():
 # The current parser API uses from_html/from_csv/pair/make_doc. Keep these adapters
 # while older tests remain in the repository so the CI test discovery does not fail
 # during import. All adapters call the real parsers/validation; no dummy values.
+def parse_bank_text(blob):
+    return from_text(blob)
+
+
 def parse_bank_html(blob):
     return from_html(blob)
 

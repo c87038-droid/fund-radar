@@ -7,6 +7,8 @@ on:
   schedule:
     # UTC 01:15、10:15、15:15 = 臺灣時間 09:15、18:15、23:15
     - cron: '15 1,10,15 * * *'
+    # 其餘整點後 15 分更新匯率；排程可能因 GitHub 負載延遲
+    - cron: '15 2-9,11-14 * * *'
 
 permissions:
   contents: write
@@ -37,12 +39,14 @@ jobs:
           python-version: '3.12'
 
       - name: 檢查基金辨識與日期邏輯
+        if: github.event_name != 'schedule' || github.event.schedule == '15 1,10,15 * * *'
         run: python -m unittest discover -s tests -v
 
       - name: 更新 7 檔基金淨值與配息
+        if: github.event_name != 'schedule' || github.event.schedule == '15 1,10,15 * * *'
         run: python scripts/update_funds.py
 
-      - name: 取得臺灣銀行 USD / ZAR 即期匯率
+      - name: 取得臺灣銀行 USD / ZAR 即期匯率（官方文字牌告優先）
         shell: bash
         run: |
           python scripts/update_fx.py
