@@ -8,6 +8,7 @@ are published for display; missing prices are never fabricated.
 from __future__ import annotations
 
 import csv
+import hashlib
 import io
 import json
 import re
@@ -22,8 +23,11 @@ BASE = Path(__file__).resolve().parents[1]
 OUT = BASE / 'data' / 'fx.json'
 TW = timezone(timedelta(hours=8))
 CODES = ('USD', 'ZAR')
+SCRIPT_VERSION = "FX-BOT-FIRST-RATEWISE-FALLBACK-20261118"
 RATE_PAGE = 'https://rate.bot.com.tw/xrt?Lang=zh-TW'
 RATE_TEXT = 'https://rate.bot.com.tw/xrt/fltxt/0/day'
+RATEWISE_URL = 'https://cdn.jsdelivr.net/gh/haotool/app@data/public/rates/latest.json'
+RATEWISE_ATTRIBUTION = 'https://app.haotool.org/ratewise/'
 # First use the official plain-text board: this endpoint has a stable,
 # labeled Buying / Selling layout and avoids fragile HTML table selectors.
 SOURCES = (
@@ -198,6 +202,42 @@ def from_text(payload):
     return rates
 
 
+
+def from_ratewise(payload):
+    """Parse 3rd-party RateWise's published BOT-source *spot* bid/ask.
+
+    This is NOT an official Bank of Taiwan API. RateWise attributes the data to
+    BOT. We use the explicit spot buy/sell fields, NOT the convenience rates
+    map (that map contains mostly cash sell, which would be wrong here).
+    """
+    doc = json.loads(payload.decode('utf-8-sig'))
+    upstream = (doc.get('source') or '').lower()
+    if 'taiwan bank' not in upstream and '臺灣銀行' not in upstream:
+        raise ValueError('第三方來源未確認上游為臺灣銀行')
+    published = doc.get('sourcePublishedAt') or doc.get('timestamp')
+    if not published:
+        raise ValueError('第三方來源沒有資料時間')
+    try:
+        t = datetime.fromisoformat(published.replace('Z', '+00:00')).astimezone(TW)
+    except (ValueError, TypeError) as exc:
+        raise ValueError('第三方來源牌告時間格式不符') from exc
+    now = datetime.now(TW)
+    if t > now + timedelta(hours=2) or now - t > timedelta(days=5):
+        raise ValueError('第三方來源牌告資料太舊或時間異常：' + published)
+    result = {}
+    for code in CODES:
+        q = (doc.get('sourceQuotes') or {}).get(code, {})
+        if not q:
+            q = (doc.get('details') or {}).get(code, {})
+        q = (q.get('spot') or {})
+        rates = pair(code, q.get('buy'), q.get('sell'))
+        if rates:
+            result[code] = {**rates, 'quotedAt': t.isoformat(timespec='seconds')}
+    if not result:
+        raise ValueError('第三方來源找不到 USD/ZAR 即期買賣欄位')
+    return result
+
+
 def from_csv(payload):
     raw = None
     for enc in ('utf-8-sig', 'cp950', 'big5'):
@@ -253,7 +293,7 @@ def make_doc(existing, fresh, source_by_code, errors, checked):
                              'sourceName': old.get('sourceName') or '臺灣銀行',
                              'sourceUrl': old.get('sourceUrl') or RATE_PAGE}
     okay = len(fresh) == len(CODES)
-    msg = ('兩種匯率均已更新' if okay else
+    msg = ('兩種匯率均已取得（含備援時須確認標示）' if okay else
            '部分匯率沒有更新' if fresh else '臺灣銀行資料目前無法擷取')
     if errors:
         msg += '。' + '；'.join(errors)[-1200:]
@@ -263,6 +303,7 @@ def make_doc(existing, fresh, source_by_code, errors, checked):
 
 
 def main():
+    print(f"[FX script] version={SCRIPT_VERSION} source_first={RATE_TEXT}", flush=True)
     try:
         old = json.loads(OUT.read_text(encoding='utf-8')) if OUT.exists() else {}
     except (OSError, json.JSONDecodeError):
@@ -298,6 +339,32 @@ def main():
             errors.append(message)
             print(f'::warning::{message}', flush=True)
         time.sleep(0.2)
+    # Genuine BOT endpoints may serve a bot-block page to public GitHub
+    # runners. When that happens, try a separately attributed public cache.
+    # Do not silently label RateWise as an official BOT API.
+    if len(fresh) < len(CODES):
+        try:
+            fallback = from_ratewise(fetch(RATEWISE_URL))
+            print('[FX fallback] RateWise derived from BOT, source=' + RATEWISE_URL, flush=True)
+            for code, q in fallback.items():
+                if code in fresh:
+                    continue
+                old_q = (old.get('rates') or {}).get(code) or {}
+                old_time = old_q.get('quotedAt')
+                if old_time:
+                    try:
+                        if datetime.fromisoformat(q['quotedAt']) < datetime.fromisoformat(old_time):
+                            print(f'[FX fallback] {code}: 已有較新舊紀錄，略過第三方較舊值', flush=True)
+                            continue
+                    except (ValueError, TypeError):
+                        pass
+                fresh[code] = q
+                provenance[code] = ('RateWise 整理（上游：臺灣銀行）', RATEWISE_ATTRIBUTION)
+                print(f'[FX fallback] {code}: spot buy={q["buy"]} sell={q["sell"]} published={q["quotedAt"]}', flush=True)
+        except Exception as exc:
+            msg = 'RateWise 第三方備援：'+type(exc).__name__+': '+str(exc)[:200]
+            errors.append(msg)
+            print('::warning::'+msg, flush=True)
     data = make_doc(old, fresh, provenance, errors, checked)
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
