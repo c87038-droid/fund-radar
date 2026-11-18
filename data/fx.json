@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-11-18T23:28:21+08:00",
+  "checkedAt": "2026-11-18T23:30:21+08:00",
   "source": "臺灣銀行",
   "sourceUrl": "https://rate.bot.com.tw/xrt?Lang=zh-TW",
   "sourceUsed": "https://app.haotool.org/ratewise/",
@@ -11,7 +11,7 @@
       "buy": 32.87,
       "sell": 33.02,
       "quotedAt": "2026-11-18T17:01:00+08:00",
-      "fetchedAt": "2026-11-18T23:28:21+08:00",
+      "fetchedAt": "2026-11-18T23:30:21+08:00",
       "status": "found",
       "sourceName": "RateWise 整理（上游：臺灣銀行）",
       "sourceUrl": "https://app.haotool.org/ratewise/"
@@ -20,7 +20,7 @@
       "buy": 1.885,
       "sell": 1.975,
       "quotedAt": "2026-11-18T17:01:00+08:00",
-      "fetchedAt": "2026-11-18T23:28:21+08:00",
+      "fetchedAt": "2026-11-18T23:30:21+08:00",
       "status": "found",
       "sourceName": "RateWise 整理（上游：臺灣銀行）",
       "sourceUrl": "https://app.haotool.org/ratewise/"
