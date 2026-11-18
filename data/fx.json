@@ -1,29 +1,29 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-11-18T23:30:21+08:00",
+  "checkedAt": "2026-11-18T23:48:49+08:00",
   "source": "臺灣銀行",
   "sourceUrl": "https://rate.bot.com.tw/xrt?Lang=zh-TW",
-  "sourceUsed": "https://app.haotool.org/ratewise/",
+  "sourceUsed": "https://r.jina.ai/https://rate.bot.com.tw/xrt?Lang=zh-TW",
   "ok": true,
   "message": "兩種匯率均已取得（含備援時須確認標示）。臺灣銀行官方文字牌告 (https://rate.bot.com.tw/xrt/fltxt/0/day)：ValueError: 官方文字牌告未找到 USD / ZAR 即期買賣價；臺灣銀行即期牌告網頁 (https://rate.bot.com.tw/xrt?Lang=zh-TW)：ValueError: 找不到 USD/ZAR 即期牌價欄位；臺灣銀行 CSV (https://rate.bot.com.tw/xrt/flcsv/0/day)：ValueError: 牌告 CSV 沒有 USD/ZAR 即期買賣價",
   "rates": {
     "USD": {
       "buy": 32.87,
       "sell": 33.02,
-      "quotedAt": "2026-11-18T17:01:00+08:00",
-      "fetchedAt": "2026-11-18T23:30:21+08:00",
+      "quotedAt": "2026-11-18T23:21:00+08:00",
+      "fetchedAt": "2026-11-18T23:48:49+08:00",
       "status": "found",
-      "sourceName": "RateWise 整理（上游：臺灣銀行）",
-      "sourceUrl": "https://app.haotool.org/ratewise/"
+      "sourceName": "臺灣銀行官方牌告（經第三方文字代理取得）",
+      "sourceUrl": "https://r.jina.ai/https://rate.bot.com.tw/xrt?Lang=zh-TW"
     },
     "ZAR": {
-      "buy": 1.885,
-      "sell": 1.975,
-      "quotedAt": "2026-11-18T17:01:00+08:00",
-      "fetchedAt": "2026-11-18T23:30:21+08:00",
+      "buy": 1.87,
+      "sell": 1.96,
+      "quotedAt": "2026-11-18T23:21:00+08:00",
+      "fetchedAt": "2026-11-18T23:48:49+08:00",
       "status": "found",
-      "sourceName": "RateWise 整理（上游：臺灣銀行）",
-      "sourceUrl": "https://app.haotool.org/ratewise/"
+      "sourceName": "臺灣銀行官方牌告（經第三方文字代理取得）",
+      "sourceUrl": "https://r.jina.ai/https://rate.bot.com.tw/xrt?Lang=zh-TW"
     }
   }
 }
