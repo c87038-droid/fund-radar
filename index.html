@@ -106,6 +106,7 @@
     </div>
     <div class="fx-list" id="fxList" aria-live="polite"></div>
     <div id="fxNotice" class="fx-notice" role="status">正在讀取匯率資料……</div>
+    <div id="fxRatewiseAttribution" hidden style="font-size:12px;margin:7px 0"><a href="https://app.haotool.org/ratewise/" target="_blank" rel="noopener noreferrer">資料整理：匯率好工具 RateWise</a>｜上游資料來源：臺灣銀行牌告（第三方整理，非臺銀官方 API）</div>
     <div class="fx-help">「銀行買進」＝你賣出外幣換回台幣；「銀行賣出」＝你用台幣買入外幣。屬即期參考牌價，實際交易、基金申贖換匯依往來銀行及下單時間為準。</div>
   </section>
   <div id="syncNotice" class="status waiting" role="status" aria-live="polite">正在讀取基金公開資料快照……</div>
@@ -214,7 +215,8 @@ function renderFx(){
   if(fxLoadError){n.textContent='匯率資料檔無法讀取：'+fxLoadError+'。請確認 GitHub Actions 已執行並發布 data/fx.json。';n.className='fx-notice warn';}
   else if(!fx.checkedAt){n.textContent='匯率檔尚未執行首次更新，請到 GitHub Actions 手動執行「基金與匯率自動更新」。';n.className='fx-notice warn';}
   else if(!fx.ok){n.textContent='最近一次匯率擷取未全部成功（最後檢查 '+time+'）。'+(fx.message||'')+'；若有數值，請查看每個幣別的資料日期。';n.className='fx-notice warn';}
-  else{n.textContent='來源：臺灣銀行｜最後檢查 '+time+'（臺灣時間）；以各幣別牌告時間為準。';n.className='fx-notice';}
+  else{const viaThirdParty=['USD','ZAR'].some(code=>String(fx.rates?.[code]?.sourceName||'').includes('RateWise'));n.textContent=(viaThirdParty?'來源：臺灣銀行牌告，由 RateWise 第三方整理；可能比官方頁面延遲。':'來源：臺灣銀行｜')+'最後檢查 '+time+'（臺灣時間）；以各幣別資料時間為準。';n.className='fx-notice';}
+  const ra=$('fxRatewiseAttribution'); if(ra)ra.hidden=!['USD','ZAR'].some(code=>String(fx.rates?.[code]?.sourceName||'').includes('RateWise'));
   if(fxBackupNote)n.textContent += ' '+fxBackupNote;
 }
 async function loadFx(){
