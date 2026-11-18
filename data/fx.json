@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-11-18T23:48:49+08:00",
+  "checkedAt": "2026-11-19T00:16:46+08:00",
   "source": "臺灣銀行",
   "sourceUrl": "https://rate.bot.com.tw/xrt?Lang=zh-TW",
   "sourceUsed": "https://r.jina.ai/https://rate.bot.com.tw/xrt?Lang=zh-TW",
@@ -11,7 +11,7 @@
       "buy": 32.87,
       "sell": 33.02,
       "quotedAt": "2026-11-18T23:21:00+08:00",
-      "fetchedAt": "2026-11-18T23:48:49+08:00",
+      "fetchedAt": "2026-11-19T00:16:46+08:00",
       "status": "found",
       "sourceName": "臺灣銀行官方牌告（經第三方文字代理取得）",
       "sourceUrl": "https://r.jina.ai/https://rate.bot.com.tw/xrt?Lang=zh-TW"
@@ -20,7 +20,7 @@
       "buy": 1.87,
       "sell": 1.96,
       "quotedAt": "2026-11-18T23:21:00+08:00",
-      "fetchedAt": "2026-11-18T23:48:49+08:00",
+      "fetchedAt": "2026-11-19T00:16:46+08:00",
       "status": "found",
       "sourceName": "臺灣銀行官方牌告（經第三方文字代理取得）",
       "sourceUrl": "https://r.jina.ai/https://rate.bot.com.tw/xrt?Lang=zh-TW"
