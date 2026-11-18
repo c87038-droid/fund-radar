@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-11-17T22:21:00+08:00",
+  "checkedAt": "2026-11-18T22:29:07+08:00",
   "source": "臺灣銀行",
   "sourceUrl": "https://rate.bot.com.tw/xrt?Lang=zh-TW",
-  "sourceUsed": "臺灣銀行官方網站 2026/11/17 22:21 牌告（初始資料）",
+  "sourceUsed": "",
   "ok": false,
-  "message": "初始資料為 2026/11/17 22:21 的官方牌告快照；自動更新尚待 GitHub Actions 實際驗證。",
+  "message": "臺灣銀行資料目前無法擷取。臺灣銀行即期牌告：ValueError: 找不到 USD/ZAR 即期牌價欄位；臺灣銀行即期牌告（備援頁）：ValueError: 找不到 USD/ZAR 即期牌價欄位；臺灣銀行牌告 CSV：ValueError: 牌告 CSV 沒有 USD/ZAR 即期買賣價；臺灣銀行前一交易日收盤牌告：URLError: <urlopen error [Errno -3] Temporary failure in name resolution>",
   "rates": {
     "USD": {
       "buy": 32.775,
