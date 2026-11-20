@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "checkedAt": "2026-11-20T19:16:17+08:00",
+  "checkedAt": "2026-11-21T00:12:07+08:00",
   "funds": {
     "LU0820561818": {
       "nav": 7.9743,
@@ -8,7 +8,7 @@
       "navSource": "MoneyDJ 基金專頁（備援，非基金公司官方）",
       "navSourceUrl": "https://m.moneydj.com/b1.aspx?a=TLZ64",
       "navStatus": "found",
-      "navDelayedDays": 1,
+      "navDelayedDays": 2,
       "navMessage": "",
       "dividends": [
         {
@@ -50,7 +50,7 @@
       "navSource": "MoneyDJ 基金專頁（備援，非基金公司官方）",
       "navSourceUrl": "https://m.moneydj.com/b1.aspx?a=PIZC5",
       "navStatus": "found",
-      "navDelayedDays": 1,
+      "navDelayedDays": 2,
       "navMessage": "",
       "dividends": [
         {
@@ -92,7 +92,7 @@
       "navSource": "MoneyDJ 基金專頁（備援，非基金公司官方）",
       "navSourceUrl": "https://m.moneydj.com/b1.aspx?a=JFZN3",
       "navStatus": "found",
-      "navDelayedDays": 1,
+      "navDelayedDays": 2,
       "navMessage": "",
       "dividends": [
         {
@@ -134,7 +134,7 @@
       "navSource": "MoneyDJ 基金專頁（備援，非基金公司官方）",
       "navSourceUrl": "https://m.moneydj.com/b1.aspx?a=TLZF9",
       "navStatus": "found",
-      "navDelayedDays": 1,
+      "navDelayedDays": 2,
       "navMessage": "",
       "dividends": [
         {
@@ -176,7 +176,7 @@
       "navSource": "投信投顧公會境內基金公開資料",
       "navSourceUrl": "",
       "navStatus": "found",
-      "navDelayedDays": 1,
+      "navDelayedDays": 2,
       "navMessage": "",
       "dividends": [
         {
@@ -198,7 +198,7 @@
       "navSource": "投信投顧公會境內基金公開資料",
       "navSourceUrl": "",
       "navStatus": "found",
-      "navDelayedDays": 1,
+      "navDelayedDays": 2,
       "navMessage": "",
       "dividends": [
         {
@@ -220,7 +220,7 @@
       "navSource": "MoneyDJ 基金專頁（備援，非基金公司官方）",
       "navSourceUrl": "https://m.moneydj.com/b1.aspx?a=ALBT8",
       "navStatus": "found",
-      "navDelayedDays": 1,
+      "navDelayedDays": 2,
       "navMessage": "",
       "dividends": [
         {
@@ -276,7 +276,7 @@
     "local_nav": {
       "ok": true,
       "message": "",
-      "rows": 4325
+      "rows": 4494
     },
     "local_dividends": {
       "ok": true,
