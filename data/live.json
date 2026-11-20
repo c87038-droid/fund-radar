@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "checkedAt": "2026-11-21T01:08:35+08:00",
+  "checkedAt": "2026-11-21T01:29:21+08:00",
   "funds": {
     "LU0820561818": {
       "nav": 7.9743,
@@ -15,13 +15,13 @@
           "exDate": "2026-11-16",
           "payDate": "2026-11-18",
           "perUnit": 0.06,
-          "reportedAnnualRate": 8.85,
-          "reportedAnnualSource": "MoneyDJ 公開年化配息率（參考）",
-          "reportedAnnualSourceUrl": "https://m.moneydj.com/B5.aspx?a=TLZ64",
           "preExNav": 8.1367,
           "preExNavDate": "2026-11-13",
           "preExNavSource": "MoneyDJ 歷史淨值（前一淨值日）",
-          "preExNavSourceUrl": "https://m.moneydj.com/b1.aspx?a=TLZ64"
+          "preExNavSourceUrl": "https://m.moneydj.com/b1.aspx?a=TLZ64",
+          "reportedAnnualRate": 8.85,
+          "reportedAnnualSource": "MoneyDJ 公開年化配息率（參考）",
+          "reportedAnnualSourceUrl": "https://m.moneydj.com/B5.aspx?a=TLZ64"
         },
         {
           "exDate": "2026-10-15",
@@ -79,13 +79,13 @@
           "exDate": "2026-11-02",
           "payDate": "2026-11-05",
           "perUnit": 4.5196,
-          "reportedAnnualRate": 17.28,
-          "reportedAnnualSource": "MoneyDJ 公開年化配息率（參考）",
-          "reportedAnnualSourceUrl": "https://m.moneydj.com/B5.aspx?a=PIZC5",
           "preExNav": 313.9,
           "preExNavDate": "2026-10-30",
           "preExNavSource": "MoneyDJ 歷史淨值（前一淨值日）",
-          "preExNavSourceUrl": "https://m.moneydj.com/b1.aspx?a=PIZC5"
+          "preExNavSourceUrl": "https://m.moneydj.com/b1.aspx?a=PIZC5",
+          "reportedAnnualRate": 17.28,
+          "reportedAnnualSource": "MoneyDJ 公開年化配息率（參考）",
+          "reportedAnnualSourceUrl": "https://m.moneydj.com/B5.aspx?a=PIZC5"
         },
         {
           "exDate": "2026-10-01",
@@ -143,13 +143,13 @@
           "exDate": "2026-11-10",
           "payDate": "2026-11-17",
           "perUnit": 0.597,
-          "reportedAnnualRate": 10.0,
-          "reportedAnnualSource": "MoneyDJ 公開年化配息率（參考）",
-          "reportedAnnualSourceUrl": "https://m.moneydj.com/B5.aspx?a=JFZN3",
           "preExNav": 71.66,
           "preExNavDate": "2026-11-09",
           "preExNavSource": "MoneyDJ 歷史淨值（前一淨值日）",
-          "preExNavSourceUrl": "https://m.moneydj.com/b1.aspx?a=JFZN3"
+          "preExNavSourceUrl": "https://m.moneydj.com/b1.aspx?a=JFZN3",
+          "reportedAnnualRate": 10.0,
+          "reportedAnnualSource": "MoneyDJ 公開年化配息率（參考）",
+          "reportedAnnualSourceUrl": "https://m.moneydj.com/B5.aspx?a=JFZN3"
         },
         {
           "exDate": "2026-10-08",
@@ -281,13 +281,13 @@
           "exDate": "2026-10-30",
           "payDate": "2026-11-06",
           "perUnit": 0.075,
-          "reportedAnnualRate": 9.76,
-          "reportedAnnualSource": "MoneyDJ 公開年化配息率（參考）",
-          "reportedAnnualSourceUrl": "https://m.moneydj.com/a5.aspx?a=ACTI71",
           "preExNav": 9.22,
           "preExNavDate": "2026-10-29",
           "preExNavSource": "MoneyDJ 歷史淨值（前一淨值日）",
-          "preExNavSourceUrl": "https://m.moneydj.com/a1.aspx?a=ACTI71"
+          "preExNavSourceUrl": "https://m.moneydj.com/a1.aspx?a=ACTI71",
+          "reportedAnnualRate": 9.76,
+          "reportedAnnualSource": "MoneyDJ 公開年化配息率（參考）",
+          "reportedAnnualSourceUrl": "https://m.moneydj.com/a5.aspx?a=ACTI71"
         },
         {
           "exDate": "2026-09-30",
@@ -313,13 +313,13 @@
           "exDate": "2026-10-30",
           "payDate": "2026-11-04",
           "perUnit": 0.8322,
-          "reportedAnnualRate": 13.89,
-          "reportedAnnualSource": "MoneyDJ 公開年化配息率（參考）",
-          "reportedAnnualSourceUrl": "https://m.moneydj.com/B5.aspx?a=ALBT8",
           "preExNav": 71.89,
           "preExNavDate": "2026-10-29",
           "preExNavSource": "MoneyDJ 歷史淨值（前一淨值日）",
-          "preExNavSourceUrl": "https://m.moneydj.com/b1.aspx?a=ALBT8"
+          "preExNavSourceUrl": "https://m.moneydj.com/b1.aspx?a=ALBT8",
+          "reportedAnnualRate": 13.89,
+          "reportedAnnualSource": "MoneyDJ 公開年化配息率（參考）",
+          "reportedAnnualSourceUrl": "https://m.moneydj.com/B5.aspx?a=ALBT8"
         },
         {
           "exDate": "2026-09-30",
