@@ -121,9 +121,102 @@ def parse_backup_nav_html(payload, expected_heading, expected_currency):
     return {'nav': nav, 'navDate': dt, 'navSource': 'MoneyDJ 基金專頁（備援，非基金公司官方）'}
 
 
+JPM_ISIN = 'LU2347655073'
+JPM_BANK_PAGES = (
+    ('https://tbb.moneydj.com/mobile/b1.aspx?a=JFZN3-01G1', '臺灣企銀基金資訊（嘉實資料）', 'mobile'),
+    ('https://newfund.tw.dbs.com/mobile/b1.aspx?a=JFZN3', '星展銀行基金資訊（嘉實資料）', 'mobile'),
+    ('https://fund.hncb.com.tw/w/wb/wb02.djhtm?a=JFZN3-01I3', '華南銀行基金歷史淨值（嘉實資料）', 'history'),
+)
+
+
+def parse_jpm_bank_nav(payload, mode):
+    """Read only the exact A USD-hedged stable monthly class.
+
+    Bank mobile pages use 最新淨值 rather than 最新值; bank history pages
+    expose a date/NAV table instead. Never parse a graph or distribution table.
+    """
+    page = _FundPageText()
+    for encoding in ('utf-8-sig', 'cp950', 'big5'):
+        try:
+            raw = payload.decode(encoding)
+            break
+        except UnicodeDecodeError:
+            continue
+    else:
+        raise ValueError('銀行基金頁文字編碼不符')
+    page.feed(raw)
+    visible = re.sub(r'\s+', ' ', unicodedata.normalize('NFKC', ' '.join(page.parts))).strip()
+    # Remove whitespace only in the known title, not in the quote or date table.
+    title = r'摩根投資基金\s*[-－]?\s*多重收益基金\s*A股\s*\(美元對沖\)\s*\(穩定月配\)'
+    if mode == 'mobile':
+        pat = title + r'(?:\([^()]{1,180}\))?\s*(?:觀察\s*)?最新淨值\s*[:：]?\s*([0-9,]+(?:\.[0-9]+)?)\s*美元\s*\(\s*(20\d{2}[/.-]\d{1,2}[/.-]\d{1,2})\s*\)'
+        m = re.search(pat, visible)
+        if not m:
+            raise ValueError('銀行頁未找到相符 A 股美元對沖穩定月配的即日淨值')
+        nav, dt = money(m.group(1)), date_str(m.group(2))
+    elif mode == 'history':
+        pat = title + r'\s*[-－]?\s*近30日淨值\s*日期\s*淨值\s*漲跌幅\s*\(%\)\s*(20\d{2}[/.-]\d{1,2}[/.-]\d{1,2})\s+([0-9,]+(?:\.[0-9]+)?)\s+[-+−]?[0-9.,]+(?:\s*%)?'
+        m = re.search(pat, visible)
+        if not m:
+            raise ValueError('銀行頁未找到相符 A 股美元對沖穩定月配的歷史淨值表')
+        dt, nav = date_str(m.group(1)), money(m.group(2))
+    else:
+        raise ValueError('未知銀行基金頁格式')
+    if not nav or not dt or dt > datetime.now(TPE).date().isoformat():
+        raise ValueError('摩根淨值或日期異常')
+    return {'nav': nav, 'navDate': dt}
+
+
+def _get_nav_page(url):
+    req = Request(url, headers={
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/131.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml',
+        'Accept-Language': 'zh-TW,zh;q=0.9,en;q=0.5',
+    })
+    with urlopen(req, timeout=20) as r:
+        return r.read(1_200_000)
+
+
+def download_jpm_nav():
+    primary, expected = NAV_BACKUP_PAGES[JPM_ISIN]
+    pages = [(primary, 'MoneyDJ 基金專頁（備援，非基金公司官方）', 'primary'), *JPM_BANK_PAGES]
+    quotes, checks = [], []
+    for url, label, mode in pages:
+        try:
+            payload = _get_nav_page(url)
+            item = (parse_backup_nav_html(payload, expected, 'USD') if mode == 'primary'
+                    else parse_jpm_bank_nav(payload, mode))
+            if item['navDate'] > datetime.now(TPE).date().isoformat():
+                raise ValueError('淨值日期晚於今日')
+            item.update(navSource=label, navSourceUrl=url)
+            quotes.append(item)
+            checks.append(dict(ok=True, url=url, nav=item['nav'], navDate=item['navDate']))
+            print(f'[JPM NAV] {item["navDate"]} {item["nav"]} {url}')
+        except Exception as e:
+            msg = f'{type(e).__name__}: {str(e)[:150]}'
+            checks.append(dict(ok=False, url=url, error=msg))
+            print(f'[JPM NAV] unavailable: {url} {msg}', file=sys.stderr)
+    if not quotes:
+        return None, dict(ok=False, checks=checks, error='摩根指定級別所有備援頁均未取得淨值')
+    latest = max(x['navDate'] for x in quotes)
+    candidates = [x for x in quotes if x['navDate'] == latest]
+    values = {round(x['nav'], 4) for x in candidates}
+    if len(values) > 1:
+        return None, dict(ok=False, checks=checks, error='同日備援淨值不一致，暫不採用，請核對摩根官方資訊')
+    item = candidates[0]
+    return item, dict(ok=True, navDate=latest, url=item['navSourceUrl'], checks=checks)
+
+
 def download_backup_nav():
     found, results = {}, {}
     for fid, (url, expected) in NAV_BACKUP_PAGES.items():
+        if fid == JPM_ISIN:
+            item, detail = download_jpm_nav()
+            results[fid] = detail
+            if item:
+                found[fid] = item
+                print(f'[nav_backup] {fid}: {item["navDate"]} {item["nav"]} ({item["navSourceUrl"]})')
+            continue
         try:
             req = Request(url, headers={
                 'User-Agent': 'Mozilla/5.0 (compatible; FundRadar/3.0; personal-watchlist)',
@@ -410,6 +503,15 @@ def update_data(existing, sources, at=None, backup_nav=None, backup_results=None
             'dividends': merge_records(old.get('dividends', []), new_divs),
             'dividendStatus': 'found' if new_divs else ('cached' if old.get('dividends') else 'unavailable'),
         }
+        if fid == JPM_ISIN:
+            warnings = []
+            if standard and secondary and standard['navDate'] == secondary['navDate'] and abs(standard['nav']-secondary['nav']) > 0.00005:
+                warnings.append(f"摩根同日淨值不一致：集保 {standard['nav']}、備援 {secondary['nav']}；暫依集保，請核對基金公司")
+            if not secondary and backup_results.get(fid, {}).get('error'):
+                warnings.append(backup_results[fid]['error'])
+            if warnings:
+                entry['navMessage'] = '；'.join(filter(None, [entry['navMessage'], *warnings]))
+                print('[JPM NAV warning]', entry['navMessage'])
         doc['funds'][fid] = entry
         print(f'[NAV] {fid}: {nav_dt or "no date"} {nav if nav is not None else "no NAV"}; '
               f'source={nav_source}; status={entry["navStatus"]}; delayedDays={delayed_days}')
@@ -417,11 +519,126 @@ def update_data(existing, sources, at=None, backup_nav=None, backup_results=None
     return doc
 
 
+# Distribution reference: exact same share class and currency, never latest NAV.
+from concurrent.futures import ThreadPoolExecutor
+
+class _YieldTables(_FundPageText):
+    def __init__(self):
+        super().__init__()
+        self.rows = []
+        self.row = None
+        self.cell = None
+    def handle_starttag(self, tag, attrs):
+        super().handle_starttag(tag, attrs)
+        if tag == 'tr': self.row = []
+        elif tag in ('td','th') and self.row is not None: self.cell = []
+    def handle_data(self, data):
+        super().handle_data(data)
+        if self.cell is not None and not self.ignore_depth: self.cell.append(data)
+    def handle_endtag(self, tag):
+        super().handle_endtag(tag)
+        if tag in ('td','th') and self.cell is not None:
+            if self.row is not None: self.row.append(''.join(self.cell).strip())
+            self.cell = None
+        elif tag == 'tr' and self.row is not None:
+            self.rows.append(self.row)
+            self.row = None
+
+def yield_page(payload, expected):
+    for enc in ('utf-8-sig','cp950','big5'):
+        try: text = payload.decode(enc); break
+        except UnicodeDecodeError: continue
+    else: raise ValueError('無法解碼配息資料')
+    page = _YieldTables(); page.feed(text)
+    title = canonical(expected)
+    if not any(canonical(h) in (title,title+canonical('(基金之配息來源可能為本金)')) for h in page.headings):
+        raise ValueError('基金級別不符')
+    return page
+
+def parse_distribution_rates(payload, expected, ccy):
+    page=yield_page(payload,expected); found={}; active=False
+    for row in page.rows:
+        h=[canonical(x).replace('%','') for x in row]
+        if h == ['除息日','幣別','息值','年化配息率']:
+            active=True; continue
+        if not active or len(row)!=4: continue
+        ex=date_str(row[0]); amount=money(row[2]); rate=money(row[3].rstrip('%').strip())
+        if ex and currency(row[1])==ccy and amount is not None and rate is not None and rate <= 1000:
+            found[ex]={'perUnit':amount,'reportedAnnualRate':rate}
+    if not found: raise ValueError('找不到指定幣別的年化配息率表')
+    return found
+
+def parse_recent_nav(payload, expected, ccy):
+    page=yield_page(payload,expected)
+    latest=parse_backup_nav_html(payload,expected,ccy)['navDate']
+    anchor=Date.fromisoformat(latest); found={}; active=False
+    for row in page.rows:
+        if [canonical(x) for x in row]==['日期','淨值']:
+            active=True; continue
+        if not active or len(row)!=2: continue
+        m=re.fullmatch(r'(\d{1,2})/(\d{1,2})',row[0].strip()); v=money(row[1])
+        if not m or not v: continue
+        month,day=map(int,m.groups())
+        try:
+            dt=Date(anchor.year,month,day)
+            if dt>anchor: dt=Date(anchor.year-1,month,day)
+        except ValueError: continue
+        if 0 <= (anchor-dt).days <= 60: found[dt.isoformat()]=v
+    if not found: raise ValueError('找不到近20日淨值表')
+    return found
+
+def download_yield_data():
+    def one(item):
+        fid,(nav_url,heading)=item; ccy=FUNDS[fid]['currency']
+        div_url=nav_url.replace('/b1.aspx','/B5.aspx').replace('/a1.aspx','/a5.aspx')
+        result={'navUrl':nav_url,'rateUrl':div_url,'navs':{},'rates':{},'errors':[]}
+        for key,url,parser in [('navs',nav_url,parse_recent_nav),('rates',div_url,parse_distribution_rates)]:
+            try: result[key]=parser(_get_nav_page(url),heading,ccy)
+            except Exception as e: result['errors'].append(f'{key}: {type(e).__name__}: {e}')
+        print(f'[配息率] {fid}: 歷史淨值 {len(result["navs"])} 筆；公開年化率 {len(result["rates"])} 筆；{result["errors"]}')
+        return fid,result
+    with ThreadPoolExecutor(max_workers=4) as pool: return dict(pool.map(one,NAV_BACKUP_PAGES.items()))
+
+def enrich_distribution_rates(doc, prior, inputs):
+    for fid, entry in doc['funds'].items():
+        data=inputs.get(fid,{}); navs=data.get('navs',{}); reported=data.get('rates',{})
+        prev={r.get('exDate'):r for r in prior.get('funds',{}).get(fid,{}).get('dividends',[])}
+        ordered=sorted(navs)
+        for r in entry.get('dividends',[]):
+            ex=r['exDate']; amount=r.get('perUnit'); old=prev.get(ex,{})
+            if amount is None: continue
+            # Carry only same-period, same-amount reference metadata.
+            keys=('preExNav','preExNavDate','preExNavSource','preExNavSourceUrl','reportedAnnualRate','reportedAnnualSource','reportedAnnualSourceUrl')
+            if old.get('perUnit')==amount:
+                r.update({k:old[k] for k in keys if k in old})
+            row=reported.get(ex)
+            if row and abs(row['perUnit']-amount)<0.00000001:
+                r.update(reportedAnnualRate=row['reportedAnnualRate'],reportedAnnualSource='MoneyDJ 公開年化配息率（參考）',reportedAnnualSourceUrl=data['rateUrl'])
+            # Select previous valuation day from the SAME source's daily series only
+            # when both the ex-date and the immediately preceding record are present.
+            if ex in navs:
+                pos=ordered.index(ex)
+                if pos:
+                    before=ordered[pos-1]; value=navs[before]
+                    gap=(Date.fromisoformat(ex)-Date.fromisoformat(before)).days
+                    rate=amount/value*1200 if value>0 else None
+                    # If published annual rate disagrees, leave the published rate
+                    # as a separately attributed reference; do not claim a basis NAV.
+                    if 1<=gap<=7 and rate is not None and (not row or abs(row['perUnit']-amount)>=1e-8 or abs(rate-row['reportedAnnualRate'])<=0.011):
+                        r.update(preExNav=value,preExNavDate=before,preExNavSource='MoneyDJ 歷史淨值（前一淨值日）',preExNavSourceUrl=data['navUrl'])
+            # No inference of NAV by reversing a rounded published yield.
+        print(f'[配息率] {fid}: 基準淨值 {sum("preExNav" in r for r in entry.get("dividends",[]))} 筆；公開年化率 {sum("reportedAnnualRate" in r for r in entry.get("dividends",[]))} 筆')
+    doc['sources']['dividend_yield']={'ok':any(x.get('navs') or x.get('rates') for x in inputs.values()),'rows':sum(len(x.get('rates',{})) for x in inputs.values()),'message':'同級別歷史淨值與公開年化配息率，缺資料不以最新淨值代替'}
+    return doc
+
+
 def main():
+    print('[NAV updater] JPM-NAV-20261121 + EXDATE-YIELD-v1')
     prior = json.loads(LIVE.read_text(encoding='utf-8')) if LIVE.exists() else {'funds':{}}
     downloaded = {name: load_source(name, urls) for name,urls in SOURCES.items()}
     backup_nav, backup_results = download_backup_nav()
     doc = update_data(prior, downloaded, backup_nav=backup_nav, backup_results=backup_results)
+    enrich_distribution_rates(doc, prior, download_yield_data())
     LIVE.parent.mkdir(parents=True, exist_ok=True)
     LIVE.write_text(json.dumps(doc,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     # Feed failures must not be presented as successful NAV checks; we still publish
