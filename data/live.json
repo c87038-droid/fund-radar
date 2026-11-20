@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "checkedAt": "2026-11-21T00:12:07+08:00",
+  "checkedAt": "2026-11-21T01:08:35+08:00",
   "funds": {
     "LU0820561818": {
       "nav": 7.9743,
@@ -14,32 +14,54 @@
         {
           "exDate": "2026-11-16",
           "payDate": "2026-11-18",
-          "perUnit": 0.06
+          "perUnit": 0.06,
+          "reportedAnnualRate": 8.85,
+          "reportedAnnualSource": "MoneyDJ 公開年化配息率（參考）",
+          "reportedAnnualSourceUrl": "https://m.moneydj.com/B5.aspx?a=TLZ64",
+          "preExNav": 8.1367,
+          "preExNavDate": "2026-11-13",
+          "preExNavSource": "MoneyDJ 歷史淨值（前一淨值日）",
+          "preExNavSourceUrl": "https://m.moneydj.com/b1.aspx?a=TLZ64"
         },
         {
           "exDate": "2026-10-15",
           "payDate": "2026-10-19",
-          "perUnit": 0.06
+          "perUnit": 0.06,
+          "reportedAnnualRate": 8.62,
+          "reportedAnnualSource": "MoneyDJ 公開年化配息率（參考）",
+          "reportedAnnualSourceUrl": "https://m.moneydj.com/B5.aspx?a=TLZ64"
         },
         {
           "exDate": "2026-09-15",
           "payDate": "2026-09-17",
-          "perUnit": 0.055
+          "perUnit": 0.055,
+          "reportedAnnualRate": 7.81,
+          "reportedAnnualSource": "MoneyDJ 公開年化配息率（參考）",
+          "reportedAnnualSourceUrl": "https://m.moneydj.com/B5.aspx?a=TLZ64"
         },
         {
           "exDate": "2026-08-17",
           "payDate": "2026-08-19",
-          "perUnit": 0.055
+          "perUnit": 0.055,
+          "reportedAnnualRate": 7.54,
+          "reportedAnnualSource": "MoneyDJ 公開年化配息率（參考）",
+          "reportedAnnualSourceUrl": "https://m.moneydj.com/B5.aspx?a=TLZ64"
         },
         {
           "exDate": "2026-07-15",
           "payDate": "2026-07-17",
-          "perUnit": 0.055
+          "perUnit": 0.055,
+          "reportedAnnualRate": 7.53,
+          "reportedAnnualSource": "MoneyDJ 公開年化配息率（參考）",
+          "reportedAnnualSourceUrl": "https://m.moneydj.com/B5.aspx?a=TLZ64"
         },
         {
           "exDate": "2026-06-15",
           "payDate": "2026-06-17",
-          "perUnit": 0.055
+          "perUnit": 0.055,
+          "reportedAnnualRate": 7.52,
+          "reportedAnnualSource": "MoneyDJ 公開年化配息率（參考）",
+          "reportedAnnualSourceUrl": "https://m.moneydj.com/B5.aspx?a=TLZ64"
         }
       ],
       "dividendStatus": "found"
@@ -56,32 +78,54 @@
         {
           "exDate": "2026-11-02",
           "payDate": "2026-11-05",
-          "perUnit": 4.5196
+          "perUnit": 4.5196,
+          "reportedAnnualRate": 17.28,
+          "reportedAnnualSource": "MoneyDJ 公開年化配息率（參考）",
+          "reportedAnnualSourceUrl": "https://m.moneydj.com/B5.aspx?a=PIZC5",
+          "preExNav": 313.9,
+          "preExNavDate": "2026-10-30",
+          "preExNavSource": "MoneyDJ 歷史淨值（前一淨值日）",
+          "preExNavSourceUrl": "https://m.moneydj.com/b1.aspx?a=PIZC5"
         },
         {
           "exDate": "2026-10-01",
           "payDate": "2026-10-06",
-          "perUnit": 4.5196
+          "perUnit": 4.5196,
+          "reportedAnnualRate": 17.34,
+          "reportedAnnualSource": "MoneyDJ 公開年化配息率（參考）",
+          "reportedAnnualSourceUrl": "https://m.moneydj.com/B5.aspx?a=PIZC5"
         },
         {
           "exDate": "2026-09-01",
           "payDate": "2026-09-04",
-          "perUnit": 4.5196
+          "perUnit": 4.5196,
+          "reportedAnnualRate": 16.58,
+          "reportedAnnualSource": "MoneyDJ 公開年化配息率（參考）",
+          "reportedAnnualSourceUrl": "https://m.moneydj.com/B5.aspx?a=PIZC5"
         },
         {
           "exDate": "2026-08-03",
           "payDate": "2026-08-06",
-          "perUnit": 4.5196
+          "perUnit": 4.5196,
+          "reportedAnnualRate": 16.46,
+          "reportedAnnualSource": "MoneyDJ 公開年化配息率（參考）",
+          "reportedAnnualSourceUrl": "https://m.moneydj.com/B5.aspx?a=PIZC5"
         },
         {
           "exDate": "2026-07-01",
           "payDate": "2026-07-06",
-          "perUnit": 4.5196
+          "perUnit": 4.5196,
+          "reportedAnnualRate": 16.07,
+          "reportedAnnualSource": "MoneyDJ 公開年化配息率（參考）",
+          "reportedAnnualSourceUrl": "https://m.moneydj.com/B5.aspx?a=PIZC5"
         },
         {
           "exDate": "2026-06-01",
           "payDate": "2026-06-04",
-          "perUnit": 4.5196
+          "perUnit": 4.5196,
+          "reportedAnnualRate": 15.93,
+          "reportedAnnualSource": "MoneyDJ 公開年化配息率（參考）",
+          "reportedAnnualSourceUrl": "https://m.moneydj.com/B5.aspx?a=PIZC5"
         }
       ],
       "dividendStatus": "found"
@@ -98,32 +142,54 @@
         {
           "exDate": "2026-11-10",
           "payDate": "2026-11-17",
-          "perUnit": 0.597
+          "perUnit": 0.597,
+          "reportedAnnualRate": 10.0,
+          "reportedAnnualSource": "MoneyDJ 公開年化配息率（參考）",
+          "reportedAnnualSourceUrl": "https://m.moneydj.com/B5.aspx?a=JFZN3",
+          "preExNav": 71.66,
+          "preExNavDate": "2026-11-09",
+          "preExNavSource": "MoneyDJ 歷史淨值（前一淨值日）",
+          "preExNavSourceUrl": "https://m.moneydj.com/b1.aspx?a=JFZN3"
         },
         {
           "exDate": "2026-10-08",
           "payDate": "2026-10-15",
-          "perUnit": 0.609
+          "perUnit": 0.609,
+          "reportedAnnualRate": 10.01,
+          "reportedAnnualSource": "MoneyDJ 公開年化配息率（參考）",
+          "reportedAnnualSourceUrl": "https://m.moneydj.com/B5.aspx?a=JFZN3"
         },
         {
           "exDate": "2026-09-09",
           "payDate": "2026-09-16",
-          "perUnit": 0.685
+          "perUnit": 0.685,
+          "reportedAnnualRate": 10.99,
+          "reportedAnnualSource": "MoneyDJ 公開年化配息率（參考）",
+          "reportedAnnualSourceUrl": "https://m.moneydj.com/B5.aspx?a=JFZN3"
         },
         {
           "exDate": "2026-08-12",
           "payDate": "2026-08-19",
-          "perUnit": 0.692
+          "perUnit": 0.692,
+          "reportedAnnualRate": 11.01,
+          "reportedAnnualSource": "MoneyDJ 公開年化配息率（參考）",
+          "reportedAnnualSourceUrl": "https://m.moneydj.com/B5.aspx?a=JFZN3"
         },
         {
           "exDate": "2026-07-08",
           "payDate": "2026-07-15",
-          "perUnit": 0.693
+          "perUnit": 0.693,
+          "reportedAnnualRate": 11.0,
+          "reportedAnnualSource": "MoneyDJ 公開年化配息率（參考）",
+          "reportedAnnualSourceUrl": "https://m.moneydj.com/B5.aspx?a=JFZN3"
         },
         {
           "exDate": "2026-06-09",
           "payDate": "2026-06-16",
-          "perUnit": 0.69
+          "perUnit": 0.69,
+          "reportedAnnualRate": 11.01,
+          "reportedAnnualSource": "MoneyDJ 公開年化配息率（參考）",
+          "reportedAnnualSourceUrl": "https://m.moneydj.com/B5.aspx?a=JFZN3"
         }
       ],
       "dividendStatus": "found"
@@ -140,7 +206,11 @@
         {
           "exDate": "2026-11-16",
           "payDate": "2026-11-18",
-          "perUnit": 0.07248
+          "perUnit": 0.07248,
+          "preExNav": 8.2619,
+          "preExNavDate": "2026-11-13",
+          "preExNavSource": "MoneyDJ 歷史淨值（前一淨值日）",
+          "preExNavSourceUrl": "https://m.moneydj.com/b1.aspx?a=TLZF9"
         },
         {
           "exDate": "2026-10-15",
@@ -182,12 +252,18 @@
         {
           "exDate": "2026-10-01",
           "payDate": "2026-10-07",
-          "perUnit": 0.07
+          "perUnit": 0.07,
+          "reportedAnnualRate": 10.26,
+          "reportedAnnualSource": "MoneyDJ 公開年化配息率（參考）",
+          "reportedAnnualSourceUrl": "https://m.moneydj.com/a5.aspx?a=ACCP138"
         },
         {
           "exDate": "2026-09-01",
           "payDate": "2026-09-07",
-          "perUnit": 0.07
+          "perUnit": 0.07,
+          "reportedAnnualRate": 9.99,
+          "reportedAnnualSource": "MoneyDJ 公開年化配息率（參考）",
+          "reportedAnnualSourceUrl": "https://m.moneydj.com/a5.aspx?a=ACCP138"
         }
       ],
       "dividendStatus": "found"
@@ -204,12 +280,22 @@
         {
           "exDate": "2026-10-30",
           "payDate": "2026-11-06",
-          "perUnit": 0.075
+          "perUnit": 0.075,
+          "reportedAnnualRate": 9.76,
+          "reportedAnnualSource": "MoneyDJ 公開年化配息率（參考）",
+          "reportedAnnualSourceUrl": "https://m.moneydj.com/a5.aspx?a=ACTI71",
+          "preExNav": 9.22,
+          "preExNavDate": "2026-10-29",
+          "preExNavSource": "MoneyDJ 歷史淨值（前一淨值日）",
+          "preExNavSourceUrl": "https://m.moneydj.com/a1.aspx?a=ACTI71"
         },
         {
           "exDate": "2026-09-30",
           "payDate": "2026-10-07",
-          "perUnit": 0.075
+          "perUnit": 0.075,
+          "reportedAnnualRate": 9.69,
+          "reportedAnnualSource": "MoneyDJ 公開年化配息率（參考）",
+          "reportedAnnualSourceUrl": "https://m.moneydj.com/a5.aspx?a=ACTI71"
         }
       ],
       "dividendStatus": "found"
@@ -226,32 +312,54 @@
         {
           "exDate": "2026-10-30",
           "payDate": "2026-11-04",
-          "perUnit": 0.8322
+          "perUnit": 0.8322,
+          "reportedAnnualRate": 13.89,
+          "reportedAnnualSource": "MoneyDJ 公開年化配息率（參考）",
+          "reportedAnnualSourceUrl": "https://m.moneydj.com/B5.aspx?a=ALBT8",
+          "preExNav": 71.89,
+          "preExNavDate": "2026-10-29",
+          "preExNavSource": "MoneyDJ 歷史淨值（前一淨值日）",
+          "preExNavSourceUrl": "https://m.moneydj.com/b1.aspx?a=ALBT8"
         },
         {
           "exDate": "2026-09-30",
           "payDate": "2026-10-05",
-          "perUnit": 0.8322
+          "perUnit": 0.8322,
+          "reportedAnnualRate": 13.62,
+          "reportedAnnualSource": "MoneyDJ 公開年化配息率（參考）",
+          "reportedAnnualSourceUrl": "https://m.moneydj.com/B5.aspx?a=ALBT8"
         },
         {
           "exDate": "2026-08-31",
           "payDate": "2026-09-03",
-          "perUnit": 0.8322
+          "perUnit": 0.8322,
+          "reportedAnnualRate": 13.59,
+          "reportedAnnualSource": "MoneyDJ 公開年化配息率（參考）",
+          "reportedAnnualSourceUrl": "https://m.moneydj.com/B5.aspx?a=ALBT8"
         },
         {
           "exDate": "2026-07-31",
           "payDate": "2026-08-05",
-          "perUnit": 0.8322
+          "perUnit": 0.8322,
+          "reportedAnnualRate": 13.85,
+          "reportedAnnualSource": "MoneyDJ 公開年化配息率（參考）",
+          "reportedAnnualSourceUrl": "https://m.moneydj.com/B5.aspx?a=ALBT8"
         },
         {
           "exDate": "2026-06-30",
           "payDate": "2026-07-06",
-          "perUnit": 0.8322
+          "perUnit": 0.8322,
+          "reportedAnnualRate": 13.55,
+          "reportedAnnualSource": "MoneyDJ 公開年化配息率（參考）",
+          "reportedAnnualSourceUrl": "https://m.moneydj.com/B5.aspx?a=ALBT8"
         },
         {
           "exDate": "2026-05-29",
           "payDate": "2026-06-03",
-          "perUnit": 0.8322
+          "perUnit": 0.8322,
+          "reportedAnnualRate": 12.95,
+          "reportedAnnualSource": "MoneyDJ 公開年化配息率（參考）",
+          "reportedAnnualSourceUrl": "https://m.moneydj.com/B5.aspx?a=ALBT8"
         }
       ],
       "dividendStatus": "found"
@@ -287,6 +395,11 @@
       "ok": true,
       "rows": 7,
       "message": "基金備援成功 7/7 檔；依各基金淨值日期選用"
+    },
+    "dividend_yield": {
+      "ok": true,
+      "rows": 168,
+      "message": "同級別歷史淨值與公開年化配息率，缺資料不以最新淨值代替"
     }
   },
   "navBackupDetails": {
@@ -303,7 +416,33 @@
     "LU2347655073": {
       "ok": true,
       "navDate": "2026-11-19",
-      "url": "https://m.moneydj.com/b1.aspx?a=JFZN3"
+      "url": "https://m.moneydj.com/b1.aspx?a=JFZN3",
+      "checks": [
+        {
+          "ok": true,
+          "url": "https://m.moneydj.com/b1.aspx?a=JFZN3",
+          "nav": 70.24,
+          "navDate": "2026-11-19"
+        },
+        {
+          "ok": true,
+          "url": "https://tbb.moneydj.com/mobile/b1.aspx?a=JFZN3-01G1",
+          "nav": 70.24,
+          "navDate": "2026-11-19"
+        },
+        {
+          "ok": true,
+          "url": "https://newfund.tw.dbs.com/mobile/b1.aspx?a=JFZN3",
+          "nav": 70.24,
+          "navDate": "2026-11-19"
+        },
+        {
+          "ok": true,
+          "url": "https://fund.hncb.com.tw/w/wb/wb02.djhtm?a=JFZN3-01I3",
+          "nav": 70.24,
+          "navDate": "2026-11-19"
+        }
+      ]
     },
     "TW000T0759D2": {
       "ok": true,
