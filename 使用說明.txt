@@ -1,26 +1,18 @@
-我的基金雷達｜Excel 下載功能更新版（2026/11/21）
+我的基金雷達｜Excel 資料匯出空白修正版（2026/11/21）
 
-【這次新增】
-「我的基金觀察清單」標題右側新增「↓ 下載全部基金 Excel」按鈕。
-載入網站公開資料快照後，點按鈕即可下載真正的 .xlsx 檔案，不是 CSV，也不需額外安裝。
+【修正】
+1. 修正上一版 XLSX 工作表 XML 的欄位順序（autoFilter 與 mergeCells）並補上資料範圍 dimension，改善 Excel 對檔案的辨識。
+2. 匯出前再次確認是否有真實基金淨值或配息紀錄；未取得資料時取消下載，不再產生只有表頭的檔案。
+3. 匯出成功會在網站上顯示實際匯出數量（9 檔基金、取得淨值檔數、歷史配息筆數）。
+4. Excel 繼續保留「基金總覽」與「配息明細」；缺值留白，不使用猜測值。
+5. 保留原本基金網站版面、網址列金色菱形圖示與南非幣基金專屬連結。
 
-Excel 含兩個工作表：
-1. 基金總覽：9 檔基金的公司、基金名稱、級別、幣別、ISIN、淨值、淨值日期、最近配息、配息率、增減率、資料狀態及資料網址。
-2. 配息明細：目前公開資料快照中實際取得的歷史配息（不限於畫面顯示的最近12期）。依各基金真實紀錄逐筆匯出。
+【GitHub 更新】
+(1) 解壓縮此 ZIP。
+(2) 上傳 index.html、favicon.png、favicon.ico 至 fund-radar 儲存庫 main 的最外層（覆蓋舊檔）。
+(3) 依原資料夾結構上傳 .github/workflows/update-and-deploy.yml（如果此前已更新，仍可覆蓋）。
+(4) 保留原有 data、scripts、tests 等資料夾，不要刪除！
+(5) 到 https://github.com/c87038-droid/fund-radar/actions 確認發布成功。
+(6) 開啟 https://c87038-droid.github.io/fund-radar/ ，按 Ctrl+F5 重新載入，再點「下載全部基金 Excel」。
 
-特別說明：
-- 匯出的是目前網站已載入的「資料快照」，不是從基金公司即時重新查價。
-- 每筆缺資料的欄位保持空白，若淨值或配息資料沿用過去紀錄，Excel 會註明。
-- 年化配息率並非投資報酬率；資料來源不足時不做虛構試算。
-- 內建 Excel 建檔功能，不依賴第三方 CDN，按一下即可在瀏覽器下載。
-- 原本網址列金色 favicon、左上角 ◈、南非幣基金專屬連結均保留。
-
-【如何更新 GitHub】
-1. 解壓縮 ZIP。
-2. 將 index.html、favicon.png、favicon.ico 上傳並覆蓋到 fund-radar 儲存庫 main 分支的最外層。
-3. 把 .github/workflows/update-and-deploy.yml 覆蓋到相同路徑（保留原有檔案結構）。
-4. 不要刪除 data、scripts、tests 等其他檔案。
-5. Commit changes 後，到 GitHub Actions 確認「我的基金雷達｜基金自動更新與發布」執行成功。
-6. 開啟 GitHub Pages 正式基金網站，再點「↓ 下載全部基金 Excel」。
-
-提醒：GitHub Actions 是部署管理頁，下載按鈕會出現在正式基金網站裡，不是在 Actions 頁面。
+提醒：GitHub Actions 是發布管理頁，不是正式基金查詢頁面。Excel 來自網站當下的 data/live.json，非盤中即時行情。

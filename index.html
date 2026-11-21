@@ -465,6 +465,11 @@ function buildExcelWorkbook() {
       ]);
     }
   }
+  // 防止失敗或過期的快照產生只有標題的空白工作表。
+  const nonEmptyNav=summaryRows.filter(row => row[5].value!==null && row[5].value!==undefined).length;
+  if (nonEmptyNav===0 && historyRows.length===0) {
+    throw new Error('目前未取得任何基金淨值或配息，請檢查 GitHub Actions 資料更新狀態。');
+  }
   const note='雲端資料最後檢查：'+(live.checkedAt?String(live.checkedAt).replace('T',' ').slice(0,19):'尚無時間')+
     '　｜　淨值與配息各有獨立日期；缺少資料的欄位留白。';
   const caveat='注意：當期配息率／年化配息率並非總報酬或保證收益；部分數值可能為公開年化率參考。';
@@ -497,6 +502,7 @@ function buildExcelWorkbook() {
     const heads=s.headers.map((h,i)=>textCell(h,column(i+1)+'5',3)).join('');
     return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+    <dimension ref="A1:${end}${Math.max(5,last)}"/>
     <sheetViews><sheetView workbookViewId="0" showGridLines="0"><pane ySplit="5" topLeftCell="A6" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>
     <sheetFormatPr defaultRowHeight="22"/>
     <cols>${columns}</cols>
@@ -507,8 +513,8 @@ function buildExcelWorkbook() {
       <row r="5" ht="34" customHeight="1">${heads}</row>
       ${data}
     </sheetData>
-    <mergeCells count="3"><mergeCell ref="A1:${end}1"/><mergeCell ref="A2:${end}2"/><mergeCell ref="A3:${end}3"/></mergeCells>
     <autoFilter ref="A5:${end}${Math.max(5,last)}"/>
+    <mergeCells count="3"><mergeCell ref="A1:${end}1"/><mergeCell ref="A2:${end}2"/><mergeCell ref="A3:${end}3"/></mergeCells>
     <pageMargins left="0.4" right="0.4" top="0.6" bottom="0.6" header="0.3" footer="0.3"/>
     </worksheet>`;
   };
@@ -605,13 +611,22 @@ function downloadExcelFile(){
     banner('warn','基金資料還沒有載入，請先點「重新讀取雲端資料」再下載 Excel。');
     return;
   }
+  const validNavCount=FUNDS.filter(f=>validNav(live.funds?.[f.isin])).length;
+  const distributionCount=FUNDS.reduce((n,f)=>n+records(live.funds?.[f.isin]).length,0);
+  if(validNavCount===0 && distributionCount===0){
+    banner('warn','目前沒有可匯出的基金淨值或配息。請先確認網站已顯示數值，並按「重新讀取雲端資料」。');
+    return;
+  }
   const button=$('exportExcelButton');button.disabled=true;
   try{
-    const file=buildExcelWorkbook(),href=URL.createObjectURL(file),a=document.createElement('a');
+    const file=buildExcelWorkbook();
+    if(file.size<3000) throw new Error('Excel 檔案異常過小，已取消下載。');
+    const href=URL.createObjectURL(file),a=document.createElement('a');
     const date=String(live.checkedAt).slice(0,10).replace(/-/g,'');
     a.href=href;a.download=`基金觀察清單_資料更新${date||'未標日期'}.xlsx`;
     document.body.append(a);a.click();a.remove();
     setTimeout(()=>URL.revokeObjectURL(href),60000);
+    banner('ok',`Excel 已產生：基金 ${FUNDS.length} 檔，已取得淨值 ${validNavCount} 檔、歷史配息 ${distributionCount} 筆；下載的資料截至 ${String(live.checkedAt).replace('T',' ').slice(0,16)}。`);
   }catch(e){
     console.error('Excel 匯出失敗',e);
     banner('warn','Excel 下載失敗，請重新整理網頁後再試。'+e.message);
@@ -624,7 +639,12 @@ async function loadData(){
   try{
     const response=await fetch(`data/live.json?v=${Date.now()}`,{cache:'no-store'});
     if(!response.ok)throw new Error(`HTTP ${response.status}`);
-    const data=await response.json();if(data.schemaVersion!==2||!data.funds)throw new Error('資料版本不同');live=data;render();$('exportExcelButton').disabled=!(data.checkedAt&&Object.keys(data.funds).length);
+    const data=await response.json();if(data.schemaVersion!==2||!data.funds)throw new Error('資料版本不同');live=data;render();
+    const exportNavCount=FUNDS.filter(f=>validNav(data.funds[f.isin])).length;
+    const exportDistributionCount=FUNDS.reduce((n,f)=>n+records(data.funds[f.isin]).length,0);
+    const exportButton=$('exportExcelButton');
+    exportButton.disabled=!(data.checkedAt&&(exportNavCount>0||exportDistributionCount>0));
+    exportButton.title=`匯出：${exportNavCount} 檔淨值、${exportDistributionCount} 筆歷史配息（快照時間 ${data.checkedAt||'未知'}）`;
     const statuses=Object.values(data.sources||{}), bad=statuses.filter(s=>!s.ok).length, withNav=FUNDS.filter(f=>validNav(data.funds[f.isin])).length;
     const sourceNames={overseas_nav:'境外淨值',overseas_info:'境外基金對照',overseas_dividends:'境外配息',local_nav:'境內淨值',local_dividends:'境內配息',dividend_yield:'除息前淨值及公開配息率'};
     $('diagnostics').textContent = [
@@ -640,7 +660,7 @@ async function loadData(){
     else if(stale){banner('warn',`排程檢查已超過 40 小時沒有更新。最後一次檢查：${data.checkedAt}。請到 GitHub Actions 查看是否停用或失敗。`);}
     else if(bad||withNav<FUNDS.length){banner('warn',`最近檢查：${String(data.checkedAt).replace('T',' ').slice(0,16)}。已取得 ${withNav}/${FUNDS.length} 檔基金淨值；${bad} 個公開來源讀取失敗。未取得的欄位不會假裝是最新資料。`);}
     else{banner('ok',`基金資料已載入。最近檢查：${String(data.checkedAt).replace('T',' ').slice(0,16)}（臺灣時間）；實際淨值日期請看每檔基金。`);}
-  }catch(e){render();$('diagnostics').textContent='無法讀取 data/live.json：'+e.message+'\n請確認網頁網址與資料檔網址都能正常開啟。';const localFile=location.protocol==='file:'||location.protocol==='about:';banner('warn',localFile?'這是本機預覽：已載入9檔基金清單。淨值及配息請先上傳 GitHub Pages，再使用固定網址查看。':`基金資料檔讀取失敗（${e.message}）。請檢查 GitHub Actions 的部署與 data/live.json。`);}
+  }catch(e){live={schemaVersion:2,checkedAt:null,funds:{},sources:{}};$('exportExcelButton').disabled=true;render();$('diagnostics').textContent='無法讀取 data/live.json：'+e.message+'\n請確認網頁網址與資料檔網址都能正常開啟。';const localFile=location.protocol==='file:'||location.protocol==='about:';banner('warn',localFile?'這是本機預覽：已載入9檔基金清單。淨值及配息請先上傳 GitHub Pages，再使用固定網址查看。':`基金資料檔讀取失敗（${e.message}）。請檢查 GitHub Actions 的部署與 data/live.json。`);}
   finally{$('refreshButton').disabled=false;}
 }
 $('search').addEventListener('input',render);$('currency').addEventListener('change',render);$('refreshButton').addEventListener('click',loadData);$('exportExcelButton').addEventListener('click',downloadExcelFile);
