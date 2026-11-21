@@ -189,6 +189,19 @@ a{color:#086e84}
  .fund-row:hover{background:#f7fdfe}
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+/* 概覽預設收合，資訊仍會在背景即時更新 */
+.overview-fold{margin:14px 0 16px;border:1px solid var(--border);background:rgba(255,255,255,.8);border-radius:13px;overflow:hidden}
+.overview-fold-toggle{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 17px;min-height:43px;cursor:pointer;color:var(--navy);font-weight:700;font-size:13px;user-select:none}
+.overview-fold-toggle::-webkit-details-marker{display:none}
+.overview-fold-toggle:hover{background:var(--soft)}
+.overview-fold-toggle:focus-visible{outline:3px solid var(--teal);outline-offset:-3px}
+.overview-fold-title{display:flex;align-items:center;gap:7px}
+.overview-fold-control{font-size:12px;color:var(--muted);white-space:nowrap}
+.overview-chevron{display:inline-block;transition:transform .2s;font-size:17px;line-height:1;margin-left:4px}
+.overview-fold[open] .overview-chevron{transform:rotate(180deg)}
+.overview-fold .summary{margin:0 14px 14px}
+@media(max-width:560px){.overview-fold-toggle{padding:9px 13px}.overview-fold .summary{margin:0 9px 10px}}
 </style>
 
 </head>
@@ -207,12 +220,18 @@ a{color:#086e84}
     </div>
     <div class="hero-counter"><span class="hero-number">07</span><span>追蹤基金</span><small>6 檔美元・1 檔南非幣</small></div>
   </section>
-  <section class="summary" aria-label="基金資料概覽">
+  <details class="overview-fold" id="overviewFold">
+    <summary class="overview-fold-toggle" aria-label="展開或收合基金資料概覽">
+      <span class="overview-fold-title">▦ 基金資料概覽</span>
+      <span class="overview-fold-control">展開查看 <span class="overview-chevron" aria-hidden="true">⌄</span></span>
+    </summary>
+    <section class="summary" aria-label="基金資料概覽">
     <div class="stat"><small>追蹤基金總數</small><strong id="fundCount">7 <em>檔</em></strong><span>只追蹤你指定的基金</span></div>
     <div class="stat"><small>已取得淨值</small><strong id="navCount">0 <em>檔</em></strong><span>以公開來源實際資料為準</span></div>
     <div class="stat"><small>已取得配息紀錄</small><strong id="divCount">0 <em>檔</em></strong><span>包含發放日與每單位金額</span></div>
     <div class="stat"><small>雲端資料最近檢查</small><strong id="checkedAt" class="date-big">尚未執行</strong><span>顯示排程實際檢查時間</span></div>
-  </section>
+    </section>
+  </details>
   <div id="syncNotice" class="status waiting" role="status" aria-live="polite">正在讀取基金公開資料快照……</div>
   <details class="diagnostics"><summary>查看資料更新診斷（無法更新時請點這裡）</summary><pre id="diagnostics">尚未讀取更新紀錄</pre></details>
   <section class="main-panel" id="watchlist" tabindex="-1" aria-labelledby="watchlistTitle">
