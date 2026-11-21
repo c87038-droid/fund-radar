@@ -1,13 +1,23 @@
-基金雷達網站－網址列圖示修正版（2026-11-21）
+我的基金雷達｜瀏覽器分頁金色圖示修復（2026/11/21）
 
-本版修正：
-1. 網頁左上角 Logo 已恢復原本的「◈」圖示。
-2. 瀏覽器分頁／網址列圖示（favicon）改為指定的金色菱形圖示。
-3. 保留上一版本修正的「東方匯理策略收益債券 A 南非幣避險」基金專屬連結。
-4. 其餘 9 檔基金清單、配息功能、版面維持不變。
+【這次找到的原因】
+舊的 GitHub Pages 發布工作流程只複製 index.html 和 data/live.json 到 _site，沒有複製 favicon.png 與 favicon.ico，因此正式網站找不到金色圖示，分頁仍顯示瀏覽器的地球圖示。
 
-使用方式：
-- 將壓縮檔中的 index.html、favicon.png、favicon.ico 三個檔案上傳至 GitHub 基金網站儲存庫「同一層資料夾」（通常是網站根目錄）。
-- 請覆蓋原來的 index.html，保留既有的 data、.github 等資料夾和其他檔案。
-- GitHub Pages 部署完成後重新開啟網站；若分頁小圖示還是舊的，使用 Ctrl+F5 強制重新整理，或關閉分頁再開啟。
-- 若使用 Streamlit 內嵌此頁面，分頁圖示仍可能由 Streamlit 應用程式本身控制，這份 ZIP 針對直接呈現 index.html 的網站。
+【本次修正】
+1. 網站左上角 Logo 保持原本的「◈」（沒有修改）。
+2. 在 index.html 內直接嵌入 32x32 金色 favicon，即使瀏覽器找不到外部圖示檔案也能顯示。
+3. 增加 favicon.png、favicon.ico，可供瀏覽器使用。
+4. 修改 .github/workflows/update-and-deploy.yml，正式發布時會把兩個 favicon 檔案一起複製到 _site。
+5. 保留南非幣基金專屬頁面連結、基金明細與更新功能。
+
+【上傳 GitHub 方法：請務必同時完成】
+在「基金網站」的 GitHub 儲存庫 main 分支：
+A. 將 index.html、favicon.png、favicon.ico 上傳到最外層（與舊 index.html 同一層），取代同名檔案。
+B. 找到原本的 .github/workflows/update-and-deploy.yml，將壓縮檔內同路徑的同名檔案覆蓋（不能只更新根目錄 index.html）。
+C. Commit changes。到 GitHub → Actions 確認名為「我的基金雷達｜基金自動更新與發布」的工作流程完成，GitHub Pages 發布成功。
+D. 回網站開新分頁重新查看；若是原分頁，按 Ctrl+Shift+R，或用無痕視窗開啟。網址旁仍為地球時，先確認部署的網址確實是 GitHub Pages 網址。
+
+【額外核對】
+部署完成後，在網址末尾輸入 /favicon.png，應該能開啟金色圖示（如果網站根網址已有路徑，請加在該資料夾網址後面）。若出現 404，代表 favicon 沒有一起發布，應確認 workflow 有被覆蓋。
+
+注意：勿刪除既有的 scripts、tests、data 與其他 GitHub 設定檔。
