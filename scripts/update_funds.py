@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Only 7 user-selected mutual funds. Strict, dated public fund NAV/distribution data.
+"""Only 9 user-selected mutual funds. Strict, dated public fund NAV/distribution data.
 
 The updater never requests stock/ETF quote APIs, never substitutes another share
 class, and never labels cached NAV as today's data if a feed fails. Python stdlib.
@@ -40,6 +40,8 @@ FUNDS = {
     'TW000T0759D2': dict(type='local', currency='USD', tax_id='73637204D', display='瀚亞多重收益優化組合 B 美元'),
     'TW000T1811K5': dict(type='local', currency='USD', tax_id='38522113J', display='聯博多元資產收益組合 AI 美元'),
     'LU2859284783': dict(type='overseas', currency='USD', display='聯博美國成長 AP 美元'),
+    'LU1900986214': dict(type='overseas', currency='USD', display='施羅德環球收益成長 A月配固定2 美元'),
+    'LU3047255321': dict(type='overseas', currency='USD', display='富達全球動能多元 A股C月配息 美元'),
 }
 
 
@@ -55,6 +57,8 @@ NAV_BACKUP_PAGES = {
     'TW000T1811K5': ('https://m.moneydj.com/a1.aspx?a=ACTI71', '聯博多元資產收益組合基金AI配息(美元)'),
     'LU2859284783': ('https://m.moneydj.com/b1.aspx?a=ALBT8', '聯博-美國成長基金AP(總報酬月配)級別美元'),
     'LU1883841964': ('https://m.moneydj.com/b1.aspx?a=PIZC5', '東方匯理基金策略收益債券A南非幣避險(穩定月配息)'),
+    'LU1900986214': ('https://m.moneydj.com/b1.aspx?a=PYZW3', '施羅德環球基金系列-環球收益成長(美元)A-月配固定2'),
+    'LU3047255321': ('https://m.moneydj.com/b1.aspx?a=FTZA67', '富達基金-全球動能多元基金(A股C月配息美元)'),
 }
 
 class _FundPageText(HTMLParser):
@@ -515,7 +519,7 @@ def update_data(existing, sources, at=None, backup_nav=None, backup_results=None
         doc['funds'][fid] = entry
         print(f'[NAV] {fid}: {nav_dt or "no date"} {nav if nav is not None else "no NAV"}; '
               f'source={nav_source}; status={entry["navStatus"]}; delayedDays={delayed_days}')
-    print(f'基金淨值日期 >= 3 日前: {sum(1 for f in doc["funds"].values() if f.get("navDelayedDays") is not None and f["navDelayedDays"] <= 3)}/7')
+    print(f'淨值更新延遲 3 日內: {sum(1 for f in doc["funds"].values() if f.get("navDelayedDays") is not None and f["navDelayedDays"] <= 3)}/{len(FUNDS)}')
     return doc
 
 
@@ -551,7 +555,7 @@ def yield_page(payload, expected):
     else: raise ValueError('無法解碼配息資料')
     page = _YieldTables(); page.feed(text)
     title = canonical(expected)
-    if not any(canonical(h) in (title,title+canonical('(基金之配息來源可能為本金)')) for h in page.headings):
+    if not any(canonical(h).startswith(title) for h in page.headings):
         raise ValueError('基金級別不符')
     return page
 
@@ -602,6 +606,20 @@ def download_yield_data():
 def enrich_distribution_rates(doc, prior, inputs):
     for fid, entry in doc['funds'].items():
         data=inputs.get(fid,{}); navs=data.get('navs',{}); reported=data.get('rates',{})
+        # The two newly added overseas share classes may not yet appear in the
+        # TDCC dividend-code crosswalk. Use exact-class MoneyDJ distribution
+        # records as clearly labeled reference data only for missing periods.
+        if fid in ('LU1900986214', 'LU3047255321') and reported:
+            present = {r['exDate'] for r in entry.get('dividends', [])}
+            supplemental = [
+                {'exDate': ex, 'payDate': '', 'perUnit': row['perUnit'],
+                 'dividendSource': 'MoneyDJ 同級別公開配息紀錄（參考）'}
+                for ex, row in reported.items() if ex not in present
+            ]
+            if supplemental:
+                entry['dividends'] = merge_records(entry.get('dividends', []), supplemental)
+                entry['dividendStatus'] = 'found'
+                entry['dividendMessage'] = '部分配息資料來自 MoneyDJ 同級別公開紀錄（參考）；發放日未提供時不推定'
         prev={r.get('exDate'):r for r in prior.get('funds',{}).get(fid,{}).get('dividends',[])}
         ordered=sorted(navs)
         for r in entry.get('dividends',[]):
@@ -633,7 +651,7 @@ def enrich_distribution_rates(doc, prior, inputs):
 
 
 def main():
-    print('[NAV updater] JPM-NAV-20261121 + EXDATE-YIELD-v1')
+    print('[NAV updater] JPM-NAV-20261121 + EXDATE-YIELD-v1 + NINE-FUNDS-20261121')
     prior = json.loads(LIVE.read_text(encoding='utf-8')) if LIVE.exists() else {'funds':{}}
     downloaded = {name: load_source(name, urls) for name,urls in SOURCES.items()}
     backup_nav, backup_results = download_backup_nav()
