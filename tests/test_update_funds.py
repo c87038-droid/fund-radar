@@ -10,10 +10,16 @@ spec.loader.exec_module(mod)
 
 
 class FundUpdaterTests(unittest.TestCase):
-    def test_seven_exact_funds_only(self):
-        self.assertEqual(len(mod.FUNDS), 7)
-        self.assertEqual(sum(s['currency']=='ZAR' for s in mod.FUNDS.values()),1)
-        self.assertEqual(sum(s['currency']=='USD' for s in mod.FUNDS.values()),6)
+    def test_nine_exact_funds_only(self):
+        self.assertEqual(len(mod.FUNDS), 9)
+        self.assertEqual(sum(s['currency']=='ZAR' for s in mod.FUNDS.values()), 1)
+        self.assertEqual(sum(s['currency']=='USD' for s in mod.FUNDS.values()), 8)
+        # 驗證本次新增的兩檔皆屬境外美元配息級別，避免誤配基金。
+        self.assertIn('LU1900986214', mod.FUNDS)  # 施羅德 環球收益成長 A月配固定2 美元
+        self.assertIn('LU3047255321', mod.FUNDS)  # 富達 全球動能多元 A股C月配息 美元
+        for fid in ('LU1900986214', 'LU3047255321'):
+            self.assertEqual(mod.FUNDS[fid]['type'], 'overseas')
+            self.assertEqual(mod.FUNDS[fid]['currency'], 'USD')
 
     def test_overseas_share_class_isin_and_currency(self):
         rows = [
