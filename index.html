@@ -202,13 +202,36 @@ a{color:#086e84}
 .overview-fold[open] .overview-chevron{transform:rotate(180deg)}
 .overview-fold .summary{margin:0 14px 14px}
 @media(max-width:560px){.overview-fold-toggle{padding:9px 13px}.overview-fold .summary{margin:0 9px 10px}}
+
+/* 2026/11/21: 左上角品牌圖示改用金色菱形原圖（透明背景） */
+.header .logo {
+  width: 52px;
+  height: 52px;
+  flex: 0 0 52px;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  box-shadow: none;
+}
+.header .logo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+@media (max-width: 820px) {
+  .header .logo { width: 44px; height: 44px; flex-basis: 44px; }
+}
+
 </style>
 
 </head>
 <body>
 <div class="page">
   <header class="header">
-    <div class="logo" aria-hidden="true">◈</div>
+    <div class="logo" role="img" aria-label="基金雷達圖示"><img src="fund-logo.png" alt="" width="52" height="52" /></div>
     <div class="brand"><strong>我的基金雷達</strong><span>基金淨值・配息明細・即期匯率查詢・官方資訊</span></div>
     <div class="head-note"><span class="dot"></span>9 檔基金專用</div>
   </header>
@@ -312,7 +335,7 @@ function changeText(change){
   return {value:amount,ratio,summary:`${label} ${amount}（${ratio}）`,cls:change.direction};
 }
 
-// 官方連結核對日期：2026-11-18。以 ISIN 對應基金，不把系列頁誤稱為指定級別頁。
+// 官方連結核對日期：2026-11-18；南非幣級別之第一銀行專屬資料頁於 2026-11-21 核對。
 // 聯博境內 AI 暫未找到可確認的單一級別網址，連到官方基金系列總覽並明確標示。
 const OFFICIAL = Object.freeze({
   "LU0820561818": {url:"https://tw.allianzgi.com/zh-tw/home/products-solutions/luxemberg/allianz-income-and-growth-am-usd?nav=overview",label:"安聯 AM 美元官方基金頁",cta:"官方基金頁 ↗"},
@@ -323,7 +346,7 @@ const OFFICIAL = Object.freeze({
   "LU2859284783": {url:"https://www.abfunds.com.tw/zh-tw/funds/offshore/equities/american-growth-portfolio.ap.LU2859284783.html",label:"聯博美國成長 AP 美元官方級別頁",cta:"官方級別頁 ↗"},
   "LU1900986214": {url:"https://www.schroders.com/zh-tw/tw/individual/funds-and-strategies/sisf-multi-asset-growth-and-income/",label:"施羅德臺灣官方環球收益成長策略專頁（頁面含 A 美元月配固定2 資訊；ISIN LU1900986214）",cta:"臺灣官網 ↗"},
   "LU3047255321": {url:"https://www.fidelity.com.tw/fund-and-service/fundui/funds/Fidelity-Funds-Global-Multi-Asset-Dynamic-Fund-A-MCDIST-G-USD/overview",label:"富達臺灣官方全球動能多元 A股C月配息美元級別頁（ISIN LU3047255321；若暫停申購，官方頁面可能只顯示提示）",cta:"臺灣官網 ↗"},
-  "LU1883841964": {url:"https://www.amundi.com.tw/retail/fundnav",label:"東方匯理臺灣官方基金淨值查詢（請以 ISIN LU1883841964 對照 A 南非幣避險穩定月配級別）",cta:"官方基金查詢 ↗"}
+  "LU1883841964": {url:"https://wealth.firstbank.com.tw/fund-center/fund/fund-search/fund-details?id=ZA84",label:"第一銀行：東方匯理基金策略收益債券 A 南非幣避險（穩定月配息），ISIN LU1883841964（基金專屬頁面，非基金公司官網）",cta:"基金專屬頁 ↗"}
 });
 function officialAnchor(f,label='基金公司資訊 ↗'){
   const spec=OFFICIAL[f.isin], a=node('a','link-button official-link',spec?.cta||label);
@@ -410,12 +433,12 @@ function openDetails(f){
   }
   const sourceLine=node('div','detail-actions');sourceLine.append(officialAnchor(f,'前往基金公司官方資訊 ↗'));
   if(f.isin==='LU1883841964'){
-    const doc=node('a','link-button official-link','A 南非幣級別官方說明（英文 PDF） ↗');
+    const doc=node('a','link-button official-link','基金公司級別說明（英文 PDF） ↗');
     doc.href='https://www.amundi.com/globaldistributor/dl/doc/kid-priips/LU1883841964/ENG/NLD';
     doc.target='_blank';doc.rel='noopener noreferrer';
     doc.title='Amundi 官方關鍵資訊文件：AMUNDI FUNDS STRATEGIC INCOME - A ZAR Hgd MTD3（ISIN LU1883841964）';
     sourceLine.append(doc);
-    body.append(node('p','modal-note','東方匯理官方查詢入口需依基金名稱或 ISIN LU1883841964 查找；上方第二個連結是核對級別的官方英文文件。'));
+    body.append(node('p','modal-note','「基金專屬頁」連至第一銀行的指定級別資料頁（非基金公司官網）；「官方說明」為東方匯理基金的該級別英文文件。'));
   }
   body.append(sourceLine);
   body.append(node('p','external-return-note','官方資料另開分頁，查詢後關閉新分頁即可回到此明細，再按「返回我的基金觀察清單」。'));
