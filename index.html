@@ -206,6 +206,13 @@ a{color:#086e84}
 .overview-fold .summary{margin:0 14px 14px}
 @media(max-width:560px){.overview-fold-toggle{padding:9px 13px}.overview-fold .summary{margin:0 9px 10px}}
 
+
+/* 基金觀察清單 Excel 匯出按鈕：不更動原有清單和資料來源。 */
+.title-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+.excel-export{background:#f0f8ff;border:1px solid #6a9fae;color:#194f65;font-weight:800;white-space:nowrap}
+.excel-export:not(:disabled):hover{background:#dceffa;color:#103e52}
+.excel-export:disabled{opacity:.48;cursor:not-allowed}
+@media(max-width:540px){.title-actions{width:100%;display:grid;grid-template-columns:1fr;gap:9px}.title-actions .btn{width:100%}}
 </style>
 
 </head>
@@ -239,7 +246,7 @@ a{color:#086e84}
   <div id="syncNotice" class="status waiting" role="status" aria-live="polite">正在讀取基金公開資料快照……</div>
   <details class="diagnostics"><summary>查看資料更新診斷（無法更新時請點這裡）</summary><pre id="diagnostics">尚未讀取更新紀錄</pre></details>
   <section class="main-panel" id="watchlist" tabindex="-1" aria-labelledby="watchlistTitle">
-    <div class="titleline"><div><h2 id="watchlistTitle">我的基金觀察清單</h2><p>依「美元優先 → 基金公司」分組；淨值、配息資料日期分別顯示。</p></div><button type="button" id="refreshButton" class="btn accent">↻ 重新讀取雲端資料</button></div>
+    <div class="titleline"><div><h2 id="watchlistTitle">我的基金觀察清單</h2><p>依「美元優先 → 基金公司」分組；淨值、配息資料日期分別顯示。</p></div><div class="title-actions"><button type="button" id="exportExcelButton" class="btn excel-export" disabled title="讀取基金資料後即可下載 Excel">↓ 下載全部基金 Excel</button><button type="button" id="refreshButton" class="btn accent">↻ 重新讀取雲端資料</button></div></div>
     <div class="tools"><label class="search"><span class="sr-only">搜尋基金</span><input id="search" type="search" placeholder="搜尋基金名稱、公司、ISIN……" /></label><label class="filter-label">幣別<select id="currency"><option value="all">全部幣別</option><option value="USD">美元 USD</option><option value="ZAR">南非幣 ZAR</option></select></label></div>
     <div class="funds" id="fundList" aria-live="polite"></div>
   </section>
@@ -426,13 +433,198 @@ function openDetails(f){
   body.append(node('p','modal-note','配息增減值及增減比率只比較相鄰兩筆配息紀錄；上期配息為 0 時不計算百分比。⚠ 配息可能涉及本金；當期與年化配息率都不等於投資報酬率。實際數字以基金公司公布的級別資料為準。'));
   container.append(body);$('detailDialog').returnValue='';$('detailDialog').showModal();$('detailDialog').scrollTop=0;
 }
+
+// Excel 匯出：無需外部 CDN 或額外 JS 檔案；產生真正的 XLSX (OOXML ZIP)。
+// 明細採公開資料快照的全部有效配息筆數，不只頁面上顯示的最近 12 期。
+function buildExcelWorkbook() {
+  const count=FUNDS.length;
+  const summaryHeaders=['基金公司','基金名稱','級別','幣別','ISIN','最新淨值','淨值日期','淨值狀態','最近每單位配息','最近除息日','最近發放日','當期配息率','年化配息率','較上期配息差額','較上期增減率','配息率計算來源','配息資料狀態','基金資料網址'];
+  const historyHeaders=['基金公司','基金名稱','ISIN','幣別','除息日','發放日','每單位配息','除息前基準淨值','基準淨值日期','當期配息率','年化配息率','前一期每單位配息','較上期配息差額','較上期增減率','配息率資料來源'];
+  // Excel 樣式：0 標準；1 標題；2 說明；3 欄名；4 一般；5 淺底；6 小數4位；7 小數6位；8 日期；9 百分率。
+  const T=(v)=>({value:v??'',style:4}), N=(v,style=6)=>({value:v===null||v===undefined||!Number.isFinite(Number(v))?null:Number(v),style}),
+        D=(v)=>({value:/^20\d{2}-\d{2}-\d{2}$/.test(String(v||''))?v:null,style:8,date:true}),
+        P=(v)=>({value:v===null||v===undefined||!Number.isFinite(Number(v))?null:Number(v)/100,style:9});
+  const summaryRows=[],historyRows=[];
+  for(const f of FUNDS){
+    const d=live.funds?.[f.isin]||{}, history=records(d), last=history[0]||null;
+    const rate=currentDistributionRate(d,last), annual=annualDistributionRate(rate,f), change=dividendChange(history);
+    summaryRows.push([
+      T(f.company),T(f.name),T(f.tier),T(f.currency),T(f.isin),N(validNav(d)?d.nav:null),D(validNav(d)?d.navDate:null),
+      T(validNav(d)?(d.navStatus==='cached'?'沿用上次資料':'已取得'):'尚無淨值'),N(last?last.perUnit:null,7),
+      D(last?.exDate),D(last?.payDate),P(rate),P(annual),N(change?.diff,7),P(change?.pct),
+      T(last?basisSource(last):'尚無資料'),T(!last?'尚無配息':d.dividendStatus==='cached'?'沿用紀錄':'已取得'),
+      T(OFFICIAL[f.isin]?.url||'')
+    ]);
+    for(let i=0;i<history.length;i++){
+      const r=history[i], rRate=currentDistributionRate(d,r), rAnnual=annualDistributionRate(rRate,f);
+      const ch=dividendChange(history.slice(i,i+2));
+      historyRows.push([
+        T(f.company),T(f.name),T(f.isin),T(f.currency),D(r.exDate),D(r.payDate),N(r.perUnit,7),
+        N(hasBasis(r)?r.preExNav:null),D(hasBasis(r)?r.preExNavDate:null),P(rRate),P(rAnnual),
+        N(ch?.previous?.perUnit,7),N(ch?.diff,7),P(ch?.pct),T(basisSource(r))
+      ]);
+    }
+  }
+  const note='雲端資料最後檢查：'+(live.checkedAt?String(live.checkedAt).replace('T',' ').slice(0,19):'尚無時間')+
+    '　｜　淨值與配息各有獨立日期；缺少資料的欄位留白。';
+  const caveat='注意：當期配息率／年化配息率並非總報酬或保證收益；部分數值可能為公開年化率參考。';
+  const sheets=[
+    {name:'基金總覽',title:'我的基金觀察清單｜基金總覽（'+count+' 檔）',headers:summaryHeaders,rows:summaryRows,
+     widths:[18,49,23,10,17,15,15,18,19,16,16,16,16,20,18,28,18,62]},
+    {name:'配息明細',title:'我的基金觀察清單｜歷史配息明細（'+historyRows.length+' 筆）',headers:historyHeaders,rows:historyRows,
+     widths:[18,49,17,10,16,16,19,20,18,17,17,21,21,18,29]}
+  ];
+  const enc=new TextEncoder();
+  const xmlEscape=(v)=>String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;').replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g,'');
+  const column=(n)=>{let s='';for(;n>0;n=Math.floor((n-1)/26))s=String.fromCharCode(65+(n-1)%26)+s;return s;};
+  const dateSerial=(s)=>{const [y,m,d]=s.split('-').map(Number);return (Date.UTC(y,m-1,d)-Date.UTC(1899,11,30))/86400000;};
+  const cell=(v,addr,rowNo)=>{
+    const style=v.style===4&&rowNo%2===1?5:v.style;
+    if(v.value===null||v.value===undefined||v.value==='')return '';
+    if(v.date) return `<c r="${addr}" s="8"><v>${dateSerial(v.value)}</v></c>`;
+    if(typeof v.value==='number')return `<c r="${addr}" s="${style}"><v>${v.value}</v></c>`;
+    // inlineStr 避免外部基金名稱被 Excel 當成公式執行。
+    return `<c r="${addr}" s="${style}" t="inlineStr"><is><t xml:space="preserve">${xmlEscape(String(v.value).slice(0,32767))}</t></is></c>`;
+  };
+  const textCell=(value,address,style)=>cell({value,style},address,0);
+  const sheetXml=(s)=>{
+    const end=column(s.headers.length), last=5+s.rows.length;
+    const columns=s.widths.map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1"/>`).join('');
+    const data=s.rows.map((row,i)=>{
+      const line=i+6;
+      return `<row r="${line}" ht="25" customHeight="1">${row.map((v,j)=>cell(v,column(j+1)+line,line)).join('')}</row>`;
+    }).join('');
+    const heads=s.headers.map((h,i)=>textCell(h,column(i+1)+'5',3)).join('');
+    return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+    <sheetViews><sheetView workbookViewId="0" showGridLines="0"><pane ySplit="5" topLeftCell="A6" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>
+    <sheetFormatPr defaultRowHeight="22"/>
+    <cols>${columns}</cols>
+    <sheetData>
+      <row r="1" ht="36" customHeight="1">${textCell(s.title,'A1',1)}</row>
+      <row r="2" ht="27" customHeight="1">${textCell(note,'A2',2)}</row>
+      <row r="3" ht="25" customHeight="1">${textCell(caveat,'A3',2)}</row>
+      <row r="5" ht="34" customHeight="1">${heads}</row>
+      ${data}
+    </sheetData>
+    <mergeCells count="3"><mergeCell ref="A1:${end}1"/><mergeCell ref="A2:${end}2"/><mergeCell ref="A3:${end}3"/></mergeCells>
+    <autoFilter ref="A5:${end}${Math.max(5,last)}"/>
+    <pageMargins left="0.4" right="0.4" top="0.6" bottom="0.6" header="0.3" footer="0.3"/>
+    </worksheet>`;
+  };
+  const ns='http://schemas.openxmlformats.org/spreadsheetml/2006/main';
+  const types=`<?xml version="1.0" encoding="UTF-8"?>
+    <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+    <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+    <Default Extension="xml" ContentType="application/xml"/>
+    <Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>
+    <Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>
+    <Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>
+    <Override PartName="/xl/worksheets/sheet2.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>
+    </Types>`;
+  const rels=`<?xml version="1.0" encoding="UTF-8"?>
+    <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+    <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>
+    </Relationships>`;
+  const wbXml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <workbook xmlns="${ns}" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+    <bookViews><workbookView activeTab="0"/></bookViews><sheets><sheet name="基金總覽" sheetId="1" r:id="rId1"/><sheet name="配息明細" sheetId="2" r:id="rId2"/></sheets>
+    </workbook>`;
+  const wbRels=`<?xml version="1.0" encoding="UTF-8"?>
+    <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+    <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>
+    <Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet2.xml"/>
+    <Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
+    </Relationships>`;
+  const styles=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <styleSheet xmlns="${ns}">
+      <numFmts count="4">
+        <numFmt numFmtId="164" formatCode="0.0000"/>
+        <numFmt numFmtId="165" formatCode="0.000000"/>
+        <numFmt numFmtId="166" formatCode="yyyy/mm/dd"/>
+        <numFmt numFmtId="167" formatCode="0.00%"/>
+      </numFmts>
+      <fonts count="4">
+        <font><sz val="11"/><name val="Microsoft JhengHei"/><color rgb="FF264B50"/></font>
+        <font><b/><sz val="18"/><name val="Microsoft JhengHei"/><color rgb="FFFFFFFF"/></font>
+        <font><b/><sz val="11"/><name val="Microsoft JhengHei"/><color rgb="FFFFFFFF"/></font>
+        <font><sz val="10"/><name val="Microsoft JhengHei"/><color rgb="FF40656C"/></font>
+      </fonts>
+      <fills count="5">
+        <fill><patternFill patternType="none"/></fill>
+        <fill><patternFill patternType="gray125"/></fill>
+        <fill><patternFill patternType="solid"><fgColor rgb="FF1F5665"/><bgColor indexed="64"/></patternFill></fill>
+        <fill><patternFill patternType="solid"><fgColor rgb="FF277D8D"/><bgColor indexed="64"/></patternFill></fill>
+        <fill><patternFill patternType="solid"><fgColor rgb="FFF0F8FA"/><bgColor indexed="64"/></patternFill></fill>
+      </fills>
+      <borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>
+      <cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
+      <cellXfs count="10">
+        <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
+        <xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFill="1" applyFont="1"/>
+        <xf numFmtId="0" fontId="3" fillId="4" borderId="0" xfId="0" applyFill="1" applyFont="1"/>
+        <xf numFmtId="0" fontId="2" fillId="3" borderId="0" xfId="0" applyFill="1" applyFont="1"><alignment vertical="center" wrapText="1"/></xf>
+        <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
+        <xf numFmtId="0" fontId="0" fillId="4" borderId="0" xfId="0" applyFill="1"/>
+        <xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>
+        <xf numFmtId="165" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>
+        <xf numFmtId="166" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>
+        <xf numFmtId="167" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>
+      </cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>
+    </styleSheet>`;
+  const parts=[
+    ['[Content_Types].xml',types],['_rels/.rels',rels],['xl/workbook.xml',wbXml],
+    ['xl/_rels/workbook.xml.rels',wbRels],['xl/styles.xml',styles],
+    ['xl/worksheets/sheet1.xml',sheetXml(sheets[0])],['xl/worksheets/sheet2.xml',sheetXml(sheets[1])]
+  ];
+  // ZIP (store) 實作：用 CRC32 封裝 OOXML，無需任何線上第三方函式庫。
+  const crcTable=new Uint32Array(256);
+  for(let i=0;i<256;i++){let c=i;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;crcTable[i]=c>>>0;}
+  const crc32=(buf)=>{let c=0xFFFFFFFF;for(const b of buf)c=crcTable[(c^b)&255]^(c>>>8);return (c^0xFFFFFFFF)>>>0;};
+  const local=[],central=[];let offset=0;
+  for(const [path,content] of parts){
+    const name=enc.encode(path),data=enc.encode(content),crc=crc32(data);
+    const head=new Uint8Array(30+name.length),v=new DataView(head.buffer);
+    v.setUint32(0,0x04034b50,true);v.setUint16(4,20,true);v.setUint16(8,0,true);
+    v.setUint32(14,crc,true);v.setUint32(18,data.length,true);v.setUint32(22,data.length,true);
+    v.setUint16(26,name.length,true);head.set(name,30);
+    local.push(head,data);
+    const cent=new Uint8Array(46+name.length),c=new DataView(cent.buffer);
+    c.setUint32(0,0x02014b50,true);c.setUint16(4,20,true);c.setUint16(6,20,true);
+    c.setUint32(16,crc,true);c.setUint32(20,data.length,true);c.setUint32(24,data.length,true);
+    c.setUint16(28,name.length,true);c.setUint32(42,offset,true);cent.set(name,46);
+    central.push(cent);offset+=head.length+data.length;
+  }
+  const centralBytes=central.reduce((n,b)=>n+b.length,0),end=new Uint8Array(22),e=new DataView(end.buffer);
+  e.setUint32(0,0x06054b50,true);e.setUint16(8,parts.length,true);e.setUint16(10,parts.length,true);
+  e.setUint32(12,centralBytes,true);e.setUint32(16,offset,true);
+  return new Blob([...local,...central,end],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+}
+function downloadExcelFile(){
+  if(!live.checkedAt || !Object.keys(live.funds||{}).length){
+    banner('warn','基金資料還沒有載入，請先點「重新讀取雲端資料」再下載 Excel。');
+    return;
+  }
+  const button=$('exportExcelButton');button.disabled=true;
+  try{
+    const file=buildExcelWorkbook(),href=URL.createObjectURL(file),a=document.createElement('a');
+    const date=String(live.checkedAt).slice(0,10).replace(/-/g,'');
+    a.href=href;a.download=`基金觀察清單_資料更新${date||'未標日期'}.xlsx`;
+    document.body.append(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(href),60000);
+  }catch(e){
+    console.error('Excel 匯出失敗',e);
+    banner('warn','Excel 下載失敗，請重新整理網頁後再試。'+e.message);
+  }finally{button.disabled=false;}
+}
+
 function banner(kind,text){const el=$('syncNotice');el.className='status '+kind;el.textContent=text;}
 async function loadData(){
   $('refreshButton').disabled=true;banner('waiting','正在讀取雲端基金資料快照……');
   try{
     const response=await fetch(`data/live.json?v=${Date.now()}`,{cache:'no-store'});
     if(!response.ok)throw new Error(`HTTP ${response.status}`);
-    const data=await response.json();if(data.schemaVersion!==2||!data.funds)throw new Error('資料版本不同');live=data;render();
+    const data=await response.json();if(data.schemaVersion!==2||!data.funds)throw new Error('資料版本不同');live=data;render();$('exportExcelButton').disabled=!(data.checkedAt&&Object.keys(data.funds).length);
     const statuses=Object.values(data.sources||{}), bad=statuses.filter(s=>!s.ok).length, withNav=FUNDS.filter(f=>validNav(data.funds[f.isin])).length;
     const sourceNames={overseas_nav:'境外淨值',overseas_info:'境外基金對照',overseas_dividends:'境外配息',local_nav:'境內淨值',local_dividends:'境內配息',dividend_yield:'除息前淨值及公開配息率'};
     $('diagnostics').textContent = [
@@ -451,7 +643,7 @@ async function loadData(){
   }catch(e){render();$('diagnostics').textContent='無法讀取 data/live.json：'+e.message+'\n請確認網頁網址與資料檔網址都能正常開啟。';const localFile=location.protocol==='file:'||location.protocol==='about:';banner('warn',localFile?'這是本機預覽：已載入9檔基金清單。淨值及配息請先上傳 GitHub Pages，再使用固定網址查看。':`基金資料檔讀取失敗（${e.message}）。請檢查 GitHub Actions 的部署與 data/live.json。`);}
   finally{$('refreshButton').disabled=false;}
 }
-$('search').addEventListener('input',render);$('currency').addEventListener('change',render);$('refreshButton').addEventListener('click',loadData);
+$('search').addEventListener('input',render);$('currency').addEventListener('change',render);$('refreshButton').addEventListener('click',loadData);$('exportExcelButton').addEventListener('click',downloadExcelFile);
 // 不重新整理網頁，保留搜尋、幣別篩選與既有基金資料。
 function returnToWatchlist(){const section=$('watchlist');section.focus({preventScroll:true});section.scrollIntoView({block:'start',behavior:'instant'});}
 $('returnWatchlist').addEventListener('click',e=>{e.preventDefault();returnToWatchlist();});
