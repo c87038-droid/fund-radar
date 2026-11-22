@@ -1,22 +1,32 @@
-我的基金雷達｜摩根基金淨值／配息直接查詢版（2026-11-22）
+我的基金雷達｜三檔基金淨值與配息直達版（2026-11-22）
 
-【此次更新】
-摩根投資基金－多重收益（美元對沖）A股（穩定月配）
-ISIN：LU2347655073
+【本次新增】
+1. 瀚亞多重收益優化組合基金－B類型（美元）
+   ISIN：TW000T0759D2
+   直接看淨值：https://m.moneydj.com/a1.aspx?a=ACCP138
+   直接看配息：https://m.moneydj.com/a5.aspx?a=ACCP138
 
-在該檔基金操作欄加入：
-  1.「直接看淨值 ↗」：https://m.moneydj.com/b1.aspx?a=JFZN3
-  2.「直接看配息 ↗」：https://m.moneydj.com/B5.aspx?a=jfzn3
-在「配息明細」視窗內也有這兩個連結，另保留摩根官方資訊。
-兩個直接查詢連結是 MoneyDJ 第三方資訊網頁，非摩根基金公司官網；仍以基金公司正式公告為準。
+2. 施羅德環球基金系列－環球收益成長（美元）A－月配固定2
+   ISIN：LU1900986214
+   直接看淨值：https://m.moneydj.com/b1.aspx?a=PYZW3
+   直接看配息：https://m.moneydj.com/b5.aspx?a=PYZW3
 
-【GitHub 更新】
-1. 解壓縮後，把 index.html、favicon.png、favicon.ico 放在 fund-radar 儲存庫根目錄。
-2. 將 .github/workflows/update-and-deploy.yml 放在儲存庫原本相同路徑。
-3. Commit changes，等待 Actions 的「我的基金雷達｜基金自動更新與發布」完成。
-4. 開啟：https://c87038-droid.github.io/fund-radar/
-5. 重新整理頁面，找到摩根多重收益 A 股穩定月配，按「直接看淨值」或「直接看配息」。
+【沿用原本的摩根直達功能】
+3. 摩根投資基金－多重收益（美元對沖）A股（穩定月配）
+   ISIN：LU2347655073
+   直接看淨值：https://m.moneydj.com/b1.aspx?a=JFZN3
+   直接看配息：https://m.moneydj.com/B5.aspx?a=jfzn3
 
-【保留不變】
-其餘 8 檔基金、Excel 匯出、基金明細、基金資料自動更新與分頁圖示均沿用上一版。
-請勿刪除既有 data/、scripts/ 或 tests/ 資料夾。
+以上三檔的「基金觀察清單」操作欄及「配息明細」視窗，均有直接淨值及配息按鈕；原基金公司連結仍可在配息明細視窗中開啟。
+這些直接連結為 MoneyDJ 第三方網頁，非基金公司官網；資料以基金公司正式公告為準。
+
+【GitHub 更新步驟】
+1. 解壓縮後，在 GitHub c87038-droid/fund-radar 儲存庫根目錄，更新 index.html 即可（這次實際修改的檔案只有 index.html）。
+2. ZIP 附上 favicon.png、favicon.ico、.github/workflows/update-and-deploy.yml，供整包還原使用。這三個檔案與上一版相同，不必重新覆蓋。
+3. Commit changes，確認 GitHub Actions 發布成功。
+4. 開啟 https://c87038-droid.github.io/fund-radar/，按 Ctrl+F5 重新整理。
+5. 於瀚亞或施羅德基金旁點「直接看淨值」或「直接看配息」。
+
+【維持不變】
+9 檔基金觀察清單、Excel 下載、基金資料排程更新、其他基金官方連結、金色 favicon、左上角原本的 ◈ 圖示都保留。
+請勿刪除原有 data/、scripts/、tests/ 等資料夾。

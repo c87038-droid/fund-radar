@@ -214,7 +214,7 @@ a{color:#086e84}
 .excel-export:disabled{opacity:.48;cursor:not-allowed}
 @media(max-width:540px){.title-actions{width:100%;display:grid;grid-template-columns:1fr;gap:9px}.title-actions .btn{width:100%}}
 
-/* 單一摩根基金：手機與電腦版皆能直接點選淨值、配息網頁，無需下載 PDF。 */
+/* 三檔基金：手機與電腦版皆能直接點選淨值、配息網頁，無需下載 PDF。 */
 .fund-actions .direct-data-link{background:#dff3f6;border:1px solid #9bd7df;color:#096778;font-weight:800}
 .fund-actions .direct-data-link:hover{background:#c4eaf0}
 .detail-actions .direct-data-link{font-weight:850;text-decoration:underline;text-underline-offset:3px;color:#08697b}
@@ -341,17 +341,29 @@ const OFFICIAL = Object.freeze({
   "LU3047255321": {url:"https://www.fidelity.com.tw/fund-and-service/fundui/funds/Fidelity-Funds-Global-Multi-Asset-Dynamic-Fund-A-MCDIST-G-USD/overview",label:"富達臺灣官方全球動能多元 A股C月配息美元級別頁（ISIN LU3047255321；若暫停申購，官方頁面可能只顯示提示）",cta:"臺灣官網 ↗"},
   "LU1883841964": {url:"https://wealth.firstbank.com.tw/fund-center/fund/fund-search/fund-details?id=ZA84",label:"第一銀行：東方匯理基金策略收益債券 A 南非幣避險（穩定月配息），ISIN LU1883841964（基金專屬頁面，非基金公司官網）",cta:"基金專屬頁 ↗"}
 });
-// 摩根多重收益 A（美元對沖、穩定月配）：經 ISIN LU2347655073 核對的網頁版淨值與配息。
-// MoneyDJ 為第三方資訊站（非摩根官網）；不需要下載 PDF。
-const JPM_DIRECT_PAGES = Object.freeze({
-  nav: 'https://m.moneydj.com/b1.aspx?a=JFZN3',
-  dividend: 'https://m.moneydj.com/B5.aspx?a=jfzn3'
+// 直接查詢指定基金級別的網頁版淨值與配息。已逐一核對級別與幣別。
+// MoneyDJ 為第三方資訊網站，非基金公司官網；不需要另外下載 PDF。
+// 境內瀚亞使用 a1/a5；境外施羅德與摩根使用 b1/b5，勿混用級別。
+const DIRECT_FUND_PAGES = Object.freeze({
+  "LU2347655073": Object.freeze({
+    nav: 'https://m.moneydj.com/b1.aspx?a=JFZN3',
+    dividend: 'https://m.moneydj.com/B5.aspx?a=jfzn3'
+  }),
+  "TW000T0759D2": Object.freeze({
+    nav: 'https://m.moneydj.com/a1.aspx?a=ACCP138',
+    dividend: 'https://m.moneydj.com/a5.aspx?a=ACCP138'
+  }),
+  "LU1900986214": Object.freeze({
+    nav: 'https://m.moneydj.com/b1.aspx?a=PYZW3',
+    dividend: 'https://m.moneydj.com/b5.aspx?a=PYZW3'
+  })
 });
-function jpmDirectAnchor(f,kind){
-  if(f.isin!=='LU2347655073') return null;
+function directFundAnchor(f,kind){
+  const links=DIRECT_FUND_PAGES[f.isin];
+  if(!links) return null;
   const isNav=kind==='nav';
   const a=node('a','link-button direct-data-link',isNav?'直接看淨值 ↗':'直接看配息 ↗');
-  a.href=isNav?JPM_DIRECT_PAGES.nav:JPM_DIRECT_PAGES.dividend;
+  a.href=isNav?links.nav:links.dividend;
   a.target='_blank';
   a.rel='noopener noreferrer';
   a.title=`MoneyDJ（第三方資訊）｜${f.name}｜${isNav?'最新淨值、近20日淨值':'每月配息、年化配息率'}；另開分頁`;
@@ -412,8 +424,8 @@ function render(){
      const button=node('button','link-button','配息明細');
      button.type='button';button.addEventListener('click',()=>openDetails(f));
      buttonContainer.append(button);
-     if(f.isin==='LU2347655073'){
-       buttonContainer.append(jpmDirectAnchor(f,'nav'),jpmDirectAnchor(f,'dividend'));
+     if(DIRECT_FUND_PAGES[f.isin]){
+       buttonContainer.append(directFundAnchor(f,'nav'),directFundAnchor(f,'dividend'));
      } else {
        buttonContainer.append(officialAnchor(f,'官方資訊 ↗'));
      }
@@ -451,10 +463,10 @@ function openDetails(f){
     });table.append(tbody);box.append(table);body.append(box);
   }
   const sourceLine=node('div','detail-actions');
-   if(f.isin==='LU2347655073'){
-     sourceLine.append(jpmDirectAnchor(f,'nav'),jpmDirectAnchor(f,'dividend'));
-     sourceLine.append(officialAnchor(f,'摩根官方資訊 ↗'));
-     body.append(node('p','modal-note','「直接看淨值／直接看配息」會開啟 MoneyDJ 的指定基金級別網頁（第三方資料，不需下載檔案）；摩根官方資訊另保留供比對。'));
+   if(DIRECT_FUND_PAGES[f.isin]){
+     sourceLine.append(directFundAnchor(f,'nav'),directFundAnchor(f,'dividend'));
+     sourceLine.append(officialAnchor(f,'基金公司官方資訊 ↗'));
+     body.append(node('p','modal-note','「直接看淨值／直接看配息」開啟 MoneyDJ 的指定基金級別網頁（第三方資料，不需下載檔案）；另保留基金公司資訊供核對。'));
    } else {
      sourceLine.append(officialAnchor(f,'前往基金公司官方資訊 ↗'));
    }
