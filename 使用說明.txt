@@ -1,33 +1,24 @@
-我的基金雷達｜四檔基金淨值及配息直達版（2026-11-22）
+基金雷達｜四檔基金專屬頁面一鍵直達版（2026/11/22）
 
-【本次新增：富達】
-富達基金－全球動能多元基金（A股C月配息美元）
-ISIN：LU3047255321
-直接看淨值：https://m.moneydj.com/b1.aspx?a=FTZA67
-直接看配息：https://m.moneydj.com/B5.aspx?a=FTZA67
+本次修改：
+1. 摩根多重收益（美元對沖）A股穩定月配：ISIN LU2347655073
+2. 瀚亞多重收益優化組合 B（美元）：ISIN TW000T0759D2
+3. 施羅德環球收益成長（美元）A 月配固定2：ISIN LU1900986214
+4. 富達全球動能多元 A股C月配息美元：ISIN LU3047255321
 
-這兩個網頁是 MoneyDJ 第三方資料網站，能直接閱讀淨值及每月配息表，無需下載 PDF。基金資料仍以基金公司公告為準，配息可能涉及本金，年化配息率並非報酬率。
+在網站的基金觀察清單中，這四檔「基金名稱」可以直接點擊，或按「基金專屬頁面」。
+會另開 MoneyDJ 的該基金專屬網頁，預設查看淨值，再使用該頁「配息」「基本」等頁籤切換。
+不必再於基金雷達區分「直接看淨值」「直接看配息」兩個外部按鈕。
+網站原有「配息明細」按鈕仍可直接查看已同步的 12 期配息紀錄。
 
-【原本三檔的直達按鈕繼續保留】
-1. 摩根多重收益（美元對沖）A股（穩定月配）｜LU2347655073
-   淨值：https://m.moneydj.com/b1.aspx?a=JFZN3
-   配息：https://m.moneydj.com/B5.aspx?a=jfzn3
-2. 瀚亞多重收益優化組合 B（美元）｜TW000T0759D2
-   淨值：https://m.moneydj.com/a1.aspx?a=ACCP138
-   配息：https://m.moneydj.com/a5.aspx?a=ACCP138
-3. 施羅德環球收益成長 A 月配固定2 美元｜LU1900986214
-   淨值：https://m.moneydj.com/b1.aspx?a=PYZW3
-   配息：https://m.moneydj.com/b5.aspx?a=PYZW3
+【更新 GitHub Pages】
+1. 解壓縮後，至 GitHub 基金雷達儲存庫（fund-radar）。
+2. 僅更新根目錄 index.html（使用本 ZIP 同名檔覆蓋）。
+3. Commit changes，等待 GitHub Actions 成功發布。
+4. 開啟 https://c87038-droid.github.io/fund-radar/ ，以 Ctrl + F5 重新整理。
 
-【更新 GitHub 網站】
-1. 下載 ZIP 並解壓縮。
-2. 開啟 https://github.com/c87038-droid/fund-radar
-3. 這次只需用 ZIP 內的 index.html 覆蓋 GitHub 專案根目錄的 index.html。
-4. 按 Commit changes，待 Actions 發布成功後開啟 https://c87038-droid.github.io/fund-radar/
-5. 按 Ctrl + F5 重新整理，在富達該檔基金旁按「直接看淨值」或「直接看配息」。
+ZIP 內同時保留 favicon.png、favicon.ico 及 .github/workflows/update-and-deploy.yml 備用；
+這次不必重傳，避免不必要的部署流程變動。
 
-ZIP 另外保留與前一版相同的 favicon.png、favicon.ico 及 .github/workflows/update-and-deploy.yml，以方便整套備份；這次沒有修改它們，不需重複上傳。
-
-【保留原功能】
-9 檔基金清單、Excel 下載、歷史配息、資料自動更新、其他基金官方連結、原本左上角 Logo 與金色 favicon 均不變。
-請不要刪除原 GitHub 專案內的 data、scripts、tests 等資料夾。
+注意：MoneyDJ 為第三方參考資訊，淨值和配息日期依網頁實際更新；配息率非投資報酬率。
+網站原本 Excel 匯出、九檔觀察清單、匯率查詢與金色分頁圖示均未更動。

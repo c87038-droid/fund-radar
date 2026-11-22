@@ -218,6 +218,14 @@ a{color:#086e84}
 .fund-actions .direct-data-link{background:#dff3f6;border:1px solid #9bd7df;color:#096778;font-weight:800}
 .fund-actions .direct-data-link:hover{background:#c4eaf0}
 .detail-actions .direct-data-link{font-weight:850;text-decoration:underline;text-underline-offset:3px;color:#08697b}
+
+/* 四檔基金：名稱可一鍵開啟基金專屬頁；保留配息明細及其他基金按鈕。 */
+.fund-name-link{display:block;color:var(--navy);text-decoration:none;line-height:1.45;cursor:pointer}
+.fund-name-link:hover,.fund-name-link:focus-visible{color:#087b95;text-decoration:underline;text-underline-offset:4px}
+.fund-link-hint{color:#347f89;font-size:12px;margin:3px 0 5px;font-weight:700}
+.fund-actions .fund-profile-link{background:#e2f6f7;border:1px solid #8fd6de;color:#056779;font-weight:850}
+.fund-actions .fund-profile-link:hover{background:#c8edf0;color:#07596c}
+.detail-actions .fund-profile-link{font-weight:850;text-decoration:underline;text-underline-offset:4px;color:#086f84}
 </style>
 
 </head>
@@ -341,37 +349,24 @@ const OFFICIAL = Object.freeze({
   "LU3047255321": {url:"https://www.fidelity.com.tw/fund-and-service/fundui/funds/Fidelity-Funds-Global-Multi-Asset-Dynamic-Fund-A-MCDIST-G-USD/overview",label:"富達臺灣官方全球動能多元 A股C月配息美元級別頁（ISIN LU3047255321；若暫停申購，官方頁面可能只顯示提示）",cta:"臺灣官網 ↗"},
   "LU1883841964": {url:"https://wealth.firstbank.com.tw/fund-center/fund/fund-search/fund-details?id=ZA84",label:"第一銀行：東方匯理基金策略收益債券 A 南非幣避險（穩定月配息），ISIN LU1883841964（基金專屬頁面，非基金公司官網）",cta:"基金專屬頁 ↗"}
 });
-// 直接查詢指定基金級別的網頁版淨值與配息。已逐一核對級別與幣別。
-// MoneyDJ 為第三方資訊網站，非基金公司官網；不需要另外下載 PDF。
-// 境內瀚亞使用 a1/a5；境外施羅德、摩根與富達使用 b1/b5，勿混用級別。
-const DIRECT_FUND_PAGES = Object.freeze({
-  "LU2347655073": Object.freeze({
-    nav: 'https://m.moneydj.com/b1.aspx?a=JFZN3',
-    dividend: 'https://m.moneydj.com/B5.aspx?a=jfzn3'
-  }),
-  "TW000T0759D2": Object.freeze({
-    nav: 'https://m.moneydj.com/a1.aspx?a=ACCP138',
-    dividend: 'https://m.moneydj.com/a5.aspx?a=ACCP138'
-  }),
-  "LU1900986214": Object.freeze({
-    nav: 'https://m.moneydj.com/b1.aspx?a=PYZW3',
-    dividend: 'https://m.moneydj.com/b5.aspx?a=PYZW3'
-  }),
-  "LU3047255321": Object.freeze({
-    nav: 'https://m.moneydj.com/b1.aspx?a=FTZA67',
-    dividend: 'https://m.moneydj.com/B5.aspx?a=FTZA67'
-  })
+// 一鍵直達四檔基金專屬頁。每個 URL 已按指定級別核對。
+// MoneyDJ 為第三方基金資訊網站；在同一基金頁面可切換「淨值」「基本」「配息」等分頁。
+// 預設顯示淨值；無需下載 PDF。保留原網站內建配息明細功能。
+const FUND_PROFILE_PAGES = Object.freeze({
+  'LU2347655073': 'https://m.moneydj.com/b1.aspx?a=JFZN3',
+  'TW000T0759D2': 'https://m.moneydj.com/a1.aspx?a=ACCP138',
+  'LU1900986214': 'https://m.moneydj.com/b1.aspx?a=PYZW3',
+  'LU3047255321': 'https://m.moneydj.com/b1.aspx?a=FTZA67'
 });
-function directFundAnchor(f,kind){
-  const links=DIRECT_FUND_PAGES[f.isin];
-  if(!links) return null;
-  const isNav=kind==='nav';
-  const a=node('a','link-button direct-data-link',isNav?'直接看淨值 ↗':'直接看配息 ↗');
-  a.href=isNav?links.nav:links.dividend;
+function fundProfileAnchor(f, cls='link-button fund-profile-link', label='基金專屬頁面 ↗'){
+  const url=FUND_PROFILE_PAGES[f.isin];
+  if(!url)return null;
+  const a=node('a',cls,label);
+  a.href=url;
   a.target='_blank';
   a.rel='noopener noreferrer';
-  a.title=`MoneyDJ（第三方資訊）｜${f.name}｜${isNav?'最新淨值、近20日淨值':'每月配息、年化配息率'}；另開分頁`;
-  a.setAttribute('aria-label',`${f.name}：${isNav?'直接查詢基金淨值':'直接查詢基金配息'}（MoneyDJ）`);
+  a.title=`${f.name}｜專屬基金頁面，可切換淨值、配息、基本資料（MoneyDJ 第三方資訊；另開分頁）`;
+  a.setAttribute('aria-label',`${f.name}：開啟基金專屬頁面（淨值、配息、基本資料）`);
   return a;
 }
 function officialAnchor(f,label='基金公司資訊 ↗'){
@@ -410,7 +405,12 @@ function render(){
     }
     const d=live.funds?.[f.isin]||{}, history=records(d), recent=history[0]||null, rate=currentDistributionRate(d,recent);
     const row=node('article','fund-row');
-    const identity=node('div');identity.append(node('div','fund-name',f.name));identity.append(node('div','fund-sub',`${f.company} · ${f.group} · ${f.frequency} · ${f.tier}`));identity.append(node('div','fund-sub isin',`ISIN：${f.isin}`));row.append(identity);
+    const identity=node('div');
+    const titleLink=fundProfileAnchor(f,'fund-name fund-name-link',f.name);
+    identity.append(titleLink||node('div','fund-name',f.name));
+    if(titleLink)identity.append(node('div','fund-link-hint','點基金名稱可前往該基金專屬頁面 ↗'));
+    identity.append(node('div','fund-sub',`${f.company} · ${f.group} · ${f.frequency} · ${f.tier}`));
+    identity.append(node('div','fund-sub isin',`ISIN：${f.isin}`));row.append(identity);
     const wrap=node('div');wrap.append(node('span','field-label','計價幣別'),node('span','chip'+(f.currency==='ZAR'?' zar':''),f.currency==='ZAR'?'南非幣 ZAR':'美元 USD'));row.append(wrap);
     row.append(metricCell('最新基金淨值',validNav(d)?number(d.nav):'尚無資料',validNav(d)?`淨值日 ${niceDate(d.navDate)}${d.navStatus==='cached'?'（沿用上次）':''}`:(d.navMessage||'等待官方基金資料'),!validNav(d)));
     row.append(metricCell('最近每單位配息',recent?number(recent.perUnit,6):'尚無資料',recent?`除息 ${niceDate(recent.exDate)} · 發放 ${niceDate(recent.payDate)}${d.dividendStatus==='cached'?'（沿用紀錄）':''}`:(d.dividendMessage||'等待官方配息公告'),!recent));
@@ -428,8 +428,8 @@ function render(){
      const button=node('button','link-button','配息明細');
      button.type='button';button.addEventListener('click',()=>openDetails(f));
      buttonContainer.append(button);
-     if(DIRECT_FUND_PAGES[f.isin]){
-       buttonContainer.append(directFundAnchor(f,'nav'),directFundAnchor(f,'dividend'));
+     if(FUND_PROFILE_PAGES[f.isin]){
+       buttonContainer.append(fundProfileAnchor(f));
      } else {
        buttonContainer.append(officialAnchor(f,'官方資訊 ↗'));
      }
@@ -467,10 +467,10 @@ function openDetails(f){
     });table.append(tbody);box.append(table);body.append(box);
   }
   const sourceLine=node('div','detail-actions');
-   if(DIRECT_FUND_PAGES[f.isin]){
-     sourceLine.append(directFundAnchor(f,'nav'),directFundAnchor(f,'dividend'));
+   if(FUND_PROFILE_PAGES[f.isin]){
+     sourceLine.append(fundProfileAnchor(f));
      sourceLine.append(officialAnchor(f,'基金公司官方資訊 ↗'));
-     body.append(node('p','modal-note','「直接看淨值／直接看配息」開啟 MoneyDJ 的指定基金級別網頁（第三方資料，不需下載檔案）；另保留基金公司資訊供核對。'));
+     body.append(node('p','modal-note','點「基金專屬頁面」進入 MoneyDJ 的相同基金級別，頁面內可切換「淨值／基本／配息」，不需要下載 PDF。MoneyDJ 為第三方資訊來源。'));
    } else {
      sourceLine.append(officialAnchor(f,'前往基金公司官方資訊 ↗'));
    }
