@@ -1,18 +1,22 @@
-我的基金雷達｜Excel 資料匯出空白修正版（2026/11/21）
+我的基金雷達｜摩根基金淨值／配息直接查詢版（2026-11-22）
 
-【修正】
-1. 修正上一版 XLSX 工作表 XML 的欄位順序（autoFilter 與 mergeCells）並補上資料範圍 dimension，改善 Excel 對檔案的辨識。
-2. 匯出前再次確認是否有真實基金淨值或配息紀錄；未取得資料時取消下載，不再產生只有表頭的檔案。
-3. 匯出成功會在網站上顯示實際匯出數量（9 檔基金、取得淨值檔數、歷史配息筆數）。
-4. Excel 繼續保留「基金總覽」與「配息明細」；缺值留白，不使用猜測值。
-5. 保留原本基金網站版面、網址列金色菱形圖示與南非幣基金專屬連結。
+【此次更新】
+摩根投資基金－多重收益（美元對沖）A股（穩定月配）
+ISIN：LU2347655073
+
+在該檔基金操作欄加入：
+  1.「直接看淨值 ↗」：https://m.moneydj.com/b1.aspx?a=JFZN3
+  2.「直接看配息 ↗」：https://m.moneydj.com/B5.aspx?a=jfzn3
+在「配息明細」視窗內也有這兩個連結，另保留摩根官方資訊。
+兩個直接查詢連結是 MoneyDJ 第三方資訊網頁，非摩根基金公司官網；仍以基金公司正式公告為準。
 
 【GitHub 更新】
-(1) 解壓縮此 ZIP。
-(2) 上傳 index.html、favicon.png、favicon.ico 至 fund-radar 儲存庫 main 的最外層（覆蓋舊檔）。
-(3) 依原資料夾結構上傳 .github/workflows/update-and-deploy.yml（如果此前已更新，仍可覆蓋）。
-(4) 保留原有 data、scripts、tests 等資料夾，不要刪除！
-(5) 到 https://github.com/c87038-droid/fund-radar/actions 確認發布成功。
-(6) 開啟 https://c87038-droid.github.io/fund-radar/ ，按 Ctrl+F5 重新載入，再點「下載全部基金 Excel」。
+1. 解壓縮後，把 index.html、favicon.png、favicon.ico 放在 fund-radar 儲存庫根目錄。
+2. 將 .github/workflows/update-and-deploy.yml 放在儲存庫原本相同路徑。
+3. Commit changes，等待 Actions 的「我的基金雷達｜基金自動更新與發布」完成。
+4. 開啟：https://c87038-droid.github.io/fund-radar/
+5. 重新整理頁面，找到摩根多重收益 A 股穩定月配，按「直接看淨值」或「直接看配息」。
 
-提醒：GitHub Actions 是發布管理頁，不是正式基金查詢頁面。Excel 來自網站當下的 data/live.json，非盤中即時行情。
+【保留不變】
+其餘 8 檔基金、Excel 匯出、基金明細、基金資料自動更新與分頁圖示均沿用上一版。
+請勿刪除既有 data/、scripts/ 或 tests/ 資料夾。

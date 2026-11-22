@@ -213,6 +213,11 @@ a{color:#086e84}
 .excel-export:not(:disabled):hover{background:#dceffa;color:#103e52}
 .excel-export:disabled{opacity:.48;cursor:not-allowed}
 @media(max-width:540px){.title-actions{width:100%;display:grid;grid-template-columns:1fr;gap:9px}.title-actions .btn{width:100%}}
+
+/* 單一摩根基金：手機與電腦版皆能直接點選淨值、配息網頁，無需下載 PDF。 */
+.fund-actions .direct-data-link{background:#dff3f6;border:1px solid #9bd7df;color:#096778;font-weight:800}
+.fund-actions .direct-data-link:hover{background:#c4eaf0}
+.detail-actions .direct-data-link{font-weight:850;text-decoration:underline;text-underline-offset:3px;color:#08697b}
 </style>
 
 </head>
@@ -336,6 +341,23 @@ const OFFICIAL = Object.freeze({
   "LU3047255321": {url:"https://www.fidelity.com.tw/fund-and-service/fundui/funds/Fidelity-Funds-Global-Multi-Asset-Dynamic-Fund-A-MCDIST-G-USD/overview",label:"富達臺灣官方全球動能多元 A股C月配息美元級別頁（ISIN LU3047255321；若暫停申購，官方頁面可能只顯示提示）",cta:"臺灣官網 ↗"},
   "LU1883841964": {url:"https://wealth.firstbank.com.tw/fund-center/fund/fund-search/fund-details?id=ZA84",label:"第一銀行：東方匯理基金策略收益債券 A 南非幣避險（穩定月配息），ISIN LU1883841964（基金專屬頁面，非基金公司官網）",cta:"基金專屬頁 ↗"}
 });
+// 摩根多重收益 A（美元對沖、穩定月配）：經 ISIN LU2347655073 核對的網頁版淨值與配息。
+// MoneyDJ 為第三方資訊站（非摩根官網）；不需要下載 PDF。
+const JPM_DIRECT_PAGES = Object.freeze({
+  nav: 'https://m.moneydj.com/b1.aspx?a=JFZN3',
+  dividend: 'https://m.moneydj.com/B5.aspx?a=jfzn3'
+});
+function jpmDirectAnchor(f,kind){
+  if(f.isin!=='LU2347655073') return null;
+  const isNav=kind==='nav';
+  const a=node('a','link-button direct-data-link',isNav?'直接看淨值 ↗':'直接看配息 ↗');
+  a.href=isNav?JPM_DIRECT_PAGES.nav:JPM_DIRECT_PAGES.dividend;
+  a.target='_blank';
+  a.rel='noopener noreferrer';
+  a.title=`MoneyDJ（第三方資訊）｜${f.name}｜${isNav?'最新淨值、近20日淨值':'每月配息、年化配息率'}；另開分頁`;
+  a.setAttribute('aria-label',`${f.name}：${isNav?'直接查詢基金淨值':'直接查詢基金配息'}（MoneyDJ）`);
+  return a;
+}
 function officialAnchor(f,label='基金公司資訊 ↗'){
   const spec=OFFICIAL[f.isin], a=node('a','link-button official-link',spec?.cta||label);
   if(!spec){ a.href='https://www.fundclear.com.tw/';a.title='尚無確認的基金公司專頁，前往境外基金資訊觀測站'; }
@@ -386,7 +408,16 @@ function render(){
     changeCell.append(node('div','dividend-trend-note',trend.ratio));
     changeCell.append(node('div','metric-sub',change?`較上期 ${niceDate(change.previous.exDate)}`:'需有最近兩期配息'));
     row.append(changeCell);
-    const buttonContainer=node('div','fund-actions');const button=node('button','link-button','配息明細');button.type='button';button.addEventListener('click',()=>openDetails(f));buttonContainer.append(button,officialAnchor(f,'官方資訊 ↗'));row.append(buttonContainer);
+    const buttonContainer=node('div','fund-actions');
+     const button=node('button','link-button','配息明細');
+     button.type='button';button.addEventListener('click',()=>openDetails(f));
+     buttonContainer.append(button);
+     if(f.isin==='LU2347655073'){
+       buttonContainer.append(jpmDirectAnchor(f,'nav'),jpmDirectAnchor(f,'dividend'));
+     } else {
+       buttonContainer.append(officialAnchor(f,'官方資訊 ↗'));
+     }
+     row.append(buttonContainer);
     host.append(row);
   }
 }
@@ -419,7 +450,14 @@ function openDetails(f){
       tbody.append(tr);
     });table.append(tbody);box.append(table);body.append(box);
   }
-  const sourceLine=node('div','detail-actions');sourceLine.append(officialAnchor(f,'前往基金公司官方資訊 ↗'));
+  const sourceLine=node('div','detail-actions');
+   if(f.isin==='LU2347655073'){
+     sourceLine.append(jpmDirectAnchor(f,'nav'),jpmDirectAnchor(f,'dividend'));
+     sourceLine.append(officialAnchor(f,'摩根官方資訊 ↗'));
+     body.append(node('p','modal-note','「直接看淨值／直接看配息」會開啟 MoneyDJ 的指定基金級別網頁（第三方資料，不需下載檔案）；摩根官方資訊另保留供比對。'));
+   } else {
+     sourceLine.append(officialAnchor(f,'前往基金公司官方資訊 ↗'));
+   }
   if(f.isin==='LU1883841964'){
     const doc=node('a','link-button official-link','基金公司級別說明（英文 PDF） ↗');
     doc.href='https://www.amundi.com/globaldistributor/dl/doc/kid-priips/LU1883841964/ENG/NLD';
@@ -429,7 +467,7 @@ function openDetails(f){
     body.append(node('p','modal-note','「基金專屬頁」連至第一銀行的指定級別資料頁（非基金公司官網）；「官方說明」為東方匯理基金的該級別英文文件。'));
   }
   body.append(sourceLine);
-  body.append(node('p','external-return-note','官方資料另開分頁，查詢後關閉新分頁即可回到此明細，再按「返回我的基金觀察清單」。'));
+  body.append(node('p','external-return-note','外部資訊另開分頁，查詢後關閉新分頁即可回到此明細，再按「返回我的基金觀察清單」。'));
   body.append(node('p','modal-note','配息增減值及增減比率只比較相鄰兩筆配息紀錄；上期配息為 0 時不計算百分比。⚠ 配息可能涉及本金；當期與年化配息率都不等於投資報酬率。實際數字以基金公司公布的級別資料為準。'));
   container.append(body);$('detailDialog').returnValue='';$('detailDialog').showModal();$('detailDialog').scrollTop=0;
 }
