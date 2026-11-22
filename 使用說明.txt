@@ -1,32 +1,33 @@
-我的基金雷達｜三檔基金淨值與配息直達版（2026-11-22）
+我的基金雷達｜四檔基金淨值及配息直達版（2026-11-22）
 
-【本次新增】
-1. 瀚亞多重收益優化組合基金－B類型（美元）
-   ISIN：TW000T0759D2
-   直接看淨值：https://m.moneydj.com/a1.aspx?a=ACCP138
-   直接看配息：https://m.moneydj.com/a5.aspx?a=ACCP138
+【本次新增：富達】
+富達基金－全球動能多元基金（A股C月配息美元）
+ISIN：LU3047255321
+直接看淨值：https://m.moneydj.com/b1.aspx?a=FTZA67
+直接看配息：https://m.moneydj.com/B5.aspx?a=FTZA67
 
-2. 施羅德環球基金系列－環球收益成長（美元）A－月配固定2
-   ISIN：LU1900986214
-   直接看淨值：https://m.moneydj.com/b1.aspx?a=PYZW3
-   直接看配息：https://m.moneydj.com/b5.aspx?a=PYZW3
+這兩個網頁是 MoneyDJ 第三方資料網站，能直接閱讀淨值及每月配息表，無需下載 PDF。基金資料仍以基金公司公告為準，配息可能涉及本金，年化配息率並非報酬率。
 
-【沿用原本的摩根直達功能】
-3. 摩根投資基金－多重收益（美元對沖）A股（穩定月配）
-   ISIN：LU2347655073
-   直接看淨值：https://m.moneydj.com/b1.aspx?a=JFZN3
-   直接看配息：https://m.moneydj.com/B5.aspx?a=jfzn3
+【原本三檔的直達按鈕繼續保留】
+1. 摩根多重收益（美元對沖）A股（穩定月配）｜LU2347655073
+   淨值：https://m.moneydj.com/b1.aspx?a=JFZN3
+   配息：https://m.moneydj.com/B5.aspx?a=jfzn3
+2. 瀚亞多重收益優化組合 B（美元）｜TW000T0759D2
+   淨值：https://m.moneydj.com/a1.aspx?a=ACCP138
+   配息：https://m.moneydj.com/a5.aspx?a=ACCP138
+3. 施羅德環球收益成長 A 月配固定2 美元｜LU1900986214
+   淨值：https://m.moneydj.com/b1.aspx?a=PYZW3
+   配息：https://m.moneydj.com/b5.aspx?a=PYZW3
 
-以上三檔的「基金觀察清單」操作欄及「配息明細」視窗，均有直接淨值及配息按鈕；原基金公司連結仍可在配息明細視窗中開啟。
-這些直接連結為 MoneyDJ 第三方網頁，非基金公司官網；資料以基金公司正式公告為準。
+【更新 GitHub 網站】
+1. 下載 ZIP 並解壓縮。
+2. 開啟 https://github.com/c87038-droid/fund-radar
+3. 這次只需用 ZIP 內的 index.html 覆蓋 GitHub 專案根目錄的 index.html。
+4. 按 Commit changes，待 Actions 發布成功後開啟 https://c87038-droid.github.io/fund-radar/
+5. 按 Ctrl + F5 重新整理，在富達該檔基金旁按「直接看淨值」或「直接看配息」。
 
-【GitHub 更新步驟】
-1. 解壓縮後，在 GitHub c87038-droid/fund-radar 儲存庫根目錄，更新 index.html 即可（這次實際修改的檔案只有 index.html）。
-2. ZIP 附上 favicon.png、favicon.ico、.github/workflows/update-and-deploy.yml，供整包還原使用。這三個檔案與上一版相同，不必重新覆蓋。
-3. Commit changes，確認 GitHub Actions 發布成功。
-4. 開啟 https://c87038-droid.github.io/fund-radar/，按 Ctrl+F5 重新整理。
-5. 於瀚亞或施羅德基金旁點「直接看淨值」或「直接看配息」。
+ZIP 另外保留與前一版相同的 favicon.png、favicon.ico 及 .github/workflows/update-and-deploy.yml，以方便整套備份；這次沒有修改它們，不需重複上傳。
 
-【維持不變】
-9 檔基金觀察清單、Excel 下載、基金資料排程更新、其他基金官方連結、金色 favicon、左上角原本的 ◈ 圖示都保留。
-請勿刪除原有 data/、scripts/、tests/ 等資料夾。
+【保留原功能】
+9 檔基金清單、Excel 下載、歷史配息、資料自動更新、其他基金官方連結、原本左上角 Logo 與金色 favicon 均不變。
+請不要刪除原 GitHub 專案內的 data、scripts、tests 等資料夾。

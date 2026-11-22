@@ -214,7 +214,7 @@ a{color:#086e84}
 .excel-export:disabled{opacity:.48;cursor:not-allowed}
 @media(max-width:540px){.title-actions{width:100%;display:grid;grid-template-columns:1fr;gap:9px}.title-actions .btn{width:100%}}
 
-/* 三檔基金：手機與電腦版皆能直接點選淨值、配息網頁，無需下載 PDF。 */
+/* 四檔基金：手機與電腦版皆能直接點選淨值、配息網頁，無需下載 PDF。 */
 .fund-actions .direct-data-link{background:#dff3f6;border:1px solid #9bd7df;color:#096778;font-weight:800}
 .fund-actions .direct-data-link:hover{background:#c4eaf0}
 .detail-actions .direct-data-link{font-weight:850;text-decoration:underline;text-underline-offset:3px;color:#08697b}
@@ -343,7 +343,7 @@ const OFFICIAL = Object.freeze({
 });
 // 直接查詢指定基金級別的網頁版淨值與配息。已逐一核對級別與幣別。
 // MoneyDJ 為第三方資訊網站，非基金公司官網；不需要另外下載 PDF。
-// 境內瀚亞使用 a1/a5；境外施羅德與摩根使用 b1/b5，勿混用級別。
+// 境內瀚亞使用 a1/a5；境外施羅德、摩根與富達使用 b1/b5，勿混用級別。
 const DIRECT_FUND_PAGES = Object.freeze({
   "LU2347655073": Object.freeze({
     nav: 'https://m.moneydj.com/b1.aspx?a=JFZN3',
@@ -356,6 +356,10 @@ const DIRECT_FUND_PAGES = Object.freeze({
   "LU1900986214": Object.freeze({
     nav: 'https://m.moneydj.com/b1.aspx?a=PYZW3',
     dividend: 'https://m.moneydj.com/b5.aspx?a=PYZW3'
+  }),
+  "LU3047255321": Object.freeze({
+    nav: 'https://m.moneydj.com/b1.aspx?a=FTZA67',
+    dividend: 'https://m.moneydj.com/B5.aspx?a=FTZA67'
   })
 });
 function directFundAnchor(f,kind){
