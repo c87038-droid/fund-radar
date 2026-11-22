@@ -226,6 +226,18 @@ a{color:#086e84}
 .fund-actions .fund-profile-link{background:#e2f6f7;border:1px solid #8fd6de;color:#056779;font-weight:850}
 .fund-actions .fund-profile-link:hover{background:#c8edf0;color:#07596c}
 .detail-actions .fund-profile-link{font-weight:850;text-decoration:underline;text-underline-offset:4px;color:#086f84}
+
+/* 頁尾資料來源：分類清晰，讓手機與電腦更容易查閱。 */
+.source-footer{margin-top:28px;padding:24px 4px 15px;border-top:2px solid #d6e6e9;color:#536f78;font-size:14px;line-height:1.8}
+.source-footer h2{margin:0 0 15px;font-size:19px;line-height:1.45;color:#244d5c;letter-spacing:.02em}
+.source-row{display:grid;grid-template-columns:180px minmax(0,1fr);gap:12px 16px;padding:13px 0;border-bottom:1px solid #e3eef0}
+.source-heading{font-size:14px;line-height:1.7;color:#355969}
+.source-body{display:flex;align-items:baseline;gap:6px 16px;flex-wrap:wrap;min-width:0}
+.source-body a{color:#136781;font-weight:700;text-underline-offset:3px;text-decoration-thickness:1px}
+.source-body a:hover,.source-body a:focus-visible{color:#074858;text-decoration-thickness:2px}
+.source-comment{color:#718891;flex-basis:100%;font-size:13px;line-height:1.65}
+.source-disclaimer{margin:15px 0 0;font-size:13px;line-height:1.85;color:#6b8289}
+@media(max-width:660px){.source-footer{padding:20px 1px 14px;font-size:14px}.source-footer h2{font-size:18px}.source-row{grid-template-columns:1fr;gap:5px;padding:12px 0}.source-heading{font-size:15px}.source-body a{font-size:14px}.source-comment,.source-disclaimer{font-size:13px}}
 </style>
 
 </head>
@@ -284,7 +296,40 @@ a{color:#086e84}
     <p class="fx-link-note citi-note">花旗臺灣消費金融於 2023 年 8 月 12 日移轉至星展銀行；個人外幣參考匯率請使用上方星展入口。<a href="https://www.citigroup.com/global/about-us/global-presence/zh-TW/taiwan/commercial-bank-in-taiwan" target="_blank" rel="noopener noreferrer">花旗臺灣商業金融官方資訊 ↗</a>（非個人匯率牌告）。</p>
     <p class="fx-link-note">本網頁不另外抓取或儲存匯率，避免顯示過期數字。實際申購、贖回或換匯仍以交易銀行當下報價為準。</p>
   </section>
-  <footer>資料來源：<a href="https://rate.bot.com.tw/xrt?Lang=zh-TW" target="_blank" rel="noopener noreferrer">臺灣銀行即期匯率</a>、<a href="https://data.gov.tw/dataset/11642" target="_blank" rel="noopener noreferrer">集保境外基金配息</a>、<a href="https://data.gov.tw/dataset/11109" target="_blank" rel="noopener noreferrer">境內基金淨值</a>、<a href="https://data.gov.tw/dataset/160547" target="_blank" rel="noopener noreferrer">境內基金配息</a>。資料可能延遲，實際申購、贖回及配息依基金公司公告為準。此站不蒐集投資帳戶或個人持有資訊。</footer>
+  <footer class="source-footer" aria-label="資料來源與網站說明">
+    <h2>資料來源與查詢說明</h2>
+    <div class="source-row">
+      <strong class="source-heading">基金淨值與配息資料</strong>
+      <div class="source-body">
+        <a href="https://m.tdcc.com.tw/tdccweb/tcdata/other/opendata.htm" target="_blank" rel="noopener noreferrer">集保結算所（境外基金淨值／配息）</a>
+        <a href="https://data.gov.tw/dataset/11109" target="_blank" rel="noopener noreferrer">投信投顧公會（境內基金淨值）</a>
+        <a href="https://data.gov.tw/dataset/160547" target="_blank" rel="noopener noreferrer">投信投顧公會（境內基金配息）</a>
+        <span class="source-comment">網站定期讀取公開資料；部分同級別淨值與配息率參考 MoneyDJ 公開資訊作為備援或補充，依實際資料日期顯示。</span>
+      </div>
+    </div>
+    <div class="source-row">
+      <strong class="source-heading">基金專屬頁面（含第一銀行）</strong>
+      <div class="source-body">
+        <a href="https://m.moneydj.com/b1.aspx?a=JFZN3" target="_blank" rel="noopener noreferrer">摩根多重收益 A股（美元對沖・穩定月配）</a>
+        <a href="https://m.moneydj.com/a1.aspx?a=ACCP138" target="_blank" rel="noopener noreferrer">瀚亞多重收益優化組合 B（美元）</a>
+        <a href="https://m.moneydj.com/b1.aspx?a=PYZW3" target="_blank" rel="noopener noreferrer">施羅德環球收益成長 A（月配固定2）</a>
+        <a href="https://m.moneydj.com/b1.aspx?a=FTZA67" target="_blank" rel="noopener noreferrer">富達全球動能多元 A股C（月配美元）</a>
+        <a href="https://wealth.firstbank.com.tw/fund-center/fund/fund-search/fund-details?id=ZA84" target="_blank" rel="noopener noreferrer">第一銀行：東方匯理策略收益債券 A（南非幣避險・穩定月配）</a>
+        <span class="source-comment">摩根、瀚亞、施羅德、富達四檔連至 MoneyDJ 第三方基金級別頁；東方匯理南非幣基金連至第一銀行基金專屬查詢頁。上述連結均非基金公司官方交易報價。</span>
+      </div>
+    </div>
+    <div class="source-row">
+      <strong class="source-heading">銀行即期匯率查詢</strong>
+      <div class="source-body">
+        <a href="https://rate.bot.com.tw/xrt?Lang=zh-TW" target="_blank" rel="noopener noreferrer">臺灣銀行</a>
+        <a href="https://www.firstbank.com.tw/sites/fcb/ForexInquiry" target="_blank" rel="noopener noreferrer">第一銀行（即期匯率）</a>
+        <a href="https://www.dbs.com.tw/personal-zh/rates/foreign-exchange-rates.page" target="_blank" rel="noopener noreferrer">星展銀行</a>
+        <a href="https://www.ctbcbank.com/twrbo/zh_tw/dep_index/dep_ratequery/dep_foreign_rates.html" target="_blank" rel="noopener noreferrer">中國信託銀行</a>
+        <span class="source-comment">匯率僅連結銀行官網查閱，本站不自動抓取或儲存匯率。</span>
+      </div>
+    </div>
+    <p class="source-disclaimer">基金淨值、配息和匯率更新時間可能不同；實際申購、贖回、配息及換匯，請以基金公司與交易銀行公告為準。年化配息率不等於投資報酬率，配息可能涉及本金。本網站不蒐集個人投資帳戶或持有資料。</p>
+  </footer>
 </div>
 <a class="return-watchlist" id="returnWatchlist" href="#watchlist">← 返回我的基金觀察清單</a>
 <dialog id="detailDialog" class="dialog"><div id="detailContent"></div><form method="dialog" class="modal-footer"><button type="submit" class="btn accent detail-return" value="watchlist">← 返回我的基金觀察清單</button></form></dialog>

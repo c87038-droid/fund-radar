@@ -1,24 +1,15 @@
-基金雷達｜四檔基金專屬頁面一鍵直達版（2026/11/22）
+基金雷達｜資料來源補上第一銀行（2026/11/22）
 
-本次修改：
-1. 摩根多重收益（美元對沖）A股穩定月配：ISIN LU2347655073
-2. 瀚亞多重收益優化組合 B（美元）：ISIN TW000T0759D2
-3. 施羅德環球收益成長（美元）A 月配固定2：ISIN LU1900986214
-4. 富達全球動能多元 A股C月配息美元：ISIN LU3047255321
+修正項目（僅修改頁尾資料來源）：
+1. 「基金專屬頁面」加上第一銀行：東方匯理策略收益債券 A 南非幣避險穩定月配（ZA84）的直達連結。
+2. 「銀行即期匯率查詢」加上第一銀行外匯匯率查詢官網。
+3. 標明四檔使用 MoneyDJ、東方匯理南非幣使用第一銀行，避免誤認為基金公司官方交易報價。
 
-在網站的基金觀察清單中，這四檔「基金名稱」可以直接點擊，或按「基金專屬頁面」。
-會另開 MoneyDJ 的該基金專屬網頁，預設查看淨值，再使用該頁「配息」「基本」等頁籤切換。
-不必再於基金雷達區分「直接看淨值」「直接看配息」兩個外部按鈕。
-網站原有「配息明細」按鈕仍可直接查看已同步的 12 期配息紀錄。
+這次只需更新 index.html：
+- 解壓縮 ZIP，將 index.html 上傳 GitHub 專案 fund-radar 根目錄覆蓋舊檔。
+- Commit changes 並在 GitHub Actions 確認 Pages 發布成功。
+- 開啟 https://c87038-droid.github.io/fund-radar/，按 Ctrl+F5 重新整理。
 
-【更新 GitHub Pages】
-1. 解壓縮後，至 GitHub 基金雷達儲存庫（fund-radar）。
-2. 僅更新根目錄 index.html（使用本 ZIP 同名檔覆蓋）。
-3. Commit changes，等待 GitHub Actions 成功發布。
-4. 開啟 https://c87038-droid.github.io/fund-radar/ ，以 Ctrl + F5 重新整理。
+其餘 favicon、.github/workflows 檔案僅供備用；請不要刪掉既有的 data、scripts 等資料夾。
 
-ZIP 內同時保留 favicon.png、favicon.ico 及 .github/workflows/update-and-deploy.yml 備用；
-這次不必重傳，避免不必要的部署流程變動。
-
-注意：MoneyDJ 為第三方參考資訊，淨值和配息日期依網頁實際更新；配息率非投資報酬率。
-網站原本 Excel 匯出、九檔觀察清單、匯率查詢與金色分頁圖示均未更動。
+注意：銀行網頁及 MoneyDJ 資料時間不一定一致，實際交易以基金公司與交易銀行公布為準。
