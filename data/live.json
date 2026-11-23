@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "checkedAt": "2026-11-22T23:58:26+08:00",
+  "checkedAt": "2026-11-23T10:26:24+08:00",
   "funds": {
     "LU0820561818": {
       "nav": 7.8385,
@@ -8,7 +8,7 @@
       "navSource": "MoneyDJ 基金專頁（備援，非基金公司官方）",
       "navSourceUrl": "https://m.moneydj.com/b1.aspx?a=TLZ64",
       "navStatus": "found",
-      "navDelayedDays": 2,
+      "navDelayedDays": 3,
       "navMessage": "",
       "dividends": [
         {
@@ -72,7 +72,7 @@
       "navSource": "MoneyDJ 基金專頁（備援，非基金公司官方）",
       "navSourceUrl": "https://m.moneydj.com/b1.aspx?a=PIZC5",
       "navStatus": "found",
-      "navDelayedDays": 2,
+      "navDelayedDays": 3,
       "navMessage": "",
       "dividends": [
         {
@@ -131,10 +131,10 @@
       "dividendStatus": "found"
     },
     "LU2347655073": {
-      "nav": 70.24,
-      "navDate": "2026-11-19",
-      "navSource": "集保境外基金公開資料",
-      "navSourceUrl": "",
+      "nav": 69.42,
+      "navDate": "2026-11-20",
+      "navSource": "MoneyDJ 基金專頁（備援，非基金公司官方）",
+      "navSourceUrl": "https://m.moneydj.com/b1.aspx?a=JFZN3",
       "navStatus": "found",
       "navDelayedDays": 3,
       "navMessage": "",
@@ -200,7 +200,7 @@
       "navSource": "MoneyDJ 基金專頁（備援，非基金公司官方）",
       "navSourceUrl": "https://m.moneydj.com/b1.aspx?a=TLZF9",
       "navStatus": "found",
-      "navDelayedDays": 2,
+      "navDelayedDays": 3,
       "navMessage": "",
       "dividends": [
         {
@@ -243,11 +243,11 @@
     "TW000T0759D2": {
       "nav": 7.74,
       "navDate": "2026-11-19",
-      "navSource": "MoneyDJ 基金專頁（備援，非基金公司官方）",
-      "navSourceUrl": "https://m.moneydj.com/a1.aspx?a=ACCP138",
+      "navSource": "投信投顧公會境內基金公開資料",
+      "navSourceUrl": "",
       "navStatus": "found",
-      "navDelayedDays": 3,
-      "navMessage": "",
+      "navDelayedDays": 4,
+      "navMessage": "淨值已落後 4 天，請核對基金公司",
       "dividends": [
         {
           "exDate": "2026-10-01",
@@ -271,11 +271,11 @@
     "TW000T1811K5": {
       "nav": 8.68,
       "navDate": "2026-11-19",
-      "navSource": "MoneyDJ 基金專頁（備援，非基金公司官方）",
-      "navSourceUrl": "https://m.moneydj.com/a1.aspx?a=ACTI71",
+      "navSource": "投信投顧公會境內基金公開資料",
+      "navSourceUrl": "",
       "navStatus": "found",
-      "navDelayedDays": 3,
-      "navMessage": "",
+      "navDelayedDays": 4,
+      "navMessage": "淨值已落後 4 天，請核對基金公司",
       "dividends": [
         {
           "exDate": "2026-10-30",
@@ -306,7 +306,7 @@
       "navSource": "MoneyDJ 基金專頁（備援，非基金公司官方）",
       "navSourceUrl": "https://m.moneydj.com/b1.aspx?a=ALBT8",
       "navStatus": "found",
-      "navDelayedDays": 2,
+      "navDelayedDays": 3,
       "navMessage": "",
       "dividends": [
         {
@@ -365,10 +365,10 @@
       "dividendStatus": "found"
     },
     "LU1900986214": {
-      "nav": 128.891,
-      "navDate": "2026-11-19",
-      "navSource": "集保境外基金公開資料",
-      "navSourceUrl": "",
+      "nav": 126.4286,
+      "navDate": "2026-11-20",
+      "navSource": "MoneyDJ 基金專頁（備援，非基金公司官方）",
+      "navSourceUrl": "https://m.moneydj.com/b1.aspx?a=PYZW3",
       "navStatus": "found",
       "navDelayedDays": 3,
       "navMessage": "",
@@ -569,7 +569,7 @@
       "navSource": "MoneyDJ 基金專頁（備援，非基金公司官方）",
       "navSourceUrl": "https://m.moneydj.com/b1.aspx?a=FTZA67",
       "navStatus": "found",
-      "navDelayedDays": 2,
+      "navDelayedDays": 3,
       "navMessage": "",
       "dividends": [
         {
@@ -745,7 +745,7 @@
     "local_nav": {
       "ok": true,
       "message": "",
-      "rows": 37
+      "rows": 4494
     },
     "local_dividends": {
       "ok": true,
@@ -759,7 +759,7 @@
     },
     "dividend_yield": {
       "ok": true,
-      "rows": 209,
+      "rows": 210,
       "message": "同級別歷史淨值與公開年化配息率，缺資料不以最新淨值代替"
     }
   },
@@ -776,32 +776,32 @@
     },
     "LU2347655073": {
       "ok": true,
-      "navDate": "2026-11-19",
+      "navDate": "2026-11-20",
       "url": "https://m.moneydj.com/b1.aspx?a=JFZN3",
       "checks": [
         {
           "ok": true,
           "url": "https://m.moneydj.com/b1.aspx?a=JFZN3",
-          "nav": 70.24,
-          "navDate": "2026-11-19"
+          "nav": 69.42,
+          "navDate": "2026-11-20"
         },
         {
           "ok": true,
           "url": "https://tbb.moneydj.com/mobile/b1.aspx?a=JFZN3-01G1",
-          "nav": 70.24,
-          "navDate": "2026-11-19"
+          "nav": 69.42,
+          "navDate": "2026-11-20"
         },
         {
           "ok": true,
           "url": "https://newfund.tw.dbs.com/mobile/b1.aspx?a=JFZN3",
-          "nav": 70.24,
-          "navDate": "2026-11-19"
+          "nav": 69.42,
+          "navDate": "2026-11-20"
         },
         {
           "ok": true,
           "url": "https://fund.hncb.com.tw/w/wb/wb02.djhtm?a=JFZN3-01I3",
-          "nav": 70.24,
-          "navDate": "2026-11-19"
+          "nav": 69.42,
+          "navDate": "2026-11-20"
         }
       ]
     },
@@ -827,7 +827,7 @@
     },
     "LU1900986214": {
       "ok": true,
-      "navDate": "2026-11-19",
+      "navDate": "2026-11-20",
       "url": "https://m.moneydj.com/b1.aspx?a=PYZW3"
     },
     "LU3047255321": {
