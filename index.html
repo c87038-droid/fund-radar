@@ -240,6 +240,18 @@ a{color:#086e84}
 @media(max-width:660px){.source-footer{padding:20px 1px 14px;font-size:14px}.source-footer h2{font-size:18px}.source-row{grid-template-columns:1fr;gap:5px;padding:12px 0}.source-heading{font-size:15px}.source-body a{font-size:14px}.source-comment,.source-disclaimer{font-size:13px}}
 /* 新增高盛高風險債券提示（不影響原有主視覺） */
 .fund-risk-note{color:#986324!important;font-weight:650;line-height:1.65}
+
+/* 基金風險提醒：採柔和配色，不影響原本表格與 RWD。 */
+.risk-overview{margin:16px 0 19px;padding:14px 20px;border:1px solid #e8d8b8;background:#fffaf1;border-radius:14px;color:#665735;font-size:14px;line-height:1.75}
+.risk-overview-main{display:flex;align-items:baseline;flex-wrap:wrap;column-gap:12px;row-gap:4px}
+.risk-overview-main strong{font-size:16px;color:#815b2b}
+.risk-overview details{margin-top:5px}
+.risk-overview summary{width:max-content;max-width:100%;cursor:pointer;color:#735326;text-decoration:underline;text-underline-offset:3px;font-weight:700}
+.risk-overview p{margin:5px 0}
+.risk-overview p:last-child{margin-bottom:0}
+.risk-detail-note{border-left:3px solid #cfac78;background:#fffbf3;padding:10px 14px;color:#70562d!important;border-radius:5px 9px 9px 5px;font-size:14px!important;line-height:1.7}
+.risk-detail-note strong{color:#775128}
+@media(max-width:540px){.risk-overview{padding:12px 14px;font-size:13px}.risk-overview-main strong{font-size:15px}}
 </style>
 
 </head>
@@ -257,6 +269,18 @@ a{color:#086e84}
       <p>集中掌握基金淨值、每月配息與年化配息率。美元優先、同公司集中，並保留實際資料日期。</p>
     </div>
     <div class="hero-counter"><span class="hero-number" id="heroFundCount">10</span><span>追蹤基金</span><small id="heroCurrencyCount">8 檔美元・2 檔南非幣</small></div>
+  </section>
+  <section class="risk-overview" aria-label="基金投資與配息風險提醒">
+    <div class="risk-overview-main">
+      <strong>⚠ 配息率不等於投資報酬率</strong>
+      <span>年化配息率是以單期配息推算，非實際年報酬，也不保證未來配息；配息可能涉及本金。</span>
+    </div>
+    <details>
+      <summary>查看其他重要風險提醒</summary>
+      <p><strong>外幣與匯率風險：</strong>美元及南非幣基金的淨值與配息均以計價幣別表示，換回新臺幣時可能因匯率波動而產生損益；「南非幣避險／對沖」不等於對新臺幣避險。</p>
+      <p><strong>市場與債券風險：</strong>基金可能因市場、利率、信用或流動性變化而下跌；新興市場及非投資等級債券可能有較高波動，投資本金可能虧損。</p>
+      <p><strong>資訊時效：</strong>淨值、除息、配息與匯率日期可能不同；資料不足時以「—」顯示。實際數據請以基金公司與交易機構公告為準。</p>
+    </details>
   </section>
   <details class="overview-fold" id="overviewFold">
     <summary class="overview-fold-toggle" aria-label="展開或收合基金資料概覽">
@@ -331,7 +355,7 @@ a{color:#086e84}
         <span class="source-comment">匯率僅連結銀行官網查閱，本站不自動抓取或儲存匯率。</span>
       </div>
     </div>
-    <p class="source-disclaimer">基金淨值、配息和匯率更新時間可能不同；實際申購、贖回、配息及換匯，請以基金公司與交易銀行公告為準。年化配息率不等於投資報酬率，配息可能涉及本金。本網站不蒐集個人投資帳戶或持有資料。</p>
+    <p class="source-disclaimer">本網站為個人基金觀察工具，非投資建議。基金淨值、配息及匯率資料日期可能不同；實際申購、贖回、配息及換匯以基金公司與交易銀行公告為準。年化配息率僅為單期推算，非實際年報酬或保證收益；配息可能涉及本金。外幣投資存在匯率風險，基金可能下跌並損失本金。本網站不蒐集個人投資帳戶或持有資料。</p>
   </footer>
 </div>
 <a class="return-watchlist" id="returnWatchlist" href="#watchlist">← 返回我的基金觀察清單</a>
@@ -466,7 +490,8 @@ function render(){
     if(titleLink)identity.append(node('div','fund-link-hint','點基金名稱可前往該基金專屬頁面 ↗'));
     identity.append(node('div','fund-sub',`${f.company} · ${f.group} · ${f.frequency} · ${f.tier}`));
     identity.append(node('div','fund-sub isin',`ISIN：${f.isin}`));
-    if(f.isin==='LU1075101847')identity.append(node('div','fund-sub fund-risk-note','⚠ 主要投資高風險債券；基金配息可能涉及本金'));
+    if(f.currency==='ZAR')identity.append(node('div','fund-sub fund-risk-note','⚠ 南非幣匯率波動風險；對沖不代表對新臺幣避險'));
+    if(f.isin==='LU1075101847')identity.append(node('div','fund-sub fund-risk-note','⚠ 新興市場債券可能有較高信用與利率風險，配息可能涉及本金'));
     row.append(identity);
     const wrap=node('div');wrap.append(node('span','field-label','計價幣別'),node('span','chip'+(f.currency==='ZAR'?' zar':''),f.currency==='ZAR'?'南非幣 ZAR':'美元 USD'));row.append(wrap);
     row.append(metricCell('最新基金淨值',validNav(d)?number(d.nav):'尚無資料',validNav(d)?`淨值日 ${niceDate(d.navDate)}${d.navStatus==='cached'?'（沿用上次）':''}`:(d.navMessage||'等待官方基金資料'),!validNav(d)));
@@ -503,6 +528,8 @@ function openDetails(f){
   const annual=annualDistributionRate(rate,f);
   const stats=[['最新基金淨值',validNav(d)?`${f.currency} ${number(d.nav)}`:'尚無資料'],['最近每單位配息',recent?`${f.currency} ${number(recent.perUnit,6)}`:'尚無資料'],['除息前基準淨值',hasBasis(recent)?`${number(recent.preExNav)}（${niceDate(recent.preExNavDate)}）`:'尚無基準淨值'],['當期配息率',rate===null?'資料不足':`${number(rate,2)}%${hasBasis(recent)?'（試算）':'（公開年化率 ÷ 12）'}`],['年化配息率',annual===null?'資料不足':`${number(annual,2)}%${hasBasis(recent)?'（試算）':'（來源參考）'}`],['較上期配息增減',change?trend.summary:'需至少兩期資料']];
   stats.forEach(([label,value])=>{const item=node('div','modal-stat');item.append(node('label','',label),node('strong','',value));summary.append(item);});body.append(summary);
+  body.append(node('p','modal-note risk-detail-note','⚠ 當期與年化配息率僅為配息比例及單期年化試算，並非實際投資報酬或保證收益。配息可能涉及本金，除息可能伴隨淨值調整。'));
+  if(f.currency==='ZAR')body.append(node('p','modal-note risk-detail-note','南非幣計價基金：匯率波動可能影響換算新臺幣後的投資結果；南非幣避險／對沖不代表已避開新臺幣匯率風險。'));
   body.append(node('p','modal-note',`當期配息率＝每單位配息 ÷ 除息日前一日淨值 × 100%。最近除息日：${recent?niceDate(recent.exDate):'尚無日期'}；${basisLabel(recent)}。來源：${basisSource(recent)}。`));
   body.append(node('p','modal-note','年化配息率＝每單位配息金額 ÷ 除息日前一日淨值 × 一年配息次數（12）× 100%。缺少基準淨值時，只引用同一期公開年化配息率（並標示參考）。非實際年報酬率。'));
   const displayHistory=history.slice(0,12);
@@ -586,7 +613,7 @@ function buildExcelWorkbook() {
   }
   const note='雲端資料最後檢查：'+(live.checkedAt?String(live.checkedAt).replace('T',' ').slice(0,19):'尚無時間')+
     '　｜　淨值與配息各有獨立日期；缺少資料的欄位留白。';
-  const caveat='注意：當期配息率／年化配息率並非總報酬或保證收益；部分數值可能為公開年化率參考。';
+  const caveat='風險提醒：年化配息率為單期推算，非實際投資報酬或保證收益；配息可能涉及本金；外幣基金另有匯率風險。';
   const sheets=[
     {name:'基金總覽',title:'我的基金觀察清單｜基金總覽（'+count+' 檔）',headers:summaryHeaders,rows:summaryRows,
      widths:[18,49,23,10,17,15,15,18,19,16,16,16,16,20,18,28,18,62]},
