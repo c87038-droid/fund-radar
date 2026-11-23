@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Only 9 user-selected mutual funds. Strict, dated public fund NAV/distribution data.
+"""Only 10 user-selected mutual funds. Strict, dated public fund NAV/distribution data.
 
 The updater never requests stock/ETF quote APIs, never substitutes another share
 class, and never labels cached NAV as today's data if a feed fails. Python stdlib.
@@ -35,6 +35,7 @@ SOURCES = {
 FUNDS = {
     'LU0820561818': dict(type='overseas', currency='USD', display='安聯收益成長 AM穩定月收 美元'),
     'LU1883841964': dict(type='overseas', currency='ZAR', display='東方匯理策略收益債券 A 南非幣'),
+    'LU1075101847': dict(type='overseas', currency='ZAR', display='高盛基金III 新興市場債券 X股南非幣對沖月配息'),
     'LU2347655073': dict(type='overseas', currency='USD', display='摩根多重收益 A穩定月配 美元對沖'),
     'LU2023250330': dict(type='overseas', currency='USD', display='安聯收益成長 AMg7 月收總收益 美元'),
     'TW000T0759D2': dict(type='local', currency='USD', tax_id='73637204D', display='瀚亞多重收益優化組合 B 美元'),
@@ -651,7 +652,7 @@ def enrich_distribution_rates(doc, prior, inputs):
 
 
 def main():
-    print('[NAV updater] JPM-NAV-20261121 + EXDATE-YIELD-v1 + NINE-FUNDS-20261121')
+    print('[NAV updater] JPM-NAV-20261121 + EXDATE-YIELD-v1 + TEN-FUNDS-20261123')
     prior = json.loads(LIVE.read_text(encoding='utf-8')) if LIVE.exists() else {'funds':{}}
     downloaded = {name: load_source(name, urls) for name,urls in SOURCES.items()}
     backup_nav, backup_results = download_backup_nav()

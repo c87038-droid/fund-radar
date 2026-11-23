@@ -1,0 +1,21 @@
+我的基金雷達｜新增第 10 檔基金（2026/11/23）
+
+新基金：高盛基金III－高盛新興市場債券基金 X股對沖級別南非幣（月配息）
+ISIN：LU1075101847／南非幣 ZAR／X 股南非幣避險／月配息
+第一銀行基金專屬頁面：https://wealth.firstbank.com.tw/fund-center/fund/fund-search/fund-details?id=ZB19
+
+此次只新增基金，不套用前次暫緩的「合法授權資料來源加強版」版面改版。
+
+更新 GitHub：
+1. 在 c87038-droid/fund-radar 的 main 分支，上傳並覆蓋以下檔案：
+   - index.html（網站清單、連結、Excel 10 檔匯出）
+   - scripts/update_funds.py（資料更新第 10 檔）
+   - tests/test_update_funds.py（將原本「九檔」的自動測試同步改成十檔）
+   - .github/workflows/update-and-deploy.yml（部署檢查及工作名稱）
+2. favicon.png 和 favicon.ico 保留原樣，ZIP 內提供備份，但不必重傳。
+3. 完成 Commit changes 後，前往 GitHub → Actions 確認成功發布。
+4. 若新的基金數值尚空白，手動執行 Actions 的 update-and-publish 排程；若來源尚未提供，欄位會保持「尚無資料」，不會填假數字。
+
+注意：請勿將 data/live.json 清空或以舊資料覆蓋。系統會依 ISIN 與幣別從集保開放資料更新新基金；不新增第一銀行或 MoneyDJ 自動爬蟲。第一銀行連結僅供人員點擊查詢。
+
+配息風險：本基金主要投資高風險債券，配息來源可能涉及本金；年化配息率非投資報酬率或保證收益。
