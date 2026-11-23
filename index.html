@@ -256,7 +256,7 @@ a{color:#086e84}
       <h1>我的基金觀察清單</h1>
       <p>集中掌握基金淨值、每月配息與年化配息率。美元優先、同公司集中，並保留實際資料日期。</p>
     </div>
-    <div class="hero-counter"><span class="hero-number">09</span><span>追蹤基金</span><small>8 檔美元・1 檔南非幣</small></div>
+    <div class="hero-counter"><span class="hero-number" id="heroFundCount">10</span><span>追蹤基金</span><small id="heroCurrencyCount">8 檔美元・2 檔南非幣</small></div>
   </section>
   <details class="overview-fold" id="overviewFold">
     <summary class="overview-fold-toggle" aria-label="展開或收合基金資料概覽">
@@ -358,11 +358,11 @@ const niceDate = x => /^20\d{2}-\d{2}-\d{2}$/.test(String(x||"")) ? x.replaceAll
 const validNav = d => d && Number.isFinite(Number(d.nav)) && Number(d.nav)>0 && /^20\d{2}-\d{2}-\d{2}$/.test(d.navDate||"");
 const records = d => Array.isArray(d?.dividends) ? d.dividends.filter(r=>/^20\d{2}-\d{2}-\d{2}$/.test(r.exDate||"") && r.perUnit !== null && Number.isFinite(Number(r.perUnit)) && Number(r.perUnit)>=0).sort((a,b)=>b.exDate.localeCompare(a.exDate)) : [];
 // 配息率依該期除息前一淨值日；公開年化率僅作有標示的參考備援。
-const hasBasis = r => !!r && r.preExNav!==null && Number(r.preExNav)>0 && Number.isFinite(Number(r.preExNav)) && /^20\d{2}-\d{2}-\d{2}$/.test(r.preExNavDate||'') && r.preExNavDate<r.exDate;
+const hasBasis = r => !!r && r.preExNav!==null && r.preExNav!==undefined && Number(r.preExNav)>0 && Number.isFinite(Number(r.preExNav)) && /^20\d{2}-\d{2}-\d{2}$/.test(r.preExNavDate||'') && r.preExNavDate<r.exDate;
 const hasReported = r => !!r && r.reportedAnnualRate!==null && r.reportedAnnualRate!==undefined && Number.isFinite(Number(r.reportedAnnualRate)) && Number(r.reportedAnnualRate)>=0;
 const currentDistributionRate = (d,r)=>hasBasis(r)?Number(r.perUnit)/Number(r.preExNav)*100:hasReported(r)?Number(r.reportedAnnualRate)/12:null;
 const annualDistributionRate = (rate,f)=> rate===null || !Number.isFinite(rate) || f.frequency!=="月配息" ? null : rate*12;
-const basisLabel = r => hasBasis(r)?`基準淨值 ${number(r.preExNav)}（${niceDate(r.preExNavDate)}）`:hasReported(r)?'MoneyDJ 公開年化率參考（當期以年化 ÷ 12）':'缺少除息前一日淨值及公開配息率';
+const basisLabel = r => hasBasis(r)?`基準淨值 ${number(r.preExNav)}（${niceDate(r.preExNavDate)}）`:hasReported(r)?`${r.reportedAnnualSource||'來源公告年化率'}（當期＝年化 ÷ 12）`:'缺少該期除息前一淨值日資料，尚無法計算';
 const basisSource = r => hasBasis(r)?(r.preExNavSource||'歷史淨值'):hasReported(r)?(r.reportedAnnualSource||'公開年化配息率'):'尚無資料';
 // 配息增減：只比較同一基金級別的最近兩筆配息；沒有前期就不顯示推估數字。
 function dividendChange(history){
@@ -436,6 +436,9 @@ function render(){
   const selected=FUNDS.filter(f=>(currency==='all'||f.currency===currency)&&[f.isin,f.name,f.company,f.tier].join(' ').toLowerCase().includes(q));
   let navs=0, dividends=0;
   for(const f of FUNDS){const d=live.funds?.[f.isin];if(validNav(d))navs++;if(records(d).length)dividends++;}
+  // 首頁統計和實際基金清單保持一致，未來增減基金不需人工改數字。
+  $('heroFundCount').textContent=String(FUNDS.length).padStart(2,'0');
+  $('heroCurrencyCount').textContent=`${FUNDS.filter(f=>f.currency==='USD').length} 檔美元・${FUNDS.filter(f=>f.currency==='ZAR').length} 檔南非幣`;
   $('fundCount').innerHTML=FUNDS.length+' <em>檔</em>';$('navCount').innerHTML=navs+' <em>檔</em>';$('divCount').innerHTML=dividends+' <em>檔</em>';
   $('checkedAt').textContent=live.checkedAt ? live.checkedAt.replace('T',' ').slice(0,16) : '尚未執行';
   if(!selected.length){host.append(node('div','blank','沒有符合條件的基金'));return;}
@@ -470,7 +473,7 @@ function render(){
     row.append(metricCell('最近每單位配息',recent?number(recent.perUnit,6):'尚無資料',recent?`除息 ${niceDate(recent.exDate)} · 發放 ${niceDate(recent.payDate)}${d.dividendStatus==='cached'?'（沿用紀錄）':''}`:(d.dividendMessage||'等待官方配息公告'),!recent));
     row.append(metricCell('當期配息率',rate===null?'—':number(rate,2)+'%',basisLabel(recent),rate===null));
     const annual=annualDistributionRate(rate,f);
-    row.append(metricCell('年化配息率',annual===null?'—':number(annual,2)+'%',annual===null?'資料不足，無法試算':hasBasis(recent)?'除息前一日基準 × 12（試算）':'MoneyDJ 公開年化率（參考）',annual===null));
+    row.append(metricCell('年化配息率',annual===null?'—':number(annual,2)+'%',annual===null?'待取得該期除息前的基準淨值；可點基金名稱查詢':hasBasis(recent)?'除息前一淨值日 × 12（試算）':(recent?.reportedAnnualSource||'來源公告年化率（參考）'),annual===null));
     const change=dividendChange(history), trend=changeText(change);
     const changeCell=node('div');
     changeCell.append(node('span','field-label','配息增減（息值／比率）'));

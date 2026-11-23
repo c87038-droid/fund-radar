@@ -453,6 +453,88 @@ def merge_records(existing, newer):
     return sorted(merged.values(), key=lambda x: x['exDate'], reverse=True)[:60]
 
 
+# 用可再利用的基金開放資料累積同級別「歷史淨值」，供除息率依前一淨值日計算。
+# 來源：集保境外基金淨值（近7日）、投信投顧公會境內基金每日淨值。
+# 不會倒推淨值，也不以「最新淨值」冒充除息前基準淨值。
+HISTORY_LIMIT = 400
+BASIS_MAX_CALENDAR_DAYS = 7
+
+
+def _valid_ymd(value):
+    if not isinstance(value, str) or not re.fullmatch(r'20\d{2}-\d{2}-\d{2}', value):
+        return False
+    try:
+        return Date.fromisoformat(value).isoformat() == value
+    except ValueError:
+        return False
+
+
+def authorized_history(source_rows, is_overseas):
+    collected = {}
+    tax_map = {v['tax_id']:k for k,v in FUNDS.items() if v['type']=='local'}
+    for row in source_rows:
+        if is_overseas:
+            fid = canonical(field(row,'ISINCODE','ISIN CODE','基金ISIN_CODE','基金ISIN Code'))
+            spec = FUNDS.get(fid)
+            if not spec or spec['type']!='overseas': continue
+            unit = field(row,'計價幣別','基金幣別')
+            if unit and currency(unit)!=spec['currency']: continue
+            nav = money(field(row,'基金淨值(金額)','基金淨值','淨值'))
+        else:
+            fid = tax_map.get(canonical(field(row,'基金統編','統編')))
+            if not fid: continue
+            unit = field(row,'幣別','計價幣別','基金幣別')
+            if not unit or currency(unit)!=FUNDS[fid]['currency']: continue
+            nav = money(field(row,'基金淨值','淨值'))
+        day = date_str(field(row,'日期','淨值日','淨值日期'))
+        if nav is not None and nav>0 and _valid_ymd(day):
+            collected.setdefault(fid,{})[day]={'navDate':day,'nav':nav,'dataOrigin':'open-data'}
+    return collected
+
+
+def merge_authorized_history(old, incoming, source_type=None):
+    found = {}
+    for r in old.get('navHistory',[]) if isinstance(old.get('navHistory'),list) else []:
+        if not isinstance(r,dict) or r.get('dataOrigin')!='open-data': continue
+        date=r.get('navDate');nav=r.get('nav')
+        if _valid_ymd(date) and isinstance(nav,(int,float)) and 0<nav<1e8:
+            found[date]={'navDate':date,'nav':nav,'dataOrigin':'open-data'}
+    # 只可從明確的集保、公會淨值補入快照，絕不把 MoneyDJ 備援冒充開放資料。
+    label=str(old.get('navSource',''))
+    if ('集保' in label or '投信投顧公會' in label) and _valid_ymd(old.get('navDate')):
+        val=old.get('nav')
+        if isinstance(val,(int,float)) and 0<val<1e8:
+            day=old['navDate'];found.setdefault(day,{'navDate':day,'nav':val,'dataOrigin':'open-data'})
+    for date, r in incoming.items():
+        if _valid_ymd(date) and isinstance(r.get('nav'),(int,float)) and 0<r['nav']<1e8:
+            found[date]={'navDate':date,'nav':r['nav'],'dataOrigin':'open-data'}
+    return sorted(found.values(),key=lambda r:r['navDate'],reverse=True)[:HISTORY_LIMIT]
+
+
+def _consecutive_valuation_day(prior_day, ex_day):
+    """保守確認兩者之間沒有未取得的平日淨值；連假缺口則暫不計算。"""
+    start=Date.fromisoformat(prior_day)
+    end=Date.fromisoformat(ex_day)
+    gap=(end-start).days
+    return 1<=gap<=BASIS_MAX_CALENDAR_DAYS and all(
+        (start+timedelta(days=d)).weekday()>=5 for d in range(1,gap)
+    )
+
+
+def attach_authorized_basis(entry):
+    history=entry.get('navHistory',[])
+    for r in entry.get('dividends',[]):
+        ex=r.get('exDate','')
+        if not _valid_ymd(ex) or not isinstance(r.get('perUnit'),(int,float)):continue
+        nearest=next((h for h in history if h['navDate']<ex and _consecutive_valuation_day(h['navDate'],ex)),None)
+        if nearest:
+            r.update(preExNav=nearest['nav'],preExNavDate=nearest['navDate'],
+                preExNavOrigin='open-data',preExNavSource='政府開放資料：同級別除息前一淨值日',
+                preExNavSourceUrl=('https://data.gov.tw/dataset/11641' if entry['kind']=='overseas' else 'https://data.gov.tw/dataset/11109'))
+    entry.pop('kind',None)
+    return entry
+
+
 def update_data(existing, sources, at=None, backup_nav=None, backup_results=None):
     at = at or datetime.now(TPE).isoformat(timespec='seconds')
     backup_nav = backup_nav or {}
@@ -475,6 +557,8 @@ def update_data(existing, sources, at=None, backup_nav=None, backup_results=None
     nav_l = latest_local_nav(sources['local_nav']['rows'])
     div_o = overseas_dividends(sources['overseas_dividends']['rows'], codes)
     div_l = local_dividends(sources['local_dividends']['rows'])
+    hist_o = authorized_history(sources['overseas_nav']['rows'],True)
+    hist_l = authorized_history(sources['local_nav']['rows'],False)
     for fid, spec in FUNDS.items():
         old = existing.get('funds', {}).get(fid, {})
         standard = (nav_o if spec['type'] == 'overseas' else nav_l).get(fid)
@@ -506,6 +590,7 @@ def update_data(existing, sources, at=None, backup_nav=None, backup_results=None
             'navDelayedDays': delayed_days,
             'navMessage': f'淨值已落後 {delayed_days} 天，請核對基金公司' if delayed_days is not None and delayed_days >= 4 else '',
             'dividends': merge_records(old.get('dividends', []), new_divs),
+            'navHistory':merge_authorized_history(old,(hist_o if spec['type']=='overseas' else hist_l).get(fid,{})),
             'dividendStatus': 'found' if new_divs else ('cached' if old.get('dividends') else 'unavailable'),
         }
         if fid == JPM_ISIN:
@@ -646,13 +731,16 @@ def enrich_distribution_rates(doc, prior, inputs):
                     if 1<=gap<=7 and rate is not None and (not row or abs(row['perUnit']-amount)>=1e-8 or abs(rate-row['reportedAnnualRate'])<=0.011):
                         r.update(preExNav=value,preExNavDate=before,preExNavSource='MoneyDJ 歷史淨值（前一淨值日）',preExNavSourceUrl=data['navUrl'])
             # No inference of NAV by reversing a rounded published yield.
+        # 若政府開放資料已有本期的除息前淨值，優先取代第三方基準。
+        entry['kind']=FUNDS[fid]['type']
+        attach_authorized_basis(entry)
         print(f'[配息率] {fid}: 基準淨值 {sum("preExNav" in r for r in entry.get("dividends",[]))} 筆；公開年化率 {sum("reportedAnnualRate" in r for r in entry.get("dividends",[]))} 筆')
     doc['sources']['dividend_yield']={'ok':any(x.get('navs') or x.get('rates') for x in inputs.values()),'rows':sum(len(x.get('rates',{})) for x in inputs.values()),'message':'同級別歷史淨值與公開年化配息率，缺資料不以最新淨值代替'}
     return doc
 
 
 def main():
-    print('[NAV updater] JPM-NAV-20261121 + EXDATE-YIELD-v1 + TEN-FUNDS-20261123')
+    print('[NAV updater] TEN-FUNDS-20261123 + OPEN-DATA-NAV-HISTORY-20261123')
     prior = json.loads(LIVE.read_text(encoding='utf-8')) if LIVE.exists() else {'funds':{}}
     downloaded = {name: load_source(name, urls) for name,urls in SOURCES.items()}
     backup_nav, backup_results = download_backup_nav()
