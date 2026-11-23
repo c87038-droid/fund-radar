@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "checkedAt": "2026-11-23T22:35:37+08:00",
+  "checkedAt": "2026-11-23T23:25:51+08:00",
   "funds": {
     "LU0820561818": {
       "nav": 7.8385,
@@ -187,12 +187,12 @@
           "exDate": "2026-11-03",
           "payDate": "2026-11-06",
           "perUnit": 15.7,
-          "dividendSource": "安泰銀行（同級別配息紀錄，人工核對）",
-          "dividendSourceUrl": "https://fundrwd.entiebank.com.tw/w/wb/wb05.djhtm?a=ANZH1-3346",
           "preExNav": 733.71,
           "preExNavDate": "2026-11-02",
           "preExNavSource": "華南銀行（同級別歷史淨值，人工核對）",
           "preExNavSourceUrl": "https://fund.hncb.com.tw/w/wb/wb02.djhtm?a=ANZH1-4745",
+          "dividendSource": "安泰銀行（同級別配息紀錄，人工核對）",
+          "dividendSourceUrl": "https://fundrwd.entiebank.com.tw/w/wb/wb05.djhtm?a=ANZH1-3346",
           "preExNavOrigin": "bank-verified-one-off"
         },
         {
