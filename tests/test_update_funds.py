@@ -99,6 +99,49 @@ class FundUpdaterTests(unittest.TestCase):
     def test_sparse_weekday_history_does_not_mislabel_basis(self):
         self.assertTrue(mod._consecutive_valuation_day('2026-11-20','2026-11-23')) # 週五到週一
         self.assertFalse(mod._consecutive_valuation_day('2026-11-16','2026-11-19')) # 缺週二週三
+    def test_goldman_nov_2026_current_and_annual_yield(self):
+        # 人工核對值：除息 2026/11/03、基準淨值 2026/11/02。
+        doc=mod.update_data({'funds':{}},self.sources(),at='2026-11-23T20:00:00+08:00')
+        mod.enrich_distribution_rates(doc, {'funds':{}}, {})
+        record=doc['funds']['LU1075101847']['dividends'][0]
+        self.assertEqual(record['exDate'],'2026-11-03')
+        self.assertEqual(record['payDate'],'2026-11-06')
+        self.assertEqual(record['perUnit'],15.7)
+        self.assertEqual(record['preExNavDate'],'2026-11-02')
+        self.assertEqual(record['preExNav'],733.71)
+        self.assertAlmostEqual(record['perUnit']/record['preExNav']*100,2.14,places=2)
+        self.assertAlmostEqual(record['perUnit']/record['preExNav']*1200,25.68,places=2)
+        self.assertEqual(len(doc['funds']),10)
+
+    def test_goldman_basis_is_idempotent_across_updates(self):
+        doc=mod.update_data({'funds':{}},self.sources(),at='2026-11-23T20:00:00+08:00')
+        mod.enrich_distribution_rates(doc, {'funds':{}}, {})
+        new=mod.update_data(doc,self.sources(),at='2026-11-23T21:00:00+08:00')
+        mod.enrich_distribution_rates(new,doc,{})
+        dates=[r['exDate'] for r in new['funds']['LU1075101847']['dividends']]
+        self.assertEqual(dates.count('2026-11-03'),1)
+        self.assertEqual(new['funds']['LU1075101847']['dividends'][0]['preExNav'],733.71)
+
+    def test_goldman_official_same_day_data_is_not_overridden(self):
+        entry={'dividends':[{'exDate':'2026-11-03','perUnit':15.7,
+                   'payDate':'2026-11-06','preExNav':733.71,
+                   'preExNavDate':'2026-11-02','preExNavOrigin':'open-data'}]}
+        mod.add_verified_goldman_november('LU1075101847',entry)
+        self.assertEqual(entry['dividends'][0]['preExNavOrigin'],'open-data')
+
+    def test_goldman_conflicting_amount_keeps_source_and_warns(self):
+        entry={'dividends':[{'exDate':'2026-11-03','perUnit':16.7,'payDate':'2026-11-06'}]}
+        mod.add_verified_goldman_november('LU1075101847',entry)
+        self.assertEqual(entry['dividends'][0]['perUnit'],16.7)
+        self.assertNotIn('preExNav',entry['dividends'][0])
+        self.assertIn('不一致',entry['dividendMessage'])
+
+    def test_goldman_older_date_does_not_populate_december_yield(self):
+        entry={'dividends':[{'exDate':'2026-12-03','perUnit':15.7,'payDate':'2026-12-08'}]}
+        mod.add_verified_goldman_november('LU1075101847',entry)
+        dec=next(r for r in entry['dividends'] if r['exDate']=='2026-12-03')
+        self.assertNotIn('preExNav',dec)
+
     def test_roc_date_and_csv_encoding(self):
         self.assertEqual(mod.date_str('115/10/15'),'2026-10-15')
         raw='基金代碼,基金名稱,日期,基金淨值,ISINCODE,計價幣別\nGS-ZAR-X,高盛,2026/11/20,703.2,LU1075101847,南非幣\n'

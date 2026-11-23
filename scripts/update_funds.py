@@ -689,6 +689,61 @@ def download_yield_data():
         return fid,result
     with ThreadPoolExecutor(max_workers=4) as pool: return dict(pool.map(one,NAV_BACKUP_PAGES.items()))
 
+# 固定日期的一次性歷史查核資料，非自動爬取、非未來配息率預測。
+# 高盛基金III 新興市場債券 X股南非幣對沖月配（ISIN LU1075101847）：
+# - 安泰銀行 2026-11-03 除息、每單位 15.70 南非幣、2026-11-06 發放
+# - 華南銀行 2026-11-02 歷史淨值 733.7100 南非幣
+# 當期 15.7 / 733.71 *100 = 2.13981%；年化 15.7 / 733.71 *1200 = 25.67772%。
+# 只用於相同 ISIN、幣別及除息日的這一期，12 月及未來不繼承。
+VERIFIED_GOLDMAN_NOV_2026 = {
+    'isin': 'LU1075101847',
+    'exDate': '2026-11-03',
+    'payDate': '2026-11-06',
+    'perUnit': 15.7,
+    'preExNavDate': '2026-11-02',
+    'preExNav': 733.71,
+    'preExNavSource': '華南銀行（同級別歷史淨值，人工核對）',
+    'preExNavSourceUrl': 'https://fund.hncb.com.tw/w/wb/wb02.djhtm?a=ANZH1-4745',
+    'dividendSource': '安泰銀行（同級別配息紀錄，人工核對）',
+    'dividendSourceUrl': 'https://fundrwd.entiebank.com.tw/w/wb/wb05.djhtm?a=ANZH1-3346',
+}
+
+
+def add_verified_goldman_november(fid, entry):
+    """只補 2026/11/03 已核實的 X-ZAR 級別。配息值衝突時不覆蓋官方來源。"""
+    check=VERIFIED_GOLDMAN_NOV_2026
+    if fid != check['isin'] or FUNDS[fid]['currency']!='ZAR':
+        return entry
+    history=entry.get('dividends',[])
+    record=next((r for r in history if r.get('exDate')==check['exDate']),None)
+    if record is not None:
+        try: same_amount=abs(float(record['perUnit'])-check['perUnit'])<0.0000001
+        except (TypeError,ValueError,KeyError): same_amount=False
+        if not same_amount:
+            entry['dividendMessage'] = ('2026/11/03 配息值與銀行查核資料不一致；'
+                                        '未補入該期歷史基準淨值，請人工核對')
+            return entry
+    else:
+        history=merge_records(history,[{
+            'exDate':check['exDate'],'payDate':check['payDate'],
+            'perUnit':check['perUnit'],'dividendSource':check['dividendSource'],
+            'dividendSourceUrl':check['dividendSourceUrl'],
+        }])
+        entry['dividends']=history
+        entry['dividendStatus']='found'
+        record=next(r for r in history if r['exDate']==check['exDate'])
+    if not record.get('payDate'): record['payDate']=check['payDate']
+    record.setdefault('dividendSource',check['dividendSource'])
+    record.setdefault('dividendSourceUrl',check['dividendSourceUrl'])
+    # 開放資料中已核實的除息前淨值優先；否則只補這個日期的人工查核值。
+    if record.get('preExNavOrigin')!='open-data':
+        record.update(preExNav=check['preExNav'],preExNavDate=check['preExNavDate'],
+                      preExNavSource=check['preExNavSource'],
+                      preExNavSourceUrl=check['preExNavSourceUrl'],
+                      preExNavOrigin='bank-verified-one-off')
+    return entry
+
+
 def enrich_distribution_rates(doc, prior, inputs):
     for fid, entry in doc['funds'].items():
         data=inputs.get(fid,{}); navs=data.get('navs',{}); reported=data.get('rates',{})
@@ -734,13 +789,14 @@ def enrich_distribution_rates(doc, prior, inputs):
         # 若政府開放資料已有本期的除息前淨值，優先取代第三方基準。
         entry['kind']=FUNDS[fid]['type']
         attach_authorized_basis(entry)
+        add_verified_goldman_november(fid,entry)
         print(f'[配息率] {fid}: 基準淨值 {sum("preExNav" in r for r in entry.get("dividends",[]))} 筆；公開年化率 {sum("reportedAnnualRate" in r for r in entry.get("dividends",[]))} 筆')
     doc['sources']['dividend_yield']={'ok':any(x.get('navs') or x.get('rates') for x in inputs.values()),'rows':sum(len(x.get('rates',{})) for x in inputs.values()),'message':'同級別歷史淨值與公開年化配息率，缺資料不以最新淨值代替'}
     return doc
 
 
 def main():
-    print('[NAV updater] TEN-FUNDS-20261123 + OPEN-DATA-NAV-HISTORY-20261123')
+    print('[NAV updater] TEN-FUNDS-20261123 + GOLDMAN-NOV-DIVIDEND-VERIFIED-20261123')
     prior = json.loads(LIVE.read_text(encoding='utf-8')) if LIVE.exists() else {'funds':{}}
     downloaded = {name: load_source(name, urls) for name,urls in SOURCES.items()}
     backup_nav, backup_results = download_backup_nav()
