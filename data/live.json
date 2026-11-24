@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "checkedAt": "2026-11-24T19:08:52+08:00",
+  "checkedAt": "2026-11-24T22:26:16+08:00",
   "funds": {
     "LU0820561818": {
       "nav": 7.8696,
@@ -185,13 +185,13 @@
       "dividendStatus": "found"
     },
     "LU1075101847": {
-      "nav": 703.2,
-      "navDate": "2026-11-20",
-      "navSource": "集保境外基金公開資料",
-      "navSourceUrl": "",
+      "nav": 705.66,
+      "navDate": "2026-11-23",
+      "navSource": "華南銀行同級別歷史淨值（2026/11/23 人工核對）",
+      "navSourceUrl": "https://fund.hncb.com.tw/w/wb/wb02.djhtm?a=ANZH1-4745",
       "navStatus": "found",
-      "navDelayedDays": 4,
-      "navMessage": "淨值已落後 4 天，請核對基金公司",
+      "navDelayedDays": 1,
+      "navMessage": "",
       "dividends": [
         {
           "exDate": "2026-11-03",
@@ -1016,24 +1016,24 @@
       "dividendStatus": "found"
     },
     "LU2110300469": {
-      "nav": 6.6758,
-      "navDate": "2026-11-20",
-      "navSource": "集保境外基金公開資料",
-      "navSourceUrl": "",
+      "nav": 6.6748,
+      "navDate": "2026-11-23",
+      "navSource": "景順盧森堡同級別基金行情（2026/11/23 人工核對）",
+      "navSourceUrl": "https://www.invesco.com/lu/en/financial-products/sicav.html?searchParam=global+investment+grade",
       "navStatus": "found",
-      "navDelayedDays": 4,
-      "navMessage": "淨值已落後 4 天，請核對基金公司",
+      "navDelayedDays": 1,
+      "navMessage": "",
       "dividends": [
         {
           "exDate": "2026-11-02",
           "payDate": "2026-11-11",
           "perUnit": 0.051,
-          "dividendSource": "第一銀行同級別配息公告（人工核對）",
-          "dividendSourceUrl": "https://wealth.firstbank.com.tw/fund-center/fund/fund-search/fund-details?id=MA94",
           "preExNav": 6.734,
           "preExNavDate": "2026-10-30",
           "preExNavSource": "第一銀行同級別歷史淨值（人工核對）",
           "preExNavSourceUrl": "https://wealth.firstbank.com.tw/fund-center/fund/fund-search/fund-details?id=MA94",
+          "dividendSource": "第一銀行同級別配息公告（人工核對）",
+          "dividendSourceUrl": "https://wealth.firstbank.com.tw/fund-center/fund/fund-search/fund-details?id=MA94",
           "preExNavOrigin": "bank-verified-one-off"
         },
         {
