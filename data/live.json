@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "checkedAt": "2026-11-24T15:27:13+08:00",
+  "checkedAt": "2026-11-24T19:08:52+08:00",
   "funds": {
     "LU0820561818": {
       "nav": 7.8696,
@@ -425,13 +425,13 @@
       "dividendStatus": "found"
     },
     "TW000T0759D2": {
-      "nav": 7.62,
-      "navDate": "2026-11-20",
+      "nav": 7.71,
+      "navDate": "2026-11-23",
       "navSource": "投信投顧公會境內基金公開資料",
       "navSourceUrl": "",
       "navStatus": "found",
-      "navDelayedDays": 4,
-      "navMessage": "淨值已落後 4 天，請核對基金公司",
+      "navDelayedDays": 1,
+      "navMessage": "",
       "dividends": [
         {
           "exDate": "2026-10-01",
@@ -452,6 +452,11 @@
       ],
       "navHistory": [
         {
+          "navDate": "2026-11-23",
+          "nav": 7.71,
+          "dataOrigin": "open-data"
+        },
+        {
           "navDate": "2026-11-20",
           "nav": 7.62,
           "dataOrigin": "open-data"
@@ -462,8 +467,8 @@
     "TW000T1811K5": {
       "nav": 8.71,
       "navDate": "2026-11-23",
-      "navSource": "MoneyDJ 基金專頁（備援，非基金公司官方）",
-      "navSourceUrl": "https://m.moneydj.com/a1.aspx?a=ACTI71",
+      "navSource": "投信投顧公會境內基金公開資料",
+      "navSourceUrl": "",
       "navStatus": "found",
       "navDelayedDays": 1,
       "navMessage": "",
@@ -490,6 +495,11 @@
         }
       ],
       "navHistory": [
+        {
+          "navDate": "2026-11-23",
+          "nav": 8.71,
+          "dataOrigin": "open-data"
+        },
         {
           "navDate": "2026-11-20",
           "nav": 8.47,
@@ -1017,7 +1027,14 @@
         {
           "exDate": "2026-11-02",
           "payDate": "2026-11-11",
-          "perUnit": 0.051
+          "perUnit": 0.051,
+          "dividendSource": "第一銀行同級別配息公告（人工核對）",
+          "dividendSourceUrl": "https://wealth.firstbank.com.tw/fund-center/fund/fund-search/fund-details?id=MA94",
+          "preExNav": 6.734,
+          "preExNavDate": "2026-10-30",
+          "preExNavSource": "第一銀行同級別歷史淨值（人工核對）",
+          "preExNavSourceUrl": "https://wealth.firstbank.com.tw/fund-center/fund/fund-search/fund-details?id=MA94",
+          "preExNavOrigin": "bank-verified-one-off"
         },
         {
           "exDate": "2026-10-01",
@@ -1089,7 +1106,7 @@
     "local_nav": {
       "ok": true,
       "message": "",
-      "rows": 4489
+      "rows": 4386
     },
     "local_dividends": {
       "ok": true,
@@ -1103,7 +1120,7 @@
     },
     "dividend_yield": {
       "ok": true,
-      "rows": 73,
+      "rows": 210,
       "message": "同級別歷史淨值與公開年化配息率，缺資料不以最新淨值代替"
     }
   },
@@ -1151,7 +1168,7 @@
     },
     "TW000T0759D2": {
       "ok": true,
-      "navDate": "2026-11-20",
+      "navDate": "2026-11-23",
       "url": "https://m.moneydj.com/a1.aspx?a=ACCP138"
     },
     "TW000T1811K5": {
