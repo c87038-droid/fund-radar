@@ -260,7 +260,7 @@ a{color:#086e84}
   <header class="header">
     <div class="logo" aria-hidden="true">◈</div>
     <div class="brand"><strong>我的基金雷達</strong><span>基金淨值・配息明細・即期匯率查詢・官方資訊</span></div>
-    <div class="head-note"><span class="dot"></span>10 檔基金專用</div>
+    <div class="head-note"><span class="dot"></span>11 檔基金專用</div>
   </header>
   <section class="hero">
     <div class="hero-content">
@@ -268,7 +268,7 @@ a{color:#086e84}
       <h1>我的基金觀察清單</h1>
       <p>集中掌握基金淨值、每月配息與年化配息率。美元優先、同公司集中，並保留實際資料日期。</p>
     </div>
-    <div class="hero-counter"><span class="hero-number" id="heroFundCount">10</span><span>追蹤基金</span><small id="heroCurrencyCount">8 檔美元・2 檔南非幣</small></div>
+    <div class="hero-counter"><span class="hero-number" id="heroFundCount">11</span><span>追蹤基金</span><small id="heroCurrencyCount">9 檔美元・2 檔南非幣</small></div>
   </section>
   <section class="risk-overview" aria-label="基金投資與配息風險提醒">
     <div class="risk-overview-main">
@@ -288,7 +288,7 @@ a{color:#086e84}
       <span class="overview-fold-control">展開查看 <span class="overview-chevron" aria-hidden="true">⌄</span></span>
     </summary>
     <section class="summary" aria-label="基金資料概覽">
-    <div class="stat"><small>追蹤基金總數</small><strong id="fundCount">10 <em>檔</em></strong><span>只追蹤你指定的基金</span></div>
+    <div class="stat"><small>追蹤基金總數</small><strong id="fundCount">11 <em>檔</em></strong><span>只追蹤你指定的基金</span></div>
     <div class="stat"><small>已取得淨值</small><strong id="navCount">0 <em>檔</em></strong><span>以公開來源實際資料為準</span></div>
     <div class="stat"><small>已取得配息紀錄</small><strong id="divCount">0 <em>檔</em></strong><span>包含發放日與每單位金額</span></div>
     <div class="stat"><small>雲端資料最近檢查</small><strong id="checkedAt" class="date-big">尚未執行</strong><span>顯示排程實際檢查時間</span></div>
@@ -340,9 +340,10 @@ a{color:#086e84}
         <a href="https://m.moneydj.com/a1.aspx?a=ACCP138" target="_blank" rel="noopener noreferrer">瀚亞多重收益優化組合 B（美元）</a>
         <a href="https://m.moneydj.com/b1.aspx?a=PYZW3" target="_blank" rel="noopener noreferrer">施羅德環球收益成長 A（月配固定2）</a>
         <a href="https://m.moneydj.com/b1.aspx?a=FTZA67" target="_blank" rel="noopener noreferrer">富達全球動能多元 A股C（月配美元）</a>
+        <a href="https://www.invesco.com/tw/zh/mutual-funds/invesco-funds-invesco-global-investment-grade-corporate-bond-fund-e-usd-md1.html" target="_blank" rel="noopener noreferrer">景順投信官方：環球高評級企業債券 E（穩定月配息・美元）</a>
         <a href="https://wealth.firstbank.com.tw/fund-center/fund/fund-search/fund-details?id=ZA84" target="_blank" rel="noopener noreferrer">第一銀行：東方匯理策略收益債券 A（南非幣避險・穩定月配）</a>
         <a href="https://wealth.firstbank.com.tw/fund-center/fund/fund-search/fund-details?id=ZB19" target="_blank" rel="noopener noreferrer">第一銀行：高盛基金III 新興市場債券 X股（南非幣避險・月配息）</a>
-        <span class="source-comment">摩根、瀚亞、施羅德、富達四檔連至 MoneyDJ 第三方基金級別頁；東方匯理及高盛兩檔南非幣基金連至第一銀行基金專屬查詢頁。上述連結均非基金公司官方交易報價。</span>
+        <span class="source-comment">摩根、瀚亞、施羅德、富達四檔連至 MoneyDJ 第三方基金級別頁；景順連至景順投信臺灣官方 E－穩定月配息美元級別頁；東方匯理及高盛兩檔南非幣基金連至第一銀行基金專屬查詢頁。公開資訊僅供參考，實際數據以基金公司公告為準。</span>
       </div>
     </div>
     <div class="source-row">
@@ -362,7 +363,7 @@ a{color:#086e84}
 <dialog id="detailDialog" class="dialog"><div id="detailContent"></div><form method="dialog" class="modal-footer"><button type="submit" class="btn accent detail-return" value="watchlist">← 返回我的基金觀察清單</button></form></dialog>
 <script type="module">
 "use strict";
-// 只有 10 檔使用者指定的「共同基金」。不含股票清單或股票報價來源。
+// 只有 11 檔使用者指定的「共同基金」。不含股票清單或股票報價來源。
 const FUNDS = [
   {isin:"LU0820561818",name:"安聯收益成長基金－AM穩定月收類股（美元）",company:"安聯投信",currency:"USD",tier:"AM穩定月收",frequency:"月配息",group:"境外基金"},
   {isin:"LU2023250330",name:"安聯收益成長基金－AMg7月收總收益類股（美元）",company:"安聯投信",currency:"USD",tier:"AMg7月收總收益",frequency:"月配息",group:"境外基金"},
@@ -372,6 +373,7 @@ const FUNDS = [
   {isin:"LU2859284783",name:"聯博－美國成長基金 AP（美元）",company:"聯博投信",currency:"USD",tier:"AP總報酬月配",frequency:"月配息",group:"境外基金"},
   {isin:"LU1900986214",name:"施羅德環球基金系列－環球收益成長（美元）A－月配固定2",company:"施羅德投信",currency:"USD",tier:"A－月配固定2",frequency:"月配息",group:"境外基金"},
   {isin:"LU3047255321",name:"富達基金－全球動能多元基金（A股C月配息美元）",company:"富達投信",currency:"USD",tier:"A股C月配息",frequency:"月配息",group:"境外基金"},
+  {isin:"LU2110300469",name:"景順環球高評級企業債券基金－E－穩定月配息股（美元）",company:"景順投信",currency:"USD",tier:"E－穩定月配息",frequency:"月配息",group:"境外基金"},
   {isin:"LU1883841964",name:"東方匯理基金策略收益債券－A南非幣避險（穩定月配）",company:"東方匯理投信",currency:"ZAR",tier:"A南非幣避險穩定月配",frequency:"月配息",group:"境外基金"},
   {isin:"LU1075101847",name:"高盛基金III－高盛新興市場債券基金 X股對沖級別南非幣（月配息）",company:"高盛基金",currency:"ZAR",tier:"X股南非幣對沖月配",frequency:"月配息",group:"境外基金"}
 ];
@@ -420,6 +422,7 @@ const OFFICIAL = Object.freeze({
   "LU2859284783": {url:"https://www.abfunds.com.tw/zh-tw/funds/offshore/equities/american-growth-portfolio.ap.LU2859284783.html",label:"聯博美國成長 AP 美元官方級別頁",cta:"官方級別頁 ↗"},
   "LU1900986214": {url:"https://www.schroders.com/zh-tw/tw/individual/funds-and-strategies/sisf-multi-asset-growth-and-income/",label:"施羅德臺灣官方環球收益成長策略專頁（頁面含 A 美元月配固定2 資訊；ISIN LU1900986214）",cta:"臺灣官網 ↗"},
   "LU3047255321": {url:"https://www.fidelity.com.tw/fund-and-service/fundui/funds/Fidelity-Funds-Global-Multi-Asset-Dynamic-Fund-A-MCDIST-G-USD/overview",label:"富達臺灣官方全球動能多元 A股C月配息美元級別頁（ISIN LU3047255321；若暫停申購，官方頁面可能只顯示提示）",cta:"臺灣官網 ↗"},
+  "LU2110300469": {url:"https://www.invesco.com/tw/zh/mutual-funds/invesco-funds-invesco-global-investment-grade-corporate-bond-fund-e-usd-md1.html",label:"景順投信臺灣官方基金專屬頁：E－穩定月配息股 美元（ISIN LU2110300469，非 E 股累積型）",cta:"景順官方頁 ↗"},
   "LU1883841964": {url:"https://wealth.firstbank.com.tw/fund-center/fund/fund-search/fund-details?id=ZA84",label:"第一銀行：東方匯理基金策略收益債券 A 南非幣避險（穩定月配息），ISIN LU1883841964（基金專屬頁面，非基金公司官網）",cta:"基金專屬頁 ↗"},
   "LU1075101847": {url:"https://wealth.firstbank.com.tw/fund-center/fund/fund-search/fund-details?id=ZB19",label:"第一銀行：高盛基金III 新興市場債券基金 X股南非幣避險月配（ISIN LU1075101847），同頁查詢淨值、配息紀錄；非高盛官方網站",cta:"基金專屬頁 ↗"}
 });
@@ -431,6 +434,7 @@ const FUND_PROFILE_PAGES = Object.freeze({
   'TW000T0759D2': 'https://m.moneydj.com/a1.aspx?a=ACCP138',
   'LU1900986214': 'https://m.moneydj.com/b1.aspx?a=PYZW3',
   'LU3047255321': 'https://m.moneydj.com/b1.aspx?a=FTZA67',
+  'LU2110300469': 'https://www.invesco.com/tw/zh/mutual-funds/invesco-funds-invesco-global-investment-grade-corporate-bond-fund-e-usd-md1.html',
   'LU1075101847': 'https://wealth.firstbank.com.tw/fund-center/fund/fund-search/fund-details?id=ZB19'
 });
 function fundProfileAnchor(f, cls='link-button fund-profile-link', label='基金專屬頁面 ↗'){
@@ -440,7 +444,7 @@ function fundProfileAnchor(f, cls='link-button fund-profile-link', label='基金
   a.href=url;
   a.target='_blank';
   a.rel='noopener noreferrer';
-  const profileSource=f.isin==='LU1075101847'?'第一銀行基金專屬頁面（非基金公司官方頁面）':'MoneyDJ 第三方資訊';
+  const profileSource=f.isin==='LU1075101847'?'第一銀行基金專屬頁面（非基金公司官方頁面）':f.isin==='LU2110300469'?'景順投信臺灣官方同級別基金頁面':'MoneyDJ 第三方資訊';
   a.title=`${f.name}｜專屬基金頁面，可切換淨值、配息、基本資料（${profileSource}；另開分頁）`;
   a.setAttribute('aria-label',`${f.name}：開啟基金專屬頁面（淨值、配息、基本資料）`);
   return a;
@@ -554,9 +558,11 @@ function openDetails(f){
   const sourceLine=node('div','detail-actions');
    if(FUND_PROFILE_PAGES[f.isin]){
      sourceLine.append(fundProfileAnchor(f));
-     if(f.isin!=='LU1075101847')sourceLine.append(officialAnchor(f,'基金公司官方資訊 ↗'));
+     if(!['LU1075101847','LU2110300469'].includes(f.isin))sourceLine.append(officialAnchor(f,'基金公司官方資訊 ↗'));
      body.append(node('p','modal-note',f.isin==='LU1075101847'
        ?'高盛基金專屬頁面連至第一銀行的指定級別（非高盛官方網站），同頁可切換淨值、基本資料及配息紀錄；實際交易仍以基金公司公告為準。'
+       :f.isin==='LU2110300469'
+       ?'景順 E－穩定月配息股美元（ISIN LU2110300469）連至景順投信臺灣官方同級別資料頁，可直接查閱淨值及基金資訊；配息紀錄請以景順官網最新公告為準。'
        :'點「基金專屬頁面」進入 MoneyDJ 的相同基金級別，頁面內可切換「淨值／基本／配息」，不需要下載 PDF。MoneyDJ 為第三方資訊來源。'));
    } else {
      sourceLine.append(officialAnchor(f,'前往基金公司官方資訊 ↗'));
@@ -801,7 +807,7 @@ async function loadData(){
     else if(stale){banner('warn',`排程檢查已超過 40 小時沒有更新。最後一次檢查：${data.checkedAt}。請到 GitHub Actions 查看是否停用或失敗。`);}
     else if(bad||withNav<FUNDS.length){banner('warn',`最近檢查：${String(data.checkedAt).replace('T',' ').slice(0,16)}。已取得 ${withNav}/${FUNDS.length} 檔基金淨值；${bad} 個公開來源讀取失敗。未取得的欄位不會假裝是最新資料。`);}
     else{banner('ok',`基金資料已載入。最近檢查：${String(data.checkedAt).replace('T',' ').slice(0,16)}（臺灣時間）；實際淨值日期請看每檔基金。`);}
-  }catch(e){live={schemaVersion:2,checkedAt:null,funds:{},sources:{}};$('exportExcelButton').disabled=true;render();$('diagnostics').textContent='無法讀取 data/live.json：'+e.message+'\n請確認網頁網址與資料檔網址都能正常開啟。';const localFile=location.protocol==='file:'||location.protocol==='about:';banner('warn',localFile?'這是本機預覽：已載入10檔基金清單。淨值及配息請先上傳 GitHub Pages，再使用固定網址查看。':`基金資料檔讀取失敗（${e.message}）。請檢查 GitHub Actions 的部署與 data/live.json。`);}
+  }catch(e){live={schemaVersion:2,checkedAt:null,funds:{},sources:{}};$('exportExcelButton').disabled=true;render();$('diagnostics').textContent='無法讀取 data/live.json：'+e.message+'\n請確認網頁網址與資料檔網址都能正常開啟。';const localFile=location.protocol==='file:'||location.protocol==='about:';banner('warn',localFile?'這是本機預覽：已載入11檔基金清單。淨值及配息請先上傳 GitHub Pages，再使用固定網址查看。':`基金資料檔讀取失敗（${e.message}）。請檢查 GitHub Actions 的部署與 data/live.json。`);}
   finally{$('refreshButton').disabled=false;}
 }
 $('search').addEventListener('input',render);$('currency').addEventListener('change',render);$('refreshButton').addEventListener('click',loadData);$('exportExcelButton').addEventListener('click',downloadExcelFile);

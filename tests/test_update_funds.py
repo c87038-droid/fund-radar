@@ -1,4 +1,4 @@
-"""Ten fund update: offline regression tests (no internet)."""
+"""Eleven fund update: offline regression tests (no internet)."""
 import importlib.util
 from pathlib import Path
 import unittest
@@ -11,14 +11,39 @@ spec.loader.exec_module(mod)
 class FundUpdaterTests(unittest.TestCase):
     def sources(self):
         return {name:{'ok':False,'rows':[]} for name in mod.SOURCES}
-    def test_ten_exact_funds(self):
-        self.assertEqual(len(mod.FUNDS),10)
+    def test_eleven_exact_funds(self):
+        self.assertEqual(len(mod.FUNDS),11)
         self.assertEqual(sum(s['currency']=='ZAR' for s in mod.FUNDS.values()),2)
-        self.assertEqual(sum(s['currency']=='USD' for s in mod.FUNDS.values()),8)
+        self.assertEqual(sum(s['currency']=='USD' for s in mod.FUNDS.values()),9)
         self.assertEqual(mod.FUNDS['LU1075101847']['currency'],'ZAR')
         self.assertEqual(mod.FUNDS['LU1075101847']['type'],'overseas')
-        for isin in ('LU1900986214','LU3047255321'):
+        for isin in ('LU1900986214','LU3047255321','LU2110300469'):
             self.assertEqual(mod.FUNDS[isin]['currency'],'USD')
+    def test_invesco_e_stable_monthly_share_class(self):
+        self.assertEqual(mod.FUNDS['LU2110300469']['type'], 'overseas')
+        self.assertEqual(mod.FUNDS['LU2110300469']['currency'], 'USD')
+        rows=[
+           {'ISINCODE':'LU2110300469','日期':'2026/11/20','基金淨值':'6.6710','計價幣別':'美元','基金代碼':'INV-E-MD1'},
+           {'ISINCODE':'LU2110300469','日期':'2026/11/21','基金淨值':'7.00','計價幣別':'南非幣','基金代碼':'INV-WRONG-ZAR'},
+           {'ISINCODE':'LU2110300477','日期':'2026/11/21','基金淨值':'10.01','計價幣別':'美元','基金代碼':'INV-E-ACC'},
+        ]
+        navs,codes=mod.latest_overseas_nav(rows)
+        self.assertEqual(navs['LU2110300469']['nav'],6.671)
+        self.assertEqual(navs['LU2110300469']['navDate'],'2026-11-20')
+        self.assertNotIn('LU2110300477',navs)
+        self.assertNotIn('INVWRONGZAR',codes)
+        d=mod.update_data({'funds':{}},{name:{'ok':False,'rows':rows if name=='overseas_nav' else []} for name in mod.SOURCES},at='2026-11-24T12:50:00+08:00')['funds']['LU2110300469']
+        self.assertEqual(d['navSource'],'集保境外基金公開資料')
+        self.assertEqual(d['nav'],6.671)
+    def test_invesco_dividend_matches_exact_class(self):
+        rows=[
+          {'基金代碼':'INV-E-MD1','基金幣別':'美元','除息日':'2026/11/05','配息發放日':'2026/11/09','單位數':'0.051'},
+          {'基金代碼':'INV-E-MD1','基金幣別':'南非幣','除息日':'2026/11/06','配息發放日':'2026/11/09','單位數':'5'},
+        ]
+        result=mod.overseas_dividends(rows,{'INVEMD1':'LU2110300469'})
+        self.assertEqual(len(result['LU2110300469']),1)
+        self.assertAlmostEqual(result['LU2110300469'][0]['perUnit'],0.051)
+
     def test_exact_class_nav_and_currency(self):
         rows=[
           {'ISINCODE':'LU1075101847','日期':'2026/11/20','基金淨值':'703.2','計價幣別':'南非幣','基金代碼':'GS-ZAR-X'},
@@ -47,7 +72,7 @@ class FundUpdaterTests(unittest.TestCase):
         s['overseas_dividends']['rows']=[{'基金代碼':'GS-ZAR-X','基金幣別':'南非幣','除息日':'2026/11/03','配息發放日':'2026/11/06','單位數':'15.7'}]
         out=mod.update_data({'funds':{}},s,at='2026-11-23T09:00:00+08:00')
         d=out['funds']['LU1075101847']
-        self.assertEqual(len(out['funds']),10)
+        self.assertEqual(len(out['funds']),11)
         self.assertEqual(d['nav'],703.2)
         self.assertEqual(d['navSource'],'集保境外基金公開資料')
         self.assertEqual(d['dividends'][0]['perUnit'],15.7)
@@ -111,7 +136,7 @@ class FundUpdaterTests(unittest.TestCase):
         self.assertEqual(record['preExNav'],733.71)
         self.assertAlmostEqual(record['perUnit']/record['preExNav']*100,2.14,places=2)
         self.assertAlmostEqual(record['perUnit']/record['preExNav']*1200,25.68,places=2)
-        self.assertEqual(len(doc['funds']),10)
+        self.assertEqual(len(doc['funds']),11)
 
     def test_goldman_basis_is_idempotent_across_updates(self):
         doc=mod.update_data({'funds':{}},self.sources(),at='2026-11-23T20:00:00+08:00')

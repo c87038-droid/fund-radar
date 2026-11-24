@@ -1,15 +1,30 @@
-基金雷達｜資料來源補上第一銀行（2026/11/22）
+﻿我的基金雷達｜新增第 11 檔：景順環球高評級企業債券基金 E－穩定月配息股（美元）
+版本日期：2026-11-24
 
-修正項目（僅修改頁尾資料來源）：
-1. 「基金專屬頁面」加上第一銀行：東方匯理策略收益債券 A 南非幣避險穩定月配（ZA84）的直達連結。
-2. 「銀行即期匯率查詢」加上第一銀行外匯匯率查詢官網。
-3. 標明四檔使用 MoneyDJ、東方匯理南非幣使用第一銀行，避免誤認為基金公司官方交易報價。
+基金級別：E－穩定月配息股（美元），ISIN LU2110300469
+基金專屬頁面（景順臺灣官網）：
+https://www.invesco.com/tw/zh/mutual-funds/invesco-funds-invesco-global-investment-grade-corporate-bond-fund-e-usd-md1.html
 
-這次只需更新 index.html：
-- 解壓縮 ZIP，將 index.html 上傳 GitHub 專案 fund-radar 根目錄覆蓋舊檔。
-- Commit changes 並在 GitHub Actions 確認 Pages 發布成功。
-- 開啟 https://c87038-droid.github.io/fund-radar/，按 Ctrl+F5 重新整理。
+更新後共 11 檔：美元 9 檔、南非幣 2 檔。
 
-其餘 favicon、.github/workflows 檔案僅供備用；請不要刪掉既有的 data、scripts 等資料夾。
+【GitHub 更新步驟】
+1. 先備份 GitHub 上現有的檔案。
+2. 解壓縮後，依照 ZIP 內資料夾位置更新 3 個檔案：
+   - index.html（專案根目錄）
+   - scripts/update_funds.py（scripts 資料夾）
+   - tests/test_update_funds.py（tests 資料夾）
+3. 不必刪除既有 data、.github、favicon 檔案，不必修改 GitHub Pages 網址。
+4. 提交 Commit changes；前往 Actions 確認更新及發布成功。
+5. 開啟 https://c87038-droid.github.io/fund-radar/ 重新整理。
 
-注意：銀行網頁及 MoneyDJ 資料時間不一定一致，實際交易以基金公司與交易銀行公布為準。
+【功能說明】
+・新增基金列在「美元 USD」分組，點名稱直接前往景順臺灣官方該級別頁面。
+・11 檔都會出現在 Excel 匯出的基金總覽；取得配息資料後，也會列入配息明細。
+・淨值與配息透過既有集保開放資料自動更新，缺少資料時顯示尚無資料。
+・配息率按照同一級別的每單位配息 ÷ 除息前一淨值日淨值 × 100%；年化再 ×12。
+・不會將 E 股累積型或其他幣別當成 E－穩定月配息美元級別。
+・原有警語、頁面配色、十檔資料、圖示和 Excel 功能均保留。
+
+【注意】
+這份 ZIP 只更新網站及資料更新程式，未直接修改 GitHub。
+新基金的即時數據須等 GitHub Actions 成功取得並發布資料後才會出現；不會憑空補值。
