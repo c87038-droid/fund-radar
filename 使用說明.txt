@@ -1,32 +1,34 @@
-我的基金雷達｜景順 E－穩定月配息美元級別配息率補齊版
-2026-11-24
+我的基金雷達｜景順、高盛淨值補正與景順專屬頁連結
+版本：2026-11-24
 
-本次修正：
-景順環球高評級企業債券基金 E－穩定月配息股 美元
-ISIN：LU2110300469
-已核對資料（2026 年 11 月）：
-- 除息日：2026-11-02
-- 發放日：2026-11-11
-- 每單位配息：USD 0.0510
-- 除息前一淨值日：2026-10-30
-- 除息前淨值：USD 6.7340
-- 當期配息率：0.0510 / 6.7340 × 100% = 0.76%（未四捨五入約 0.75735%）
-- 年化配息率：0.0510 / 6.7340 × 12 × 100% = 9.09%（未四捨五入約 9.08821%）
+修改內容
+1. 景順環球高評級企業債券 E－穩定月配息股美元（LU2110300469）
+   - 以已核對的 2026-11-23 歷史淨值 6.6748 USD 補齊原本 11/20 的落後資料。
+   - 點擊基金名稱／「基金專屬頁面」會開啟第一銀行指定基金（MA94）。該頁提供淨值、績效及配息頁籤。
+   - 基金明細內另保留景順投信官方基金頁。
+2. 高盛基金III 新興市場債券 X 股南非幣對沖（月配息）（LU1075101847）
+   - 以已核對的 2026-11-23 歷史淨值 705.6600 ZAR 補齊原本 11/20 的落後資料。
+3. 自動資料來源（集保及既有備援）只要取得 2026-11-23 或之後的新淨值，就優先使用，不會被上述兩筆歷史參考值覆寫。
+4. 淨值日期落後 3 天以上時，清單提醒「資料有延遲，請點基金名稱核對」。
+5. 保留原本 11 檔基金（9 檔美元、2 檔南非幣）、配息率、警語、Excel 匯出及網頁外觀。
 
-資料核對網址（第一銀行指定基金頁，非景順官方網站）：
-https://wealth.firstbank.com.tw/fund-center/fund/fund-search/fund-details?id=MA94
+IMPORTANT／注意
+- 這次補的是「2026-11-23 已查證的歷史淨值」，不是新增一個具有即時／每日授權報價的自動 API。
+- 未來是否每天即時更新，仍取決於集保公開資料的公布時間與 GitHub Actions 成功執行；若來源仍延遲，網站會顯示實際淨值日期，請點原始基金網頁核對。
+- 第一銀行專屬頁也有資料更新時間差，實際以基金公司最新公告為準。
+- 這個版本只用於你自己的基金觀察用途；沒有擴大第三方網站的自動擷取。
 
-【GitHub 更新方式】
-1. 先備份 GitHub 上現有程式。
-2. 將 ZIP 內 scripts/update_funds.py 上傳至原儲存庫 scripts/ 目錄並覆蓋。
-3. 將 ZIP 內 tests/test_update_funds.py 上傳至原儲存庫 tests/ 目錄並覆蓋。
-4. 按 Commit changes 後，至 Actions 確認資料更新與網頁發布流程均為綠色成功。
-5. 重新整理 https://c87038-droid.github.io/fund-radar/ 檢查景順的配息率。
+上傳 GitHub
+請將 ZIP 內以下三個檔案依原路徑更新到 github.com/c87038-droid/fund-radar（main 分支）：
+  index.html
+  scripts/update_funds.py
+  tests/test_update_funds.py
+不要刪除既有 data、scripts、tests 或 .github 資料夾。
+按 Commit changes 後，至 GitHub Actions 執行「我的基金雷達｜基金自動更新與發布」，等待執行及發布成功。
+再開啟 https://c87038-droid.github.io/fund-radar/ 並按 Ctrl+F5 重新整理。
 
-這次不需修改 index.html 或 .github/workflows/update-and-deploy.yml。
-若 GitHub Actions 還有「No artifacts named github-pages」錯誤，需先確保前一版部署修復設定已套用，否則數值無法發布至網站。
-
-【重要說明】
-補入的是已核對的 2026 年 11 月同級別、同幣別配息資料，只用於該期；2026 年 12 月以後若有新一期配息，須取得當期新資料與基準淨值後才顯示，不會沿用 11 月的比率。
-數值是單期配息率與其年化試算，不等於基金報酬率，也不保證未來配息；配息可能涉及本金。
-本修正版尚未直接修改你的 GitHub 儲存庫。
+核對來源（截至 2026-11-24）：
+- 景順官網同級別：https://www.invesco.com/tw/zh/mutual-funds/invesco-funds-invesco-global-investment-grade-corporate-bond-fund-e-usd-md1.html
+- 景順盧森堡基金查詢：https://www.invesco.com/lu/en/financial-products/sicav.html?searchParam=global+investment+grade
+- 景順第一銀行頁（含配息分頁）：https://wealth.firstbank.com.tw/fund-center/fund/fund-search/fund-details?id=MA94
+- 高盛華南銀行歷史淨值：https://fund.hncb.com.tw/w/wb/wb02.djhtm?a=ANZH1-4745

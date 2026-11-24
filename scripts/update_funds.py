@@ -536,6 +536,22 @@ def attach_authorized_basis(entry):
     return entry
 
 
+# 兩筆一次性人工核對的 2026/11/23 同級別淨值。
+# 僅在公開資料與備援來源日期較舊時使用；未來來源有更新就自動取代。
+# 非即時資料介面，也不代表每次都能在次日取得新淨值。
+VERIFIED_NAV_NOV_23 = {
+    'LU2110300469': {
+        'nav': 6.6748, 'navDate': '2026-11-23',
+        'navSource': '景順盧森堡同級別基金行情（2026/11/23 人工核對）',
+        'navSourceUrl': 'https://www.invesco.com/lu/en/financial-products/sicav.html?searchParam=global+investment+grade',
+    },
+    'LU1075101847': {
+        'nav': 705.6600, 'navDate': '2026-11-23',
+        'navSource': '華南銀行同級別歷史淨值（2026/11/23 人工核對）',
+        'navSourceUrl': 'https://fund.hncb.com.tw/w/wb/wb02.djhtm?a=ANZH1-4745',
+    },
+}
+
 def update_data(existing, sources, at=None, backup_nav=None, backup_results=None):
     at = at or datetime.now(TPE).isoformat(timespec='seconds')
     backup_nav = backup_nav or {}
@@ -574,6 +590,12 @@ def update_data(existing, sources, at=None, backup_nav=None, backup_results=None
         secondary = backup_nav.get(fid)
         if secondary and (not candidate or secondary['navDate'] > candidate['navDate']):
             candidate = secondary
+        # An individually verified historical NAV can bridge a slow feed, but only
+        # until any automatic source has an equally recent or newer NAV date.
+        verified = VERIFIED_NAV_NOV_23.get(fid)
+        verified_available = datetime.fromisoformat(at).astimezone(TPE) >= datetime(2026, 11, 24, 20, 0, tzinfo=TPE)
+        if verified_available and verified and (not candidate or verified['navDate'] > candidate['navDate']):
+            candidate = dict(verified)
         # Never go backwards even if all upstream sources are late.
         accepted = bool(candidate and candidate['navDate'] >= prior_date)
         nav = candidate['nav'] if accepted else prior_nav

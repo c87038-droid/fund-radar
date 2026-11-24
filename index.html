@@ -434,7 +434,7 @@ const FUND_PROFILE_PAGES = Object.freeze({
   'TW000T0759D2': 'https://m.moneydj.com/a1.aspx?a=ACCP138',
   'LU1900986214': 'https://m.moneydj.com/b1.aspx?a=PYZW3',
   'LU3047255321': 'https://m.moneydj.com/b1.aspx?a=FTZA67',
-  'LU2110300469': 'https://www.invesco.com/tw/zh/mutual-funds/invesco-funds-invesco-global-investment-grade-corporate-bond-fund-e-usd-md1.html',
+  'LU2110300469': 'https://wealth.firstbank.com.tw/fund-center/fund/fund-search/fund-details?id=MA94',
   'LU1075101847': 'https://wealth.firstbank.com.tw/fund-center/fund/fund-search/fund-details?id=ZB19'
 });
 function fundProfileAnchor(f, cls='link-button fund-profile-link', label='基金專屬頁面 ↗'){
@@ -444,7 +444,7 @@ function fundProfileAnchor(f, cls='link-button fund-profile-link', label='基金
   a.href=url;
   a.target='_blank';
   a.rel='noopener noreferrer';
-  const profileSource=f.isin==='LU1075101847'?'第一銀行基金專屬頁面（非基金公司官方頁面）':f.isin==='LU2110300469'?'景順投信臺灣官方同級別基金頁面':'MoneyDJ 第三方資訊';
+  const profileSource=f.isin==='LU1075101847'?'第一銀行基金專屬頁面（非基金公司官方頁面）':f.isin==='LU2110300469'?'第一銀行同級別基金專屬頁面（非基金公司官方頁面）':'MoneyDJ 第三方資訊';
   a.title=`${f.name}｜專屬基金頁面，可切換淨值、配息、基本資料（${profileSource}；另開分頁）`;
   a.setAttribute('aria-label',`${f.name}：開啟基金專屬頁面（淨值、配息、基本資料）`);
   return a;
@@ -498,7 +498,7 @@ function render(){
     if(f.isin==='LU1075101847')identity.append(node('div','fund-sub fund-risk-note','⚠ 新興市場債券可能有較高信用與利率風險，配息可能涉及本金'));
     row.append(identity);
     const wrap=node('div');wrap.append(node('span','field-label','計價幣別'),node('span','chip'+(f.currency==='ZAR'?' zar':''),f.currency==='ZAR'?'南非幣 ZAR':'美元 USD'));row.append(wrap);
-    row.append(metricCell('最新基金淨值',validNav(d)?number(d.nav):'尚無資料',validNav(d)?`淨值日 ${niceDate(d.navDate)}${d.navStatus==='cached'?'（沿用上次）':''}`:(d.navMessage||'等待官方基金資料'),!validNav(d)));
+    row.append(metricCell('最新基金淨值',validNav(d)?number(d.nav):'尚無資料',validNav(d)?`淨值日 ${niceDate(d.navDate)}${d.navStatus==='cached'?'（沿用上次）':''}${d.navDelayedDays>=3?'｜資料有延遲，請點基金名稱核對':''}`:(d.navMessage||'等待官方基金資料'),!validNav(d)));
     row.append(metricCell('最近每單位配息',recent?number(recent.perUnit,6):'尚無資料',recent?`除息 ${niceDate(recent.exDate)} · 發放 ${niceDate(recent.payDate)}${d.dividendStatus==='cached'?'（沿用紀錄）':''}`:(d.dividendMessage||'等待官方配息公告'),!recent));
     row.append(metricCell('當期配息率',rate===null?'—':number(rate,2)+'%',basisLabel(recent),rate===null));
     const annual=annualDistributionRate(rate,f);
@@ -558,11 +558,11 @@ function openDetails(f){
   const sourceLine=node('div','detail-actions');
    if(FUND_PROFILE_PAGES[f.isin]){
      sourceLine.append(fundProfileAnchor(f));
-     if(!['LU1075101847','LU2110300469'].includes(f.isin))sourceLine.append(officialAnchor(f,'基金公司官方資訊 ↗'));
+     if(f.isin!=='LU1075101847')sourceLine.append(officialAnchor(f,'基金公司官方資訊 ↗'));
      body.append(node('p','modal-note',f.isin==='LU1075101847'
        ?'高盛基金專屬頁面連至第一銀行的指定級別（非高盛官方網站），同頁可切換淨值、基本資料及配息紀錄；實際交易仍以基金公司公告為準。'
        :f.isin==='LU2110300469'
-       ?'景順 E－穩定月配息股美元（ISIN LU2110300469）連至景順投信臺灣官方同級別資料頁，可直接查閱淨值及基金資訊；配息紀錄請以景順官網最新公告為準。'
+       ?'景順 E－穩定月配息股美元（ISIN LU2110300469）連至第一銀行指定級別基金頁，同頁可查看淨值、績效及配息紀錄；另保留景順投信官方頁作核對。不同來源可能有公告時間差。'
        :'點「基金專屬頁面」進入 MoneyDJ 的相同基金級別，頁面內可切換「淨值／基本／配息」，不需要下載 PDF。MoneyDJ 為第三方資訊來源。'));
    } else {
      sourceLine.append(officialAnchor(f,'前往基金公司官方資訊 ↗'));

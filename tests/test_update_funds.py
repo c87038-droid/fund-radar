@@ -11,6 +11,28 @@ spec.loader.exec_module(mod)
 class FundUpdaterTests(unittest.TestCase):
     def sources(self):
         return {name:{'ok':False,'rows':[]} for name in mod.SOURCES}
+    def test_november_23_verified_nav_bridges_lagging_feed_after_verification(self):
+        s=self.sources()
+        s['overseas_nav']['rows']=[
+            {'ISINCODE':'LU2110300469','日期':'2026/11/20','基金淨值':'6.6758','計價幣別':'美元'},
+            {'ISINCODE':'LU1075101847','日期':'2026/11/20','基金淨值':'703.2000','計價幣別':'南非幣'},
+        ]
+        data=mod.update_data({'funds':{}},s,at='2026-11-24T21:46:00+08:00')['funds']
+        self.assertEqual((data['LU2110300469']['nav'], data['LU2110300469']['navDate']), (6.6748,'2026-11-23'))
+        self.assertEqual((data['LU1075101847']['nav'], data['LU1075101847']['navDate']), (705.66,'2026-11-23'))
+        self.assertIn('人工核對',data['LU2110300469']['navSource'])
+
+    def test_newer_public_nav_overrides_manual_2026_11_23_reference(self):
+        s=self.sources()
+        s['overseas_nav']['rows']=[
+            {'ISINCODE':'LU2110300469','日期':'2026/11/24','基金淨值':'6.7100','計價幣別':'美元'},
+            {'ISINCODE':'LU1075101847','日期':'2026/11/24','基金淨值':'709.2000','計價幣別':'南非幣'},
+        ]
+        data=mod.update_data({'funds':{}},s,at='2026-11-25T09:15:00+08:00')['funds']
+        self.assertEqual(data['LU2110300469']['nav'],6.71)
+        self.assertEqual(data['LU1075101847']['nav'],709.2)
+        self.assertEqual(data['LU2110300469']['navSource'],'集保境外基金公開資料')
+
     def test_eleven_exact_funds(self):
         self.assertEqual(len(mod.FUNDS),11)
         self.assertEqual(sum(s['currency']=='ZAR' for s in mod.FUNDS.values()),2)
