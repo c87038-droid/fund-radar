@@ -1,30 +1,30 @@
-﻿我的基金雷達｜新增第 11 檔：景順環球高評級企業債券基金 E－穩定月配息股（美元）
-版本日期：2026-11-24
+基金雷達｜GitHub Pages 部署修復（2026/11/24）
 
-基金級別：E－穩定月配息股（美元），ISIN LU2110300469
-基金專屬頁面（景順臺灣官網）：
-https://www.invesco.com/tw/zh/mutual-funds/invesco-funds-invesco-global-investment-grade-corporate-bond-fund-e-usd-md1.html
+問題：2026/11/24 GitHub Actions #90、#91 已產生 github-pages Artifact，
+但部署步驟回報 No artifacts named "github-pages" were found。
+11 檔基金的更新程式已經推送到 GitHub，無需刪除重新安裝。
 
-更新後共 11 檔：美元 9 檔、南非幣 2 檔。
+修正：
+1. 將原本單一 Job 分成「build」及「deploy」兩個 Job；deploy 需等待 build 完成。
+2. 上傳網站檔案後，增加等待時間，緩解 Artifact API 同步延遲。
+3. 附加 favicon 檔案到發布內容，保留原本網址列圖示。
+4. 保留每天三次自動更新及手動更新功能。
+5. 避免基金資料寫回步驟因部署失敗而完全沒有執行。
 
-【GitHub 更新步驟】
-1. 先備份 GitHub 上現有的檔案。
-2. 解壓縮後，依照 ZIP 內資料夾位置更新 3 個檔案：
-   - index.html（專案根目錄）
-   - scripts/update_funds.py（scripts 資料夾）
-   - tests/test_update_funds.py（tests 資料夾）
-3. 不必刪除既有 data、.github、favicon 檔案，不必修改 GitHub Pages 網址。
-4. 提交 Commit changes；前往 Actions 確認更新及發布成功。
-5. 開啟 https://c87038-droid.github.io/fund-radar/ 重新整理。
+上傳方式：
+1. ZIP 解壓縮後，找到 .github/workflows/update-and-deploy.yml。
+2. 到 https://github.com/c87038-droid/fund-radar
+3. 點選 .github → workflows → update-and-deploy.yml。
+4. 按右上角鉛筆編輯，將本檔內容全數取代原內容，點 Commit changes。
+   若使用 Upload files，請注意一定要放在 .github/workflows 內，
+   不要上傳到 GitHub 儲存庫根目錄。
+5. 點 Actions → 我的基金雷達｜基金自動更新與發布，
+   查看新的執行是否出現 build 與 deploy 兩個步驟並成功。
+6. 成功後檢查 https://c87038-droid.github.io/fund-radar/
 
-【功能說明】
-・新增基金列在「美元 USD」分組，點名稱直接前往景順臺灣官方該級別頁面。
-・11 檔都會出現在 Excel 匯出的基金總覽；取得配息資料後，也會列入配息明細。
-・淨值與配息透過既有集保開放資料自動更新，缺少資料時顯示尚無資料。
-・配息率按照同一級別的每單位配息 ÷ 除息前一淨值日淨值 × 100%；年化再 ×12。
-・不會將 E 股累積型或其他幣別當成 E－穩定月配息美元級別。
-・原有警語、頁面配色、十檔資料、圖示和 Excel 功能均保留。
+如果仍出現同樣的 No artifacts 錯誤：
+請在 GitHub Actions 的新一次 run 進入 deploy Job，檢查 GitHub Pages deployment 詳細訊息。
+那可能是 GitHub 的部署服務異常，單改 workflow 不保證可以排除。
 
-【注意】
-這份 ZIP 只更新網站及資料更新程式，未直接修改 GitHub。
-新基金的即時數據須等 GitHub Actions 成功取得並發布資料後才會出現；不會憑空補值。
+此修正版只包含 GitHub Actions 發布流程，
+不會更動 11 檔基金清單、淨值計算與頁面樣式。
