@@ -167,6 +167,49 @@ class FundUpdaterTests(unittest.TestCase):
         dec=next(r for r in entry['dividends'] if r['exDate']=='2026-12-03')
         self.assertNotIn('preExNav',dec)
 
+    def test_invesco_nov_rate_verified_exact_class_and_period(self):
+        doc = mod.update_data({'funds':{}}, self.sources(), at='2026-11-24T16:00:00+08:00')
+        mod.enrich_distribution_rates(doc, {'funds':{}}, {})
+        row = doc['funds']['LU2110300469']['dividends'][0]
+        self.assertEqual(row['exDate'], '2026-11-02')
+        self.assertEqual(row['payDate'], '2026-11-11')
+        self.assertEqual(row['preExNavDate'], '2026-10-30')
+        self.assertEqual(row['preExNav'], 6.734)
+        self.assertEqual(row['perUnit'], 0.051)
+        self.assertAlmostEqual(row['perUnit']/row['preExNav']*100, .75735075735, places=7)
+        self.assertAlmostEqual(row['perUnit']/row['preExNav']*1200, 9.0882090882, places=7)
+        self.assertEqual(len(doc['funds']), 11)
+
+    def test_invesco_repeat_update_preserves_one_row(self):
+        first = mod.update_data({'funds':{}},self.sources(),at='2026-11-24T16:00:00+08:00')
+        mod.enrich_distribution_rates(first,{'funds':{}},{})
+        second = mod.update_data(first,self.sources(),at='2026-11-24T16:20:00+08:00')
+        mod.enrich_distribution_rates(second,first,{})
+        rows = second['funds']['LU2110300469']['dividends']
+        self.assertEqual(sum(r['exDate']=='2026-11-02' for r in rows), 1)
+        self.assertEqual(rows[0]['preExNav'], 6.734)
+
+    def test_invesco_conflicting_amount_does_not_force_rate(self):
+        entry={'dividends':[{'exDate':'2026-11-02', 'perUnit':0.061}]}
+        mod.add_verified_invesco_november('LU2110300469',entry)
+        self.assertEqual(entry['dividends'][0]['perUnit'],0.061)
+        self.assertNotIn('preExNav',entry['dividends'][0])
+        self.assertIn('不一致',entry['dividendMessage'])
+
+    def test_invesco_other_class_or_future_period_not_modified(self):
+        entry={'dividends':[{'exDate':'2026-12-01','perUnit':.051}]}
+        mod.add_verified_invesco_november('LU2110300469',entry)
+        self.assertNotIn('preExNav',entry['dividends'][0])
+        other={'dividends':[{'exDate':'2026-11-02','perUnit':.051}]}
+        mod.add_verified_invesco_november('LU1900986214',other)
+        self.assertNotIn('preExNav',other['dividends'][0])
+
+    def test_invesco_open_data_basis_is_not_overwritten(self):
+        entry={'dividends':[{'exDate':'2026-11-02','perUnit':.051,
+              'preExNav':6.734,'preExNavDate':'2026-10-30','preExNavOrigin':'open-data'}]}
+        mod.add_verified_invesco_november('LU2110300469',entry)
+        self.assertEqual(entry['dividends'][0]['preExNavOrigin'],'open-data')
+
     def test_roc_date_and_csv_encoding(self):
         self.assertEqual(mod.date_str('115/10/15'),'2026-10-15')
         raw='基金代碼,基金名稱,日期,基金淨值,ISINCODE,計價幣別\nGS-ZAR-X,高盛,2026/11/20,703.2,LU1075101847,南非幣\n'

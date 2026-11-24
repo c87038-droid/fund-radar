@@ -745,6 +745,61 @@ def add_verified_goldman_november(fid, entry):
     return entry
 
 
+
+# 人工核對 2026 年 11 月指定級別的已公告配息與「除息前」歷史淨值。
+# 景順環球高評級企業債券 E-穩定月配息股 美元（ISIN LU2110300469）
+# 第一銀行基金專屬頁面 MA94：2026-11-02 除息、每單位 USD 0.051、
+# 2026-11-11 發放；2026-10-30 前一淨值日 NAV USD 6.7340。
+# 當期 0.051/6.734*100 ≈ 0.75735%，年化(乘12) ≈ 9.08821%。
+# 此段不連線爬取銀行網站；只補這一期，未來新的配息不得沿用。
+VERIFIED_INVESCO_NOV_2026 = {
+    'isin': 'LU2110300469',
+    'exDate': '2026-11-02',
+    'payDate': '2026-11-11',
+    'perUnit': 0.051,
+    'preExNavDate': '2026-10-30',
+    'preExNav': 6.7340,
+    'sourceUrl': 'https://wealth.firstbank.com.tw/fund-center/fund/fund-search/fund-details?id=MA94',
+}
+
+
+def add_verified_invesco_november(fid, entry):
+    """補齊同 ISIN、同幣別的 2026/11/02 配息，不覆寫相衝突的資料。"""
+    check = VERIFIED_INVESCO_NOV_2026
+    if fid != check['isin'] or FUNDS[fid]['currency'] != 'USD':
+        return entry
+    history = entry.get('dividends', [])
+    record = next((r for r in history if r.get('exDate') == check['exDate']), None)
+    if record is not None:
+        try:
+            same = abs(float(record.get('perUnit')) - check['perUnit']) < 1e-8
+        except (TypeError, ValueError):
+            same = False
+        if not same:
+            entry['dividendMessage'] = ('2026/11/02 配息金額與第一銀行指定級別查核資料不一致；'
+                                        '未補入基準淨值，請再次核對')
+            return entry
+    else:
+        history = merge_records(history, [{
+            'exDate': check['exDate'], 'payDate': check['payDate'],
+            'perUnit': check['perUnit'],
+        }])
+        entry['dividends'] = history
+        entry['dividendStatus'] = 'found'
+        record = next(r for r in history if r['exDate'] == check['exDate'])
+    if not record.get('payDate'):
+        record['payDate'] = check['payDate']
+    record.setdefault('dividendSource', '第一銀行同級別配息公告（人工核對）')
+    record.setdefault('dividendSourceUrl', check['sourceUrl'])
+    # 與開放資料一致時，已核實的官方來源歷史淨值仍具優先權。
+    if record.get('preExNavOrigin') != 'open-data':
+        record.update(preExNav=check['preExNav'], preExNavDate=check['preExNavDate'],
+                      preExNavSource='第一銀行同級別歷史淨值（人工核對）',
+                      preExNavSourceUrl=check['sourceUrl'],
+                      preExNavOrigin='bank-verified-one-off')
+    return entry
+
+
 def enrich_distribution_rates(doc, prior, inputs):
     for fid, entry in doc['funds'].items():
         data=inputs.get(fid,{}); navs=data.get('navs',{}); reported=data.get('rates',{})
@@ -791,13 +846,14 @@ def enrich_distribution_rates(doc, prior, inputs):
         entry['kind']=FUNDS[fid]['type']
         attach_authorized_basis(entry)
         add_verified_goldman_november(fid,entry)
+        add_verified_invesco_november(fid,entry)
         print(f'[配息率] {fid}: 基準淨值 {sum("preExNav" in r for r in entry.get("dividends",[]))} 筆；公開年化率 {sum("reportedAnnualRate" in r for r in entry.get("dividends",[]))} 筆')
     doc['sources']['dividend_yield']={'ok':any(x.get('navs') or x.get('rates') for x in inputs.values()),'rows':sum(len(x.get('rates',{})) for x in inputs.values()),'message':'同級別歷史淨值與公開年化配息率，缺資料不以最新淨值代替'}
     return doc
 
 
 def main():
-    print('[NAV updater] ELEVEN-FUNDS-20261124 + GOLDMAN-NOV-DIVIDEND-VERIFIED-20261123')
+    print('[NAV updater] ELEVEN-FUNDS + GOLDMAN-AND-INVESCO-NOV-2026-RATES-VERIFIED')
     prior = json.loads(LIVE.read_text(encoding='utf-8')) if LIVE.exists() else {'funds':{}}
     downloaded = {name: load_source(name, urls) for name,urls in SOURCES.items()}
     backup_nav, backup_results = download_backup_nav()
