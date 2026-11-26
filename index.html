@@ -252,6 +252,48 @@ a{color:#086e84}
 .risk-detail-note{border-left:3px solid #cfac78;background:#fffbf3;padding:10px 14px;color:#70562d!important;border-radius:5px 9px 9px 5px;font-size:14px!important;line-height:1.7}
 .risk-detail-note strong{color:#775128}
 @media(max-width:540px){.risk-overview{padding:12px 14px;font-size:13px}.risk-overview-main strong{font-size:15px}}
+
+
+/* 個人版：預估配息試算；不變更原基金清單及資料來源 */
+#dividendEstimator{scroll-margin-top:18px;margin-top:20px}
+.btn.estimator-jump{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;color:#fff;background:var(--teal-dark);border-color:var(--teal-dark);white-space:nowrap}
+.btn.estimator-jump:hover{background:var(--navy);color:#fff}
+.fund-estimate-link{display:inline-block;border:0;background:none;color:var(--teal-dark);padding:2px 0;font-size:12px;font-weight:800;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.estimator-header{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:18px}
+.estimator-header h2{font-size:23px;margin:0;color:var(--navy)}
+.estimator-header p{font-size:14px;color:var(--muted);margin:4px 0 0}
+.estimator-layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(290px,.85fr);gap:20px}
+.estimator-settings,.estimator-output{border:1px solid var(--border);background:#fbfefe;border-radius:16px;padding:20px;min-width:0}
+.estimator-output{background:linear-gradient(155deg,#f4fbfc,#fff);border-color:#cde6e7}
+.estimator-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.estimator-wide{grid-column:1/-1}
+.estimator-field{display:flex;flex-direction:column;gap:5px;min-width:0}
+.estimator-field>label,.estimator-subheading{font-size:13px;font-weight:800;color:var(--navy)}
+.estimator-field input,.estimator-field select{width:100%;height:43px;border:1px solid #cadfdf;border-radius:10px;background:white;color:var(--text);padding:8px 11px;font-size:15px}
+.estimator-field input:focus,.estimator-field select:focus{outline:2px solid #70bdbb;outline-offset:1px}
+.estimator-help{font-size:12px;color:var(--muted);line-height:1.6}
+.estimator-section{margin-top:19px;padding-top:16px;border-top:1px solid var(--border)}
+.estimator-section h3{margin:0 0 12px;font-size:16px;color:var(--navy)}
+.estimator-bank-buttons{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-bottom:10px}
+.estimator-bank-buttons button{border:1px solid #c4dddc;border-radius:11px;padding:10px 7px;background:#fff;color:var(--navy);font-weight:800;font-size:13px;min-height:45px}
+.estimator-bank-buttons button[aria-pressed="true"]{background:var(--teal);color:#fff;border-color:var(--teal)}
+.estimator-rate-link{font-size:13px;display:inline-flex;align-items:center;gap:4px;margin-bottom:13px;font-weight:700;text-underline-offset:3px}
+.estimator-source{margin:9px 0 0;color:#607b7b;font-size:12px;line-height:1.6;min-height:35px}
+.estimator-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
+.estimator-actions button{font-size:13px;padding:8px 12px}
+.estimator-output h3{font-size:18px;color:var(--navy);margin:0 0 4px}
+.estimator-output>.estimator-help{margin:0 0 14px}
+.estimator-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.estimator-stat{padding:14px 12px;background:#fff;border:1px solid #daebec;border-radius:12px;min-width:0}
+.estimator-stat.featured{background:#e4f5f3;border-color:#a4d5d2}
+.estimator-stat small{display:block;color:#617e7c;font-size:12px;line-height:1.4;min-height:18px}
+.estimator-stat strong{display:block;color:var(--navy);font-size:21px;line-height:1.4;margin:6px 0 2px;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.estimator-stat em{font-size:12px;color:var(--muted);font-style:normal;display:block}
+.estimator-messages{font-size:13px;line-height:1.75;color:#785727;background:#fff8e8;border:1px solid #efdbb6;padding:11px 12px;border-radius:10px;margin-top:14px}
+.estimator-disclaimer{font-size:12px;color:var(--muted);line-height:1.8;margin-top:14px}
+@media(max-width:960px){.estimator-layout{grid-template-columns:1fr}.estimator-header{flex-direction:column}}
+@media(max-width:570px){.estimator-settings,.estimator-output{padding:15px}.estimator-fields{grid-template-columns:1fr}.estimator-bank-buttons{gap:5px}.estimator-bank-buttons button{font-size:12px;padding:9px 4px}.estimator-stat strong{font-size:19px}.estimator-jump{width:100%}.estimator-header h2{font-size:21px}}
+
 </style>
 
 </head>
@@ -297,10 +339,89 @@ a{color:#086e84}
   <div id="syncNotice" class="status waiting" role="status" aria-live="polite">正在讀取基金公開資料快照……</div>
   <details class="diagnostics"><summary>查看資料更新診斷（無法更新時請點這裡）</summary><pre id="diagnostics">尚未讀取更新紀錄</pre></details>
   <section class="main-panel" id="watchlist" tabindex="-1" aria-labelledby="watchlistTitle">
-    <div class="titleline"><div><h2 id="watchlistTitle">我的基金觀察清單</h2><p>依「美元優先 → 基金公司」分組；淨值、配息資料日期分別顯示。</p></div><div class="title-actions"><button type="button" id="exportExcelButton" class="btn excel-export" disabled title="讀取基金資料後即可下載 Excel">↓ 下載全部基金 Excel</button><button type="button" id="refreshButton" class="btn accent">↻ 重新讀取雲端資料</button></div></div>
+    <div class="titleline"><div><h2 id="watchlistTitle">我的基金觀察清單</h2><p>依「美元優先 → 基金公司」分組；淨值、配息資料日期分別顯示。</p></div><div class="title-actions"><a class="btn estimator-jump" href="#dividendEstimator">▦ 預估配息試算</a><button type="button" id="exportExcelButton" class="btn excel-export" disabled title="讀取基金資料後即可下載 Excel">↓ 下載全部基金 Excel</button><button type="button" id="refreshButton" class="btn accent">↻ 重新讀取雲端資料</button></div></div>
     <div class="tools"><label class="search"><span class="sr-only">搜尋基金</span><input id="search" type="search" placeholder="搜尋基金名稱、公司、ISIN……" /></label><label class="filter-label">幣別<select id="currency"><option value="all">全部幣別</option><option value="USD">美元 USD</option><option value="ZAR">南非幣 ZAR</option></select></label></div>
     <div class="funds" id="fundList" aria-live="polite"></div>
   </section>
+
+  <!-- 預估配息試算：只在本頁計算，不儲存投入金額或匯率 -->
+  <section class="main-panel" id="dividendEstimator" aria-labelledby="estimatorTitle">
+    <div class="estimator-header">
+      <div><h2 id="estimatorTitle">▦ 預估配息試算</h2><p>選擇基金、輸入預計投入金額，試算每期、每月與全年配息。可直接換算新臺幣。</p></div>
+      <a href="#watchlist" class="btn">← 返回我的基金觀察清單</a>
+    </div>
+    <div class="estimator-layout">
+      <div class="estimator-settings">
+        <div class="estimator-fields">
+          <div class="estimator-field estimator-wide">
+            <label for="calcFund">選擇基金</label>
+            <select id="calcFund" aria-label="選擇預估配息基金"></select>
+            <div class="estimator-help" id="calcFundCurrency">基金幣別將依所選基金自動帶入。</div>
+          </div>
+          <div class="estimator-field">
+            <label for="calcInvestMode">投入幣別</label>
+            <select id="calcInvestMode"><option value="twdwan">新臺幣 TWD（萬元）</option><option value="foreign">基金原幣</option></select>
+          </div>
+          <div class="estimator-field">
+            <label for="calcAmount" id="calcAmountLabel">預計投資金額（萬元）</label>
+            <input id="calcAmount" type="number" min="0" step="any" value="100" inputmode="decimal" autocomplete="off" />
+            <span class="estimator-help" id="calcAmountHelp">例如：100 萬元請輸入 100。</span>
+          </div>
+          <div class="estimator-field">
+            <label for="calcNav">基金每單位淨值（原幣）</label>
+            <input id="calcNav" type="number" min="0" step="any" inputmode="decimal" placeholder="等待基金資料" autocomplete="off" />
+          </div>
+          <div class="estimator-field">
+            <label for="calcDividend">最近每單位配息（原幣）</label>
+            <input id="calcDividend" type="number" min="0" step="any" inputmode="decimal" placeholder="等待配息資料" autocomplete="off" />
+          </div>
+          <div class="estimator-field estimator-wide">
+            <label for="calcFrequency">一年預估配息次數</label>
+            <select id="calcFrequency"><option value="12">每月（12 次）</option><option value="4">每季（4 次）</option><option value="2">每半年（2 次）</option><option value="1">每年（1 次）</option></select>
+          </div>
+        </div>
+        <p class="estimator-source" id="calcSource">基金淨值及每單位配息將在雲端資料讀取後帶入，也可以手動調整。</p>
+        <div class="estimator-actions"><button class="btn" id="calcReload" type="button">↻ 重新帶入基金資料</button></div>
+        <div class="estimator-section">
+          <h3>銀行即期匯率｜輔助輸入</h3>
+          <div class="estimator-bank-buttons" role="group" aria-label="選擇匯率參考銀行">
+            <button type="button" class="estimator-bank" data-bank="bot" aria-pressed="true">臺灣銀行</button>
+            <button type="button" class="estimator-bank" data-bank="dbs" aria-pressed="false">星展銀行</button>
+            <button type="button" class="estimator-bank" data-bank="ctbc" aria-pressed="false">中國信託</button>
+          </div>
+          <a id="calcBankLink" class="estimator-rate-link" href="https://rate.bot.com.tw/xrt?Lang=zh-TW" target="_blank" rel="noopener noreferrer">查看臺灣銀行官方即期匯率 ↗</a>
+          <div class="estimator-fields">
+            <div class="estimator-field">
+              <label for="calcSpotSell">投入換匯｜即期賣出（TWD／原幣 1 元）</label>
+              <input id="calcSpotSell" type="number" min="0" step="any" inputmode="decimal" placeholder="請查銀行牌告填入" autocomplete="off" />
+              <span class="estimator-help">用新臺幣買入基金原幣時使用。</span>
+            </div>
+            <div class="estimator-field">
+              <label for="calcSpotBuy">配息換臺幣｜即期買入（TWD／原幣 1 元）</label>
+              <input id="calcSpotBuy" type="number" min="0" step="any" inputmode="decimal" placeholder="請查銀行牌告填入" autocomplete="off" />
+              <span class="estimator-help">將基金配息換成新臺幣時使用。</span>
+            </div>
+          </div>
+          <p class="estimator-help" style="margin-top:10px">請選擇基金實際幣別（USD 或 ZAR）的「即期」報價。網站不自動抓取銀行即時價格；切換銀行會保留各銀行在本頁填過的數字。若該銀行沒有南非幣即期牌告，請勿拿美元匯率代替。</p>
+        </div>
+      </div>
+      <div class="estimator-output" aria-live="polite">
+        <h3>預估試算結果</h3>
+        <p class="estimator-help">以下均為稅費前、以目前輸入條件假設的結果。</p>
+        <div class="estimator-stats">
+          <div class="estimator-stat"><small>投入本金（基金原幣）</small><strong id="calcForeignPrincipal">—</strong><em id="calcForeignPrincipalUnit">USD／ZAR</em></div>
+          <div class="estimator-stat"><small>預估持有單位數</small><strong id="calcUnits">—</strong><em>單位</em></div>
+          <div class="estimator-stat"><small>每期配息（基金原幣）</small><strong id="calcPeriodForeign">—</strong><em id="calcPeriodForeignUnit">USD／ZAR</em></div>
+          <div class="estimator-stat featured"><small>每期預估配息（新臺幣）</small><strong id="calcPeriodTwd">—</strong><em>TWD 元</em></div>
+          <div class="estimator-stat"><small>每月平均配息（新臺幣）</small><strong id="calcMonthlyTwd">—</strong><em>TWD 元；全年合計 ÷ 12</em></div>
+          <div class="estimator-stat featured"><small>全年預估配息（新臺幣）</small><strong id="calcAnnualTwd">—</strong><em>TWD 元</em></div>
+        </div>
+        <p id="calcMessages" class="estimator-messages" role="status">請先選擇基金並輸入試算數值。</p>
+        <p class="estimator-disclaimer"><strong>試算提醒：</strong>最近淨值和最近配息可能不是同一天，實際申購單位數依交易確認淨值及費用而異；本試算未另外計入申購手續費、稅負或匯兌交易成本，亦未考慮淨值及匯率變動。以最近每單位配息假設未來每期相同，並不保證配息；配息可能涉及本金，並非投資報酬率。此頁不儲存輸入資料。</p>
+      </div>
+    </div>
+  </section>
+
   <section class="info-layout">
     <article class="info"><h2>這個網頁怎麼更新？</h2><p>GitHub Actions 每日定時讀取公開基金資料，發布到同一個網址。點「重新讀取」只會取得最新已發布的檔案，不是基金盤中即時行情。</p><p class="smaller">正常情況會在臺灣時間 09:15、18:15、23:15 排程檢查；GitHub 排程可能延遲，且基金公司休市或尚未公告時，淨值日期不會改變。</p></article>
     <article class="info"><h2>當期與年化配息率怎麼看？</h2><p>當期配息率＝每單位配息金額 ÷ 除息日前一日淨值 × 100%。</p><p class="smaller">非淨值日採該期除息前一淨值日；缺少基準淨值時，若有同一期、同級別的公開年化率，則標示來源參考值，不使用最新淨值代替。</p><p><strong>年化配息率（試算）＝每單位配息金額 ÷ 除息日前一日淨值 × 12 × 100%</strong>（本清單皆為月配息）。以未四捨五入的當期配息率推算，假設每月配息及淨值不變，不計複利；非過去12個月實際配息率、非總報酬率，亦不保證未來配息。配息可能涉及本金。</p><p class="smaller"><strong>配息增減</strong>＝本期每單位配息 − 上期每單位配息；<strong>增減比率</strong>＝增減值 ÷ 上期每單位配息 × 100%。只比較同一基金、同一級別與相同幣別最近兩筆已公告配息，非基金淨值變動或總報酬率。</p></article>
@@ -494,6 +615,7 @@ function render(){
     if(titleLink)identity.append(node('div','fund-link-hint','點基金名稱可前往該基金專屬頁面 ↗'));
     identity.append(node('div','fund-sub',`${f.company} · ${f.group} · ${f.frequency} · ${f.tier}`));
     identity.append(node('div','fund-sub isin',`ISIN：${f.isin}`));
+    const calcJump=node('button','fund-estimate-link','▦ 用這檔基金試算配息');calcJump.type='button';calcJump.addEventListener('click',()=>selectEstimatorFund(f.isin));identity.append(calcJump);
     if(f.currency==='ZAR')identity.append(node('div','fund-sub fund-risk-note','⚠ 南非幣匯率波動風險；對沖不代表對新臺幣避險'));
     if(f.isin==='LU1075101847')identity.append(node('div','fund-sub fund-risk-note','⚠ 新興市場債券可能有較高信用與利率風險，配息可能涉及本金'));
     row.append(identity);
@@ -780,13 +902,127 @@ function downloadExcelFile(){
   }finally{button.disabled=false;}
 }
 
+
+// 預估配息：僅在瀏覽器當頁計算，不呼叫行情或匯率 API，也不儲存資料。
+const ESTIMATOR_BANKS={
+  bot:{name:'臺灣銀行',url:'https://rate.bot.com.tw/xrt?Lang=zh-TW'},
+  dbs:{name:'星展銀行',url:'https://www.dbs.com.tw/personal-zh/rates/foreign-exchange-rates.page'},
+  ctbc:{name:'中國信託',url:'https://www.ctbcbank.com/twrbo/zh_tw/dep_index/dep_ratequery/dep_foreign_rates.html'}
+};
+let estimatorBank='bot';
+const emptyRateBanks=()=>({bot:{sell:'',buy:''},dbs:{sell:'',buy:''},ctbc:{sell:'',buy:''}});
+const estimatorRates={USD:emptyRateBanks(),ZAR:emptyRateBanks()};
+let estimatorCurrency='USD';
+let calcInputsEdited={nav:false,dividend:false};
+const validCalcNumber=(id,allowZero=false)=>{
+  const s=String($(id)?.value??'').trim();
+  if(!s)return null;
+  const n=Number(s);
+  return Number.isFinite(n) && (allowZero?n>=0:n>0)?n:null;
+};
+const calcNumber=(x,max=2)=>Number.isFinite(x)?x.toLocaleString('zh-TW',{maximumFractionDigits:max,minimumFractionDigits:0}):'—';
+function estimatorFund(){return FUNDS.find(f=>f.isin===$('calcFund').value)||FUNDS[0];}
+function syncEstimatorFund(force=false){
+  const f=estimatorFund(),d=live.funds?.[f.isin]||{},hist=records(d),r=hist[0];
+  if(estimatorCurrency!==f.currency){
+    estimatorRates[estimatorCurrency][estimatorBank]={sell:$('calcSpotSell').value,buy:$('calcSpotBuy').value};
+    estimatorCurrency=f.currency;
+    $('calcSpotSell').value=estimatorRates[estimatorCurrency][estimatorBank].sell;
+    $('calcSpotBuy').value=estimatorRates[estimatorCurrency][estimatorBank].buy;
+  }
+  if(force||!calcInputsEdited.nav){$('calcNav').value=validNav(d)?String(d.nav):'';calcInputsEdited.nav=false;}
+  if(force||!calcInputsEdited.dividend){$('calcDividend').value=r?String(r.perUnit):'';calcInputsEdited.dividend=false;}
+  $('calcFundCurrency').textContent=`計價幣別：${f.currency==='USD'?'美元 USD':'南非幣 ZAR'}｜ISIN：${f.isin}`;
+  $('calcSource').textContent=`淨值：${validNav(d)?niceDate(d.navDate):'尚無資料'}；每單位配息：${r?niceDate(r.exDate)+' 除息':'尚無資料'}。${live.checkedAt?'網站資料檢查 '+String(live.checkedAt).replace('T',' ').slice(0,16):'等待雲端資料'}。可手動修改數值試算。`;
+  $('calcAmountLabel').textContent=$('calcInvestMode').value==='twdwan'?'預計投資金額（萬元 TWD）':`預計投資金額（${f.currency}）`;
+  $('calcAmountHelp').textContent=$('calcInvestMode').value==='twdwan'?'例如：100 代表投入新臺幣 100 萬元。':`直接輸入 ${f.currency} 金額（非萬元）。`;
+  $('calcForeignPrincipalUnit').textContent=f.currency;
+  $('calcPeriodForeignUnit').textContent=f.currency;
+  updateEstimator();
+}
+function setEstimatorBank(next){
+  if(!ESTIMATOR_BANKS[next]||next===estimatorBank)return;
+  estimatorRates[estimatorCurrency][estimatorBank].sell=$('calcSpotSell').value;
+  estimatorRates[estimatorCurrency][estimatorBank].buy=$('calcSpotBuy').value;
+  estimatorBank=next;
+  $('calcSpotSell').value=estimatorRates[estimatorCurrency][next].sell;
+  $('calcSpotBuy').value=estimatorRates[estimatorCurrency][next].buy;
+  document.querySelectorAll('.estimator-bank').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.bank===next)));
+  $('calcBankLink').href=ESTIMATOR_BANKS[next].url;
+  $('calcBankLink').textContent=`查看${ESTIMATOR_BANKS[next].name}官方即期匯率 ↗`;
+  updateEstimator();
+}
+function selectEstimatorFund(isin){
+  if(!FUNDS.some(f=>f.isin===isin))return;
+  $('calcFund').value=isin;
+  calcInputsEdited={nav:false,dividend:false};
+  syncEstimatorFund(true);
+  $('dividendEstimator').scrollIntoView({behavior:'smooth',block:'start'});
+  $('calcFund').focus({preventScroll:true});
+}
+function updateEstimator(){
+  const mode=$('calcInvestMode').value,f=estimatorFund(),currency=f.currency;
+  const amount=validCalcNumber('calcAmount');
+  const nav=validCalcNumber('calcNav');
+  const dist=validCalcNumber('calcDividend',true);
+  const sell=validCalcNumber('calcSpotSell');
+  const buy=validCalcNumber('calcSpotBuy');
+  const frequency=validCalcNumber('calcFrequency');
+  const foreignPrincipal=mode==='foreign'?amount:(amount!==null&&sell!==null?(amount*10000/sell):null);
+  const units=foreignPrincipal!==null&&nav!==null?foreignPrincipal/nav:null;
+  const periodFx=units!==null&&dist!==null?units*dist:null;
+  const periodTwd=periodFx!==null&&buy!==null?periodFx*buy:null;
+  const annualTwd=periodTwd!==null&&frequency!==null?periodTwd*frequency:null;
+  const monthlyTwd=annualTwd!==null?annualTwd/12:null;
+  const fmt=(id,n,max)=>{$(id).textContent=n===null||!Number.isFinite(n)?'—':calcNumber(n,max);};
+  fmt('calcForeignPrincipal',foreignPrincipal,2);
+  fmt('calcUnits',units,4);
+  fmt('calcPeriodForeign',periodFx,4);
+  fmt('calcPeriodTwd',periodTwd,0);
+  fmt('calcMonthlyTwd',monthlyTwd,0);
+  fmt('calcAnnualTwd',annualTwd,0);
+  const missing=[];
+  if(amount===null)missing.push('有效投資金額');
+  if(nav===null)missing.push('基金淨值');
+  if(dist===null)missing.push('最近每單位配息');
+  if(mode==='twdwan'&&sell===null)missing.push(`${ESTIMATOR_BANKS[estimatorBank].name} ${currency} 即期賣出`);
+  if(buy===null)missing.push(`${ESTIMATOR_BANKS[estimatorBank].name} ${currency} 即期買入`);
+  if(missing.length){
+    $('calcMessages').textContent=`請補入：${missing.join('、')}。資料不足的結果暫不顯示，請勿將「—」當作 0。`;
+  }else{
+    $('calcMessages').textContent=`已依 ${ESTIMATOR_BANKS[estimatorBank].name} 所填 ${currency} 即期匯率計算。${mode==='twdwan'?'本金（TWD）換匯用賣出價；':''}配息換回 TWD 用買入價。數值為稅費前預估。`;
+  }
+}
+function initEstimator(){
+  const select=$('calcFund');
+  FUNDS.forEach(f=>{const opt=document.createElement('option');opt.value=f.isin;opt.textContent=`${f.company}｜${f.name}`;select.append(opt);});
+  select.addEventListener('change',()=>{calcInputsEdited={nav:false,dividend:false};syncEstimatorFund(true);});
+  $('calcInvestMode').addEventListener('change',()=>{
+    // 不轉換輸入框的數值單位，避免誤認為已按匯率自動換算。
+    $('calcAmount').value='';
+    $('calcAmount').placeholder=$('calcInvestMode').value==='twdwan'?'例如 100（萬元）':'請輸入基金原幣金額';
+    syncEstimatorFund(false);
+  });
+  for(const id of ['calcAmount','calcNav','calcDividend','calcSpotSell','calcSpotBuy']){
+    $(id).addEventListener('input',()=>{
+      if(id==='calcNav')calcInputsEdited.nav=true;
+      if(id==='calcDividend')calcInputsEdited.dividend=true;
+      updateEstimator();
+    });
+  }
+  $('calcFrequency').addEventListener('change',updateEstimator);
+  document.querySelectorAll('.estimator-bank').forEach(b=>b.addEventListener('click',()=>setEstimatorBank(b.dataset.bank)));
+  $('calcReload').addEventListener('click',()=>syncEstimatorFund(true));
+  syncEstimatorFund(true);
+}
+
 function banner(kind,text){const el=$('syncNotice');el.className='status '+kind;el.textContent=text;}
 async function loadData(){
   $('refreshButton').disabled=true;banner('waiting','正在讀取雲端基金資料快照……');
   try{
     const response=await fetch(`data/live.json?v=${Date.now()}`,{cache:'no-store'});
     if(!response.ok)throw new Error(`HTTP ${response.status}`);
-    const data=await response.json();if(data.schemaVersion!==2||!data.funds)throw new Error('資料版本不同');live=data;render();
+    const data=await response.json();if(data.schemaVersion!==2||!data.funds)throw new Error('資料版本不同');live=data;render();syncEstimatorFund(false);
     const exportNavCount=FUNDS.filter(f=>validNav(data.funds[f.isin])).length;
     const exportDistributionCount=FUNDS.reduce((n,f)=>n+records(data.funds[f.isin]).length,0);
     const exportButton=$('exportExcelButton');
@@ -807,7 +1043,7 @@ async function loadData(){
     else if(stale){banner('warn',`排程檢查已超過 40 小時沒有更新。最後一次檢查：${data.checkedAt}。請到 GitHub Actions 查看是否停用或失敗。`);}
     else if(bad||withNav<FUNDS.length){banner('warn',`最近檢查：${String(data.checkedAt).replace('T',' ').slice(0,16)}。已取得 ${withNav}/${FUNDS.length} 檔基金淨值；${bad} 個公開來源讀取失敗。未取得的欄位不會假裝是最新資料。`);}
     else{banner('ok',`基金資料已載入。最近檢查：${String(data.checkedAt).replace('T',' ').slice(0,16)}（臺灣時間）；實際淨值日期請看每檔基金。`);}
-  }catch(e){live={schemaVersion:2,checkedAt:null,funds:{},sources:{}};$('exportExcelButton').disabled=true;render();$('diagnostics').textContent='無法讀取 data/live.json：'+e.message+'\n請確認網頁網址與資料檔網址都能正常開啟。';const localFile=location.protocol==='file:'||location.protocol==='about:';banner('warn',localFile?'這是本機預覽：已載入11檔基金清單。淨值及配息請先上傳 GitHub Pages，再使用固定網址查看。':`基金資料檔讀取失敗（${e.message}）。請檢查 GitHub Actions 的部署與 data/live.json。`);}
+  }catch(e){live={schemaVersion:2,checkedAt:null,funds:{},sources:{}};$('exportExcelButton').disabled=true;render();syncEstimatorFund(false);$('diagnostics').textContent='無法讀取 data/live.json：'+e.message+'\n請確認網頁網址與資料檔網址都能正常開啟。';const localFile=location.protocol==='file:'||location.protocol==='about:';banner('warn',localFile?'這是本機預覽：已載入11檔基金清單。淨值及配息請先上傳 GitHub Pages，再使用固定網址查看。':`基金資料檔讀取失敗（${e.message}）。請檢查 GitHub Actions 的部署與 data/live.json。`);}
   finally{$('refreshButton').disabled=false;}
 }
 $('search').addEventListener('input',render);$('currency').addEventListener('change',render);$('refreshButton').addEventListener('click',loadData);$('exportExcelButton').addEventListener('click',downloadExcelFile);
@@ -815,7 +1051,7 @@ $('search').addEventListener('input',render);$('currency').addEventListener('cha
 function returnToWatchlist(){const section=$('watchlist');section.focus({preventScroll:true});section.scrollIntoView({block:'start',behavior:'instant'});}
 $('returnWatchlist').addEventListener('click',e=>{e.preventDefault();returnToWatchlist();});
 $('detailDialog').addEventListener('close',()=>{if($('detailDialog').returnValue==='watchlist')returnToWatchlist();});
-render();loadData();
+initEstimator();render();loadData();
 
 </script>
 </body>
