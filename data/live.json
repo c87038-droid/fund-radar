@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "checkedAt": "2026-11-26T10:27:23+08:00",
+  "checkedAt": "2026-11-26T19:13:21+08:00",
   "funds": {
     "LU0820561818": {
       "nav": 7.7458,
@@ -475,12 +475,12 @@
       "dividendStatus": "found"
     },
     "TW000T0759D2": {
-      "nav": 7.72,
-      "navDate": "2026-11-24",
+      "nav": 7.7,
+      "navDate": "2026-11-25",
       "navSource": "投信投顧公會境內基金公開資料",
       "navSourceUrl": "",
       "navStatus": "found",
-      "navDelayedDays": 2,
+      "navDelayedDays": 1,
       "navMessage": "",
       "dividends": [
         {
@@ -502,6 +502,11 @@
       ],
       "navHistory": [
         {
+          "navDate": "2026-11-25",
+          "nav": 7.7,
+          "dataOrigin": "open-data"
+        },
+        {
           "navDate": "2026-11-24",
           "nav": 7.72,
           "dataOrigin": "open-data"
@@ -521,11 +526,11 @@
     },
     "TW000T1811K5": {
       "nav": 8.68,
-      "navDate": "2026-11-24",
+      "navDate": "2026-11-25",
       "navSource": "投信投顧公會境內基金公開資料",
       "navSourceUrl": "",
       "navStatus": "found",
-      "navDelayedDays": 2,
+      "navDelayedDays": 1,
       "navMessage": "",
       "dividends": [
         {
@@ -550,6 +555,11 @@
         }
       ],
       "navHistory": [
+        {
+          "navDate": "2026-11-25",
+          "nav": 8.68,
+          "dataOrigin": "open-data"
+        },
         {
           "navDate": "2026-11-24",
           "nav": 8.68,
@@ -1201,12 +1211,12 @@
     "overseas_dividends": {
       "ok": true,
       "message": "",
-      "rows": 8549
+      "rows": 8613
     },
     "local_nav": {
       "ok": true,
       "message": "",
-      "rows": 4431
+      "rows": 4235
     },
     "local_dividends": {
       "ok": true,
@@ -1268,12 +1278,12 @@
     },
     "TW000T0759D2": {
       "ok": true,
-      "navDate": "2026-11-24",
+      "navDate": "2026-11-25",
       "url": "https://m.moneydj.com/a1.aspx?a=ACCP138"
     },
     "TW000T1811K5": {
       "ok": true,
-      "navDate": "2026-11-24",
+      "navDate": "2026-11-25",
       "url": "https://m.moneydj.com/a1.aspx?a=ACTI71"
     },
     "LU2859284783": {
