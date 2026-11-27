@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "checkedAt": "2026-11-27T21:28:00+08:00",
+  "checkedAt": "2026-11-28T00:21:15+08:00",
   "funds": {
     "LU0820561818": {
       "nav": 7.7458,
@@ -8,7 +8,7 @@
       "navSource": "集保境外基金公開資料",
       "navSourceUrl": "",
       "navStatus": "found",
-      "navDelayedDays": 2,
+      "navDelayedDays": 3,
       "navMessage": "",
       "dividends": [
         {
@@ -114,7 +114,7 @@
       "navSource": "MoneyDJ 基金專頁（備援，非基金公司官方）",
       "navSourceUrl": "https://m.moneydj.com/b1.aspx?a=PIZC5",
       "navStatus": "found",
-      "navDelayedDays": 1,
+      "navDelayedDays": 2,
       "navMessage": "",
       "dividends": [
         {
@@ -220,7 +220,7 @@
       "navSource": "集保境外基金公開資料",
       "navSourceUrl": "",
       "navStatus": "found",
-      "navDelayedDays": 2,
+      "navDelayedDays": 3,
       "navMessage": "",
       "dividends": [
         {
@@ -311,7 +311,7 @@
       "navSource": "集保境外基金公開資料",
       "navSourceUrl": "",
       "navStatus": "found",
-      "navDelayedDays": 2,
+      "navDelayedDays": 3,
       "navMessage": "",
       "dividends": [
         {
@@ -417,7 +417,7 @@
       "navSource": "集保境外基金公開資料",
       "navSourceUrl": "",
       "navStatus": "found",
-      "navDelayedDays": 2,
+      "navDelayedDays": 3,
       "navMessage": "",
       "dividends": [
         {
@@ -505,7 +505,7 @@
       "navSource": "投信投顧公會境內基金公開資料",
       "navSourceUrl": "",
       "navStatus": "found",
-      "navDelayedDays": 1,
+      "navDelayedDays": 2,
       "navMessage": "",
       "dividends": [
         {
@@ -560,7 +560,7 @@
       "navSource": "MoneyDJ 基金專頁（備援，非基金公司官方）",
       "navSourceUrl": "https://m.moneydj.com/a1.aspx?a=ACTI71",
       "navStatus": "found",
-      "navDelayedDays": 2,
+      "navDelayedDays": 3,
       "navMessage": "",
       "dividends": [
         {
@@ -614,7 +614,7 @@
       "navSource": "集保境外基金公開資料",
       "navSourceUrl": "",
       "navStatus": "found",
-      "navDelayedDays": 2,
+      "navDelayedDays": 3,
       "navMessage": "",
       "dividends": [
         {
@@ -720,7 +720,7 @@
       "navSource": "MoneyDJ 基金專頁（備援，非基金公司官方）",
       "navSourceUrl": "https://m.moneydj.com/b1.aspx?a=PYZW3",
       "navStatus": "found",
-      "navDelayedDays": 1,
+      "navDelayedDays": 2,
       "navMessage": "",
       "dividends": [
         {
@@ -962,7 +962,7 @@
       "navSource": "MoneyDJ 基金專頁（備援，非基金公司官方）",
       "navSourceUrl": "https://m.moneydj.com/b1.aspx?a=FTZA67",
       "navStatus": "found",
-      "navDelayedDays": 1,
+      "navDelayedDays": 2,
       "navMessage": "",
       "dividends": [
         {
@@ -1166,7 +1166,7 @@
       "navSource": "集保境外基金公開資料",
       "navSourceUrl": "",
       "navStatus": "found",
-      "navDelayedDays": 2,
+      "navDelayedDays": 3,
       "navMessage": "",
       "dividends": [
         {
@@ -1261,7 +1261,7 @@
     "overseas_dividends": {
       "ok": true,
       "message": "",
-      "rows": 8613
+      "rows": 8498
     },
     "local_nav": {
       "ok": true,
@@ -1280,7 +1280,7 @@
     },
     "dividend_yield": {
       "ok": true,
-      "rows": 210,
+      "rows": 209,
       "message": "同級別歷史淨值與公開年化配息率，缺資料不以最新淨值代替"
     }
   },
