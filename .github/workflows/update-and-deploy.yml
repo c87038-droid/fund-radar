@@ -65,15 +65,29 @@ jobs:
               print('基金:', fid, '淨值日期:', fund.get('navDate'), '淨值狀態:', fund.get('navStatus'))
           PY
 
-      - name: 準備網站（只需基金資料；匯率直接連結臺灣銀行）
+      - name: 準備網站（三個獨立頁面、基金資料與圖示）
         shell: bash
         run: |
           set -euo pipefail
+          # 先確認首頁、預估配息、匯率查詢三個檔案都存在，避免發布成功卻顯示 404。
+          for page in index.html estimate.html fx.html; do
+            if [ ! -s "$page" ]; then
+              echo "::error::GitHub 專案根目錄缺少 $page，請先上傳該檔案"
+              exit 1
+            fi
+          done
           mkdir -p _site/data
-          cp index.html _site/index.html
-          touch _site/.nojekyll
+          cp index.html estimate.html fx.html _site/
           cp data/live.json _site/data/live.json
-          echo '此次即將發布的檔案：'
+          for favicon in favicon.png favicon.ico; do
+            if [ -s "$favicon" ]; then cp "$favicon" _site/; fi
+          done
+          touch _site/.nojekyll
+          # 發布前再次驗證，Actions 日誌會清楚列出檔案。
+          for page in index.html estimate.html fx.html; do
+            test -s "_site/$page" || { echo "::error::_site/$page 未成功建立"; exit 1; }
+          done
+          echo '本次 GitHub Pages 要發布的檔案：'
           find _site -maxdepth 2 -type f | sort
 
       - name: 設定 Pages
