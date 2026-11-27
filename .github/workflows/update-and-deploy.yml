@@ -5,7 +5,7 @@ on:
   push:
     branches: [main]
   schedule:
-    # UTC 01:15、10:15、15:15，臺灣時間 09:15、18:15、23:15
+    # UTC 01:15、10:15、15:15 = 臺灣時間 09:15、18:15、23:15
     - cron: '15 1,10,15 * * *'
 
 permissions:
@@ -18,12 +18,9 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  update-and-publish:
-    name: 更新基金淨值與配息並發布 GitHub Pages
+  prepare:
+    name: 更新基金資料並上傳 Pages 發布檔
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - name: 取得基金網站程式
         uses: actions/checkout@v4
@@ -36,7 +33,7 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: 檢查基金程式（不執行已停用的匯率測試）
+      - name: 檢查基金資料更新程式
         shell: bash
         run: |
           set -euo pipefail
@@ -47,10 +44,10 @@ jobs:
             python -m unittest discover -s tests -p 'test_nav_backup.py' -v
           fi
 
-      - name: 更新 7 檔基金淨值與配息
+      - name: 自動更新基金淨值與配息
         run: python scripts/update_funds.py
 
-      - name: 檢查基金更新資料
+      - name: 驗證基金資料
         shell: bash
         run: |
           set -euo pipefail
@@ -61,51 +58,44 @@ jobs:
           from pathlib import Path
           data = json.loads(Path('data/live.json').read_text(encoding='utf-8'))
           print('基金資料檢查時間:', data.get('checkedAt'))
+          print('基金資料筆數:', len(data.get('funds') or {}))
           for fid, fund in (data.get('funds') or {}).items():
               print('基金:', fid, '淨值日期:', fund.get('navDate'), '淨值狀態:', fund.get('navStatus'))
           PY
 
-      - name: 準備網站（三個獨立頁面、基金資料與圖示）
+      - name: 準備三頁基金網站
         shell: bash
         run: |
           set -euo pipefail
-          # 先確認首頁、預估配息、匯率查詢三個檔案都存在，避免發布成功卻顯示 404。
-          for page in index.html estimate.html fx.html; do
-            if [ ! -s "$page" ]; then
-              echo "::error::GitHub 專案根目錄缺少 $page，請先上傳該檔案"
-              exit 1
-            fi
-          done
           mkdir -p _site/data
-          cp index.html estimate.html fx.html _site/
+          for file in index.html estimate.html fx.html; do
+            test -s "$file" || { echo "缺少必要的網頁檔案: $file"; exit 1; }
+            cp "$file" "_site/$file"
+          done
           cp data/live.json _site/data/live.json
-          for favicon in favicon.png favicon.ico; do
-            if [ -s "$favicon" ]; then cp "$favicon" _site/; fi
+          # 如有外部圖示或其他靜態素材，一併發布
+          for file in favicon.png favicon.ico site.webmanifest; do
+            if [ -f "$file" ]; then cp "$file" "_site/$file"; fi
           done
+          if [ -d assets ]; then cp -R assets _site/assets; fi
           touch _site/.nojekyll
-          # 發布前再次驗證，Actions 日誌會清楚列出檔案。
-          for page in index.html estimate.html fx.html; do
-            test -s "_site/$page" || { echo "::error::_site/$page 未成功建立"; exit 1; }
-          done
-          echo '本次 GitHub Pages 要發布的檔案：'
-          find _site -maxdepth 2 -type f | sort
+          echo '即將發布的檔案：'
+          find _site -maxdepth 3 -type f | sort
 
-      - name: 設定 Pages
+      - name: 設定 GitHub Pages
         uses: actions/configure-pages@v5
 
-      - name: 上傳網站
+      - name: 上傳 github-pages 發布檔
+        id: pages_artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: _site
 
-      - name: 發布網頁
-        id: deploy
-        uses: actions/deploy-pages@v4
-
-      - name: 嘗試儲存基金資料快照（失敗不影響網站發布）
-        continue-on-error: true
+      - name: 儲存最新基金資料快照（失敗不影響網站發布）
         shell: bash
+        continue-on-error: true
         run: |
+          set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add data/live.json
@@ -115,3 +105,50 @@ jobs:
           else
             echo '基金資料無變化'
           fi
+
+  deploy:
+    name: 發布三個網頁到 GitHub Pages
+    needs: prepare
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy_1.outputs.page_url || steps.deploy_2.outputs.page_url || steps.deploy_3.outputs.page_url }}
+    steps:
+      - name: 等待 GitHub 完成發布檔案索引
+        run: sleep 10
+
+      - name: 發布網站（第一次）
+        id: deploy_1
+        uses: actions/deploy-pages@v4
+        continue-on-error: true
+
+      - name: 第一次失敗後等待
+        if: steps.deploy_1.outcome == 'failure'
+        run: sleep 20
+
+      - name: 發布網站（第二次）
+        id: deploy_2
+        if: steps.deploy_1.outcome == 'failure'
+        uses: actions/deploy-pages@v4
+        continue-on-error: true
+
+      - name: 第二次失敗後等待
+        if: steps.deploy_2.outcome == 'failure'
+        run: sleep 45
+
+      - name: 發布網站（第三次）
+        id: deploy_3
+        if: steps.deploy_2.outcome == 'failure'
+        uses: actions/deploy-pages@v4
+        continue-on-error: true
+
+      - name: 若三次發布均失敗則明確回報
+        if: steps.deploy_1.outcome != 'success' && steps.deploy_2.outcome != 'success' && steps.deploy_3.outcome != 'success'
+        shell: bash
+        run: |
+          echo '三次部署均失敗。請檢查「上傳 github-pages 發布檔」是否成功，以及 GitHub Pages 服務狀態。'
+          exit 1
