@@ -1,32 +1,22 @@
-基金雷達｜GitHub Pages 發布檔案查找錯誤修正版（2026/11/27）
+我的基金雷達｜預估配息／匯率按鈕錯誤修復
 
-這個更新檔僅修正 GitHub Actions 部署設定，不修改 11 檔基金、淨值、Excel、預估配息或銀行查詢頁的內容。
+問題原因：GitHub 目前的 update-and-deploy.yml 僅將 index.html 複製到 _site，沒有將 estimate.html、fx.html 放入 GitHub Pages 網站發布檔。
+此版將三個頁面一起發布，並保留 data/live.json 和存在的 favicon 圖示。
 
-問題：
-actions/deploy-pages@v4 顯示 Found 0 artifact(s)，即使上一個工作可能已上傳 github-pages。
-「punycode is deprecated」只是提醒，不是本次錯誤原因。
+這次只需更新一個檔案：
+.github/workflows/update-and-deploy.yml
 
-本次加強：
-1. 保留兩個工作 build / deploy，deploy 只有在 build 完成後開始。
-2. 部署前透過 GitHub API 確認本次工作流程已有且只有一個 github-pages 發布檔。
-3. API 尚未同步時自動重新查詢，避免太早執行部署。
-4. 若第一次 deploy-pages 仍失敗，稍後自動再試一次；兩次都失敗時明確標示失敗。
-5. 網站發布檔保留期從 2 天延長到 7 天。
-6. 保留同時上傳 index.html、estimate.html、fx.html 與資料檔的設定。
+操作方式：
+1. 打開 https://github.com/c87038-droid/fund-radar/blob/main/.github/workflows/update-and-deploy.yml
+2. 點鉛筆（Edit）編輯，將完整內容替換成此 ZIP 中同名的 YAML，按 Commit changes。
+3. 進入 https://github.com/c87038-droid/fund-radar/actions ，選擇最新「我的基金雷達｜基金自動更新與發布」紀錄。
+4. 確認所有步驟成功後，開啟以下連結測試（建議無痕視窗）：
+   基金首頁：https://c87038-droid.github.io/fund-radar/
+   配息試算：https://c87038-droid.github.io/fund-radar/estimate.html
+   匯率查詢：https://c87038-droid.github.io/fund-radar/fx.html
 
-上傳方式：
-1. 解壓縮 ZIP，找到 .github/workflows/update-and-deploy.yml。
-2. 在 GitHub 開啟 https://github.com/c87038-droid/fund-radar/blob/main/.github/workflows/update-and-deploy.yml
-3. 點「鉛筆／Edit this file」，以修正版檔案的全部內容覆蓋並 Commit changes。
-4. 前往 https://github.com/c87038-droid/fund-radar/actions ，進入「我的基金雷達｜基金自動更新與發布」。
-5. 若 Commit 後沒有新的執行，點「Run workflow」手動啟動一個全新的執行。
-   不要只點舊執行的「Re-run failed jobs」，因為這可能只重新跑部署、不重新產生發布檔。
-6. 確認「更新基金資料並準備網站」與「部署到 GitHub Pages」兩個工作皆為綠色。
-7. 開啟 https://c87038-droid.github.io/fund-radar/，測試預估配息、即期匯率兩個按鈕。
-
-如果仍出現紅叉：
-* 先開啟 build 工作，檢查「上傳網站發布檔案」是否成功，是否顯示 artifact 名稱 github-pages。
-* 若 build 成功且 deploy 兩次都找不到 artifact，可能是 GitHub API/Pages 服務問題。請保留新的完整 run URL，供後續精確檢查。
-* 本修正通過本機 YAML 與 shell 語法檢查，但無法保證 GitHub 線上服務不再發生平台異常。
-
-網站程式不需重新上傳；現有的 11 檔基金、estimate.html、fx.html 都保留。
+注意：
+- estimate.html 與 fx.html 已存在於目前 GitHub 儲存庫根目錄，無須重複上傳。
+- 新的 YAML 不變更基金計算、基金數量及前端頁面。
+- 如果部署工作回報 No artifacts named github-pages，表示部署服務或 artifact 階段另有問題，請提供新執行紀錄；不等於此次 404 修正無效。
+- GitHub Pages 發布後可能需要短暫時間更新 CDN；如果仍出現舊頁面，請用無痕視窗檢查。
