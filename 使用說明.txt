@@ -1,36 +1,32 @@
-基金雷達｜預估配息及即期匯率獨立頁面版
-更新日期：2026/11/27
+基金雷達｜GitHub Pages 發布檔案查找錯誤修正版（2026/11/27）
 
-本次調整：
-1. 「我的基金觀察清單」首頁：預估配息試算與即期匯率查詢不再出現在最下面。
-2. 首頁按「預估配息試算」，直接進入 estimate.html 獨立試算頁。
-3. 首頁按「即期匯率查詢」，直接進入 fx.html 銀行選擇頁。內有臺灣銀行、星展銀行、中國信託三家銀行官網入口。
-4. 在基金清單按「用這檔基金試算配息」，會開啟 estimate.html 並選好該檔基金。
-5. 預估配息頁保留輸入新臺幣／原幣、基金淨值與配息帶入、三銀行選項、買賣匯率與新臺幣預估配息；其銀行選擇頁連結另開分頁，以免試算資料消失。
-6. 首頁的 11 檔基金、Excel 匯出、配息率、警語、圖示等保留。
+這個更新檔僅修正 GitHub Actions 部署設定，不修改 11 檔基金、淨值、Excel、預估配息或銀行查詢頁的內容。
 
-重要：此次不是只上傳 index.html，還有兩個新頁面，且 GitHub Pages 的自動發布流程要複製新頁面。
+問題：
+actions/deploy-pages@v4 顯示 Found 0 artifact(s)，即使上一個工作可能已上傳 github-pages。
+「punycode is deprecated」只是提醒，不是本次錯誤原因。
 
-請將以下檔案依位置上傳到 GitHub fund-radar 倉庫：
-- index.html （根目錄，覆蓋原檔）
-- estimate.html （根目錄，新檔）
-- fx.html （根目錄，新檔）
-- .github/workflows/update-and-deploy.yml （原路徑，覆蓋原檔）
+本次加強：
+1. 保留兩個工作 build / deploy，deploy 只有在 build 完成後開始。
+2. 部署前透過 GitHub API 確認本次工作流程已有且只有一個 github-pages 發布檔。
+3. API 尚未同步時自動重新查詢，避免太早執行部署。
+4. 若第一次 deploy-pages 仍失敗，稍後自動再試一次；兩次都失敗時明確標示失敗。
+5. 網站發布檔保留期從 2 天延長到 7 天。
+6. 保留同時上傳 index.html、estimate.html、fx.html 與資料檔的設定。
 
-請保留既有的 data/、scripts/、tests/ 與其他檔案。
+上傳方式：
+1. 解壓縮 ZIP，找到 .github/workflows/update-and-deploy.yml。
+2. 在 GitHub 開啟 https://github.com/c87038-droid/fund-radar/blob/main/.github/workflows/update-and-deploy.yml
+3. 點「鉛筆／Edit this file」，以修正版檔案的全部內容覆蓋並 Commit changes。
+4. 前往 https://github.com/c87038-droid/fund-radar/actions ，進入「我的基金雷達｜基金自動更新與發布」。
+5. 若 Commit 後沒有新的執行，點「Run workflow」手動啟動一個全新的執行。
+   不要只點舊執行的「Re-run failed jobs」，因為這可能只重新跑部署、不重新產生發布檔。
+6. 確認「更新基金資料並準備網站」與「部署到 GitHub Pages」兩個工作皆為綠色。
+7. 開啟 https://c87038-droid.github.io/fund-radar/，測試預估配息、即期匯率兩個按鈕。
 
-更新步驟：
-(1) 解壓 ZIP。
-(2) 先上傳 3 個 HTML 至 GitHub 根目錄並 Commit。
-(3) 將 workflows 中的 update-and-deploy.yml 更新至原路徑並 Commit（此步驟會觸發重新發布）。
-(4) 到 Actions 確認 build 與 deploy 都成功。
-(5) 開啟 https://c87038-droid.github.io/fund-radar/ ，可看到新按鈕。
+如果仍出現紅叉：
+* 先開啟 build 工作，檢查「上傳網站發布檔案」是否成功，是否顯示 artifact 名稱 github-pages。
+* 若 build 成功且 deploy 兩次都找不到 artifact，可能是 GitHub API/Pages 服務問題。請保留新的完整 run URL，供後續精確檢查。
+* 本修正通過本機 YAML 與 shell 語法檢查，但無法保證 GitHub 線上服務不再發生平台異常。
 
-部署後頁面：
-首頁：https://c87038-droid.github.io/fund-radar/
-試算頁：https://c87038-droid.github.io/fund-radar/estimate.html
-銀行選擇：https://c87038-droid.github.io/fund-radar/fx.html
-
-注意：即期匯率為銀行官網查詢連結，試算中的匯率需按銀行當時牌告手動輸入；本站不自動擷取即時匯率。基金淨值與配息由網站原本 data/live.json 更新機制提供。
-
-此次不會修改 GitHub 線上資料；需由使用者上傳後才會生效。
+網站程式不需重新上傳；現有的 11 檔基金、estimate.html、fx.html 都保留。
