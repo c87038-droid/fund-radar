@@ -275,8 +275,10 @@ a{color:#086e84}
 .estimator-section{margin-top:19px;padding-top:16px;border-top:1px solid var(--border)}
 .estimator-section h3{margin:0 0 12px;font-size:16px;color:var(--navy)}
 .estimator-bank-buttons{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-bottom:10px}
-.estimator-bank-buttons button{border:1px solid #c4dddc;border-radius:11px;padding:10px 7px;background:#fff;color:var(--navy);font-weight:800;font-size:13px;min-height:45px}
-.estimator-bank-buttons button[aria-pressed="true"]{background:var(--teal);color:#fff;border-color:var(--teal)}
+.estimator-bank-buttons a{display:flex;align-items:center;justify-content:center;text-align:center;text-decoration:none;border:1px solid #c4dddc;border-radius:11px;padding:10px 7px;background:#fff;color:var(--navy);font-weight:800;font-size:13px;min-height:45px}
+.estimator-bank-buttons a[data-selected="true"]{background:var(--teal);color:#fff;border-color:var(--teal)}
+.estimator-bank-buttons a:hover,.estimator-bank-buttons a:focus-visible{border-color:var(--teal);box-shadow:0 0 0 2px #23767422}
+.estimator-bank-buttons a[data-selected="true"]:hover{background:var(--teal-dark)}
 .estimator-rate-link{font-size:13px;display:inline-flex;align-items:center;gap:4px;margin-bottom:13px;font-weight:700;text-underline-offset:3px}
 .estimator-source{margin:9px 0 0;color:#607b7b;font-size:12px;line-height:1.6;min-height:35px}
 .estimator-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
@@ -292,7 +294,7 @@ a{color:#086e84}
 .estimator-messages{font-size:13px;line-height:1.75;color:#785727;background:#fff8e8;border:1px solid #efdbb6;padding:11px 12px;border-radius:10px;margin-top:14px}
 .estimator-disclaimer{font-size:12px;color:var(--muted);line-height:1.8;margin-top:14px}
 @media(max-width:960px){.estimator-layout{grid-template-columns:1fr}.estimator-header{flex-direction:column}}
-@media(max-width:570px){.estimator-settings,.estimator-output{padding:15px}.estimator-fields{grid-template-columns:1fr}.estimator-bank-buttons{gap:5px}.estimator-bank-buttons button{font-size:12px;padding:9px 4px}.estimator-stat strong{font-size:19px}.estimator-jump{width:100%}.estimator-header h2{font-size:21px}}
+@media(max-width:570px){.estimator-settings,.estimator-output{padding:15px}.estimator-fields{grid-template-columns:1fr}.estimator-bank-buttons{gap:5px}.estimator-bank-buttons a{font-size:12px;padding:9px 4px}.estimator-stat strong{font-size:19px}.estimator-jump{width:100%}.estimator-header h2{font-size:21px}}
 
 
 
@@ -426,13 +428,13 @@ a{color:#086e84}
         <p class="estimator-source" id="calcSource">基金淨值及每單位配息將在雲端資料讀取後帶入，也可以手動調整。</p>
         <div class="estimator-actions"><button class="btn" id="calcReload" type="button">↻ 重新帶入基金資料</button></div>
         <div class="estimator-section">
-          <h3>銀行即期匯率｜輔助輸入 <a href="fx.html" target="_blank" rel="noopener noreferrer" style="font-size:13px;font-weight:700;margin-left:8px">另外開啟銀行選擇頁 ↗</a></h3>
-          <div class="estimator-bank-buttons" role="group" aria-label="選擇匯率參考銀行">
-            <button type="button" class="estimator-bank" data-bank="bot" aria-pressed="true">臺灣銀行</button>
-            <button type="button" class="estimator-bank" data-bank="dbs" aria-pressed="false">星展銀行</button>
-            <button type="button" class="estimator-bank" data-bank="ctbc" aria-pressed="false">中國信託</button>
+          <h3>銀行即期匯率｜點選銀行直接查看官方牌告</h3>
+          <div class="estimator-bank-buttons" role="group" aria-label="點選銀行會選為試算參考銀行，並在新分頁開啟官方匯率網站">
+            <a class="estimator-bank" data-bank="bot" data-selected="true" href="https://rate.bot.com.tw/xrt?Lang=zh-TW" target="_blank" rel="noopener noreferrer" aria-label="臺灣銀行：切換試算銀行並開啟官方即期匯率（新分頁）">臺灣銀行 ↗</a>
+            <a class="estimator-bank" data-bank="dbs" data-selected="false" href="https://www.dbs.com.tw/personal-zh/rates/foreign-exchange-rates.page" target="_blank" rel="noopener noreferrer" aria-label="星展銀行：切換試算銀行並開啟官方即期匯率（新分頁）">星展銀行 ↗</a>
+            <a class="estimator-bank" data-bank="ctbc" data-selected="false" href="https://www.ctbcbank.com/twrbo/zh_tw/dep_index/dep_ratequery/dep_foreign_rates.html" target="_blank" rel="noopener noreferrer" aria-label="中國信託：切換試算銀行並開啟官方即期匯率（新分頁）">中國信託 ↗</a>
           </div>
-          <a id="calcBankLink" class="estimator-rate-link" href="https://rate.bot.com.tw/xrt?Lang=zh-TW" target="_blank" rel="noopener noreferrer">查看臺灣銀行官方即期匯率 ↗</a>
+          <p class="estimator-help" style="margin:0 0 13px">按銀行名稱會在新分頁開啟官方匯率，同時選定試算銀行；查到 USD 或 ZAR 的即期買入／賣出後，再填入下方欄位。</p>
           <div class="estimator-fields">
             <div class="estimator-field">
               <label for="calcSpotSell">投入換匯｜即期賣出（TWD／原幣 1 元）</label>
@@ -992,9 +994,7 @@ function setEstimatorBank(next){
   estimatorBank=next;
   $('calcSpotSell').value=estimatorRates[estimatorCurrency][next].sell;
   $('calcSpotBuy').value=estimatorRates[estimatorCurrency][next].buy;
-  document.querySelectorAll('.estimator-bank').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.bank===next)));
-  $('calcBankLink').href=ESTIMATOR_BANKS[next].url;
-  $('calcBankLink').textContent=`查看${ESTIMATOR_BANKS[next].name}官方即期匯率 ↗`;
+  document.querySelectorAll('.estimator-bank').forEach(b=>b.dataset.selected=String(b.dataset.bank===next));
   updateEstimator();
 }
 function selectEstimatorFund(isin){
