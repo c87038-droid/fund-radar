@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "checkedAt": "2026-11-27T09:28:18+08:00",
+  "checkedAt": "2026-11-27T09:52:04+08:00",
   "funds": {
     "LU0820561818": {
       "nav": 7.7458,
@@ -952,12 +952,12 @@
       "dividendStatus": "found"
     },
     "LU3047255321": {
-      "nav": 10.64,
-      "navDate": "2026-11-25",
-      "navSource": "集保境外基金公開資料",
-      "navSourceUrl": "",
+      "nav": 10.87,
+      "navDate": "2026-11-26",
+      "navSource": "MoneyDJ 基金專頁（備援，非基金公司官方）",
+      "navSourceUrl": "https://m.moneydj.com/b1.aspx?a=FTZA67",
       "navStatus": "found",
-      "navDelayedDays": 2,
+      "navDelayedDays": 1,
       "navMessage": "",
       "dividends": [
         {
@@ -1348,7 +1348,7 @@
     },
     "LU3047255321": {
       "ok": true,
-      "navDate": "2026-11-25",
+      "navDate": "2026-11-26",
       "url": "https://m.moneydj.com/b1.aspx?a=FTZA67"
     }
   }
