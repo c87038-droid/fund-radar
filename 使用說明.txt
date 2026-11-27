@@ -1,19 +1,14 @@
-我的基金雷達｜預估配息銀行按鈕一鍵直達版（2026-11-27）
+基金雷達｜首頁移除重複按鈕
 
-修正內容：
-1. 「預估配息試算」中的臺灣銀行、星展銀行、中國信託三個按鈕，改為點一下直接在新分頁開啟各自官方匯率頁。
-2. 點擊銀行時，試算頁也會同步切換成該銀行的匯率輸入欄位；切換回原銀行可取回當頁先前輸入的數字。
-3. 刪除三個銀行按鈕下面重複的「查看銀行官方即期匯率」連結。
-4. 銀行匯率仍需自行對照官方即期買入／賣出欄位填入；網站不自動擷取銀行匯率。
-5. 11 檔基金、配息試算公式及首頁、匯率查詢獨立頁面均不變。
+此次修改：只移除首頁 Logo 下方的三個重複導覽按鈕（基金觀察清單、預估配息試算、即期匯率查詢）。
+首頁「我的基金觀察清單」標題右側的功能按鈕全部保留：預估配息試算、即期匯率查詢、下載 Excel、重新讀取雲端資料。
+其他 11 檔基金、基金資料、配息試算程式、favicon、GitHub 部署設定未更動。
 
-更新方式：
-1. 解壓縮 ZIP。
-2. 到 https://github.com/c87038-droid/fund-radar
-3. 只更新根目錄的 estimate.html（不可上傳至子目錄）。
-4. Commit changes 後，等待 GitHub Actions 部署成功。
-5. 開啟 https://c87038-droid.github.io/fund-radar/estimate.html，按 Ctrl+F5 重新整理。
+GitHub 更新步驟
+1. 解壓縮本檔案。
+2. 前往 https://github.com/c87038-droid/fund-radar
+3. 僅上傳 index.html，取代儲存庫根目錄同名檔案；不要刪除 estimate.html 或 fx.html。
+4. 按 Commit changes，並確認 GitHub Actions 發布成功。
+5. 按 Ctrl+F5 重新整理 https://c87038-droid.github.io/fund-radar/
 
-測試說明：
-已驗證 HTML 連結、JavaScript 語法、銀行切換狀態及原匯率輸入保留。
-銀行官網在用戶瀏覽器是否允許正常開啟，仍視銀行系統與網路狀態而定。
+備註：不需修改 .github/workflows/update-and-deploy.yml。
