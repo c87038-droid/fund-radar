@@ -332,6 +332,29 @@ a{color:#086e84}
  .page-fx .fx-title h2{font-size:24px}
 }
 
+
+/* 即期匯率頁：將返回按鈕移出標題說明的文字行，避免遮字。 */
+.page-fx .fx-return-row{
+  display:flex;
+  justify-content:flex-end;
+  margin:18px 0 8px;
+  clear:both;
+}
+.page-fx .fx-return-row .btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:44px;
+  padding:10px 16px;
+  line-height:1.4;
+  text-decoration:none;
+  white-space:normal;
+}
+.page-fx .fx-bank-links{margin-top:16px;}
+@media (max-width:600px){
+  .page-fx .fx-return-row{justify-content:stretch;margin:16px 0 8px;}
+  .page-fx .fx-return-row .btn{width:100%;}
+}
 </style>
 
 </head>
@@ -474,8 +497,10 @@ a{color:#086e84}
       <div>
         <h2 id="fxTitle">即期匯率查詢</h2>
         <p>選擇下方銀行即可前往官網查看美元 USD 或南非幣 ZAR 的即期買進、賣出匯率；銀行網站將在新分頁開啟。</p>
-        <a href="index.html#watchlist" class="btn">← 返回我的基金觀察清單</a>
+      </div>
     </div>
+    <div class="fx-return-row">
+      <a href="index.html#watchlist" class="btn">← 返回我的基金觀察清單</a>
     </div>
     <div class="fx-bank-links">
       <a class="fx-direct-button" href="https://rate.bot.com.tw/xrt?Lang=zh-TW" target="_blank" rel="noopener noreferrer">前往台灣銀行即期匯率查詢 ↗</a>
