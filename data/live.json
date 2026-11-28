@@ -1,14 +1,14 @@
 {
   "schemaVersion": 2,
-  "checkedAt": "2026-11-28T00:21:15+08:00",
+  "checkedAt": "2026-11-28T10:24:23+08:00",
   "funds": {
     "LU0820561818": {
-      "nav": 7.7458,
-      "navDate": "2026-11-25",
-      "navSource": "集保境外基金公開資料",
-      "navSourceUrl": "",
+      "nav": 7.8548,
+      "navDate": "2026-11-27",
+      "navSource": "MoneyDJ 基金專頁（備援，非基金公司官方）",
+      "navSourceUrl": "https://m.moneydj.com/b1.aspx?a=TLZ64",
       "navStatus": "found",
-      "navDelayedDays": 3,
+      "navDelayedDays": 1,
       "navMessage": "",
       "dividends": [
         {
@@ -109,12 +109,12 @@
       "dividendStatus": "found"
     },
     "LU1883841964": {
-      "nav": 310.13,
-      "navDate": "2026-11-26",
+      "nav": 309.6,
+      "navDate": "2026-11-27",
       "navSource": "MoneyDJ 基金專頁（備援，非基金公司官方）",
       "navSourceUrl": "https://m.moneydj.com/b1.aspx?a=PIZC5",
       "navStatus": "found",
-      "navDelayedDays": 2,
+      "navDelayedDays": 1,
       "navMessage": "",
       "dividends": [
         {
@@ -172,6 +172,11 @@
       ],
       "navHistory": [
         {
+          "navDate": "2026-11-26",
+          "nav": 310.13,
+          "dataOrigin": "open-data"
+        },
+        {
           "navDate": "2026-11-25",
           "nav": 309.89,
           "dataOrigin": "open-data"
@@ -215,12 +220,12 @@
       "dividendStatus": "found"
     },
     "LU1075101847": {
-      "nav": 707.13,
-      "navDate": "2026-11-25",
+      "nav": 708.89,
+      "navDate": "2026-11-26",
       "navSource": "集保境外基金公開資料",
       "navSourceUrl": "",
       "navStatus": "found",
-      "navDelayedDays": 3,
+      "navDelayedDays": 2,
       "navMessage": "",
       "dividends": [
         {
@@ -262,6 +267,11 @@
         }
       ],
       "navHistory": [
+        {
+          "navDate": "2026-11-26",
+          "nav": 708.89,
+          "dataOrigin": "open-data"
+        },
         {
           "navDate": "2026-11-25",
           "nav": 707.13,
@@ -412,12 +422,12 @@
       "dividendStatus": "found"
     },
     "LU2023250330": {
-      "nav": 7.8538,
-      "navDate": "2026-11-25",
-      "navSource": "集保境外基金公開資料",
-      "navSourceUrl": "",
+      "nav": 7.9643,
+      "navDate": "2026-11-27",
+      "navSource": "MoneyDJ 基金專頁（備援，非基金公司官方）",
+      "navSourceUrl": "https://m.moneydj.com/b1.aspx?a=TLZF9",
       "navStatus": "found",
-      "navDelayedDays": 3,
+      "navDelayedDays": 1,
       "navMessage": "",
       "dividends": [
         {
@@ -609,12 +619,12 @@
       "dividendStatus": "found"
     },
     "LU2859284783": {
-      "nav": 64.92,
-      "navDate": "2026-11-25",
-      "navSource": "集保境外基金公開資料",
-      "navSourceUrl": "",
+      "nav": 66.04,
+      "navDate": "2026-11-27",
+      "navSource": "MoneyDJ 基金專頁（備援，非基金公司官方）",
+      "navSourceUrl": "https://m.moneydj.com/b1.aspx?a=ALBT8",
       "navStatus": "found",
-      "navDelayedDays": 3,
+      "navDelayedDays": 1,
       "navMessage": "",
       "dividends": [
         {
@@ -717,8 +727,8 @@
     "LU1900986214": {
       "nav": 127.182,
       "navDate": "2026-11-26",
-      "navSource": "MoneyDJ 基金專頁（備援，非基金公司官方）",
-      "navSourceUrl": "https://m.moneydj.com/b1.aspx?a=PYZW3",
+      "navSource": "集保境外基金公開資料",
+      "navSourceUrl": "",
       "navStatus": "found",
       "navDelayedDays": 2,
       "navMessage": "",
@@ -914,6 +924,11 @@
       ],
       "navHistory": [
         {
+          "navDate": "2026-11-26",
+          "nav": 127.182,
+          "dataOrigin": "open-data"
+        },
+        {
           "navDate": "2026-11-25",
           "nav": 125.6752,
           "dataOrigin": "open-data"
@@ -957,12 +972,12 @@
       "dividendStatus": "found"
     },
     "LU3047255321": {
-      "nav": 10.87,
-      "navDate": "2026-11-26",
+      "nav": 10.94,
+      "navDate": "2026-11-27",
       "navSource": "MoneyDJ 基金專頁（備援，非基金公司官方）",
       "navSourceUrl": "https://m.moneydj.com/b1.aspx?a=FTZA67",
       "navStatus": "found",
-      "navDelayedDays": 2,
+      "navDelayedDays": 1,
       "navMessage": "",
       "dividends": [
         {
@@ -1118,6 +1133,11 @@
       ],
       "navHistory": [
         {
+          "navDate": "2026-11-26",
+          "nav": 10.87,
+          "dataOrigin": "open-data"
+        },
+        {
           "navDate": "2026-11-25",
           "nav": 10.64,
           "dataOrigin": "open-data"
@@ -1161,12 +1181,12 @@
       "dividendStatus": "found"
     },
     "LU2110300469": {
-      "nav": 6.6931,
-      "navDate": "2026-11-25",
+      "nav": 6.6978,
+      "navDate": "2026-11-26",
       "navSource": "集保境外基金公開資料",
       "navSourceUrl": "",
       "navStatus": "found",
-      "navDelayedDays": 3,
+      "navDelayedDays": 2,
       "navMessage": "",
       "dividends": [
         {
@@ -1208,6 +1228,11 @@
         }
       ],
       "navHistory": [
+        {
+          "navDate": "2026-11-26",
+          "nav": 6.6978,
+          "dataOrigin": "open-data"
+        },
         {
           "navDate": "2026-11-25",
           "nav": 6.6931,
@@ -1251,7 +1276,7 @@
     "overseas_nav": {
       "ok": true,
       "message": "",
-      "rows": 23459
+      "rows": 22285
     },
     "overseas_info": {
       "ok": true,
@@ -1287,12 +1312,12 @@
   "navBackupDetails": {
     "LU0820561818": {
       "ok": true,
-      "navDate": "2026-11-25",
+      "navDate": "2026-11-27",
       "url": "https://m.moneydj.com/b1.aspx?a=TLZ64"
     },
     "LU2023250330": {
       "ok": true,
-      "navDate": "2026-11-25",
+      "navDate": "2026-11-27",
       "url": "https://m.moneydj.com/b1.aspx?a=TLZF9"
     },
     "LU2347655073": {
@@ -1338,12 +1363,12 @@
     },
     "LU2859284783": {
       "ok": true,
-      "navDate": "2026-11-25",
+      "navDate": "2026-11-27",
       "url": "https://m.moneydj.com/b1.aspx?a=ALBT8"
     },
     "LU1883841964": {
       "ok": true,
-      "navDate": "2026-11-26",
+      "navDate": "2026-11-27",
       "url": "https://m.moneydj.com/b1.aspx?a=PIZC5"
     },
     "LU1900986214": {
@@ -1353,7 +1378,7 @@
     },
     "LU3047255321": {
       "ok": true,
-      "navDate": "2026-11-26",
+      "navDate": "2026-11-27",
       "url": "https://m.moneydj.com/b1.aspx?a=FTZA67"
     }
   }
